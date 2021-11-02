@@ -1,0 +1,42 @@
+* Scopes Language
+
+https://github.com/radgeRayden/scopes-snippets
+
+
+** Exploratory Functionality
+
+On the REPL the help command can tell you the signature of functions:
+
+#+begin_src scopes
+  help print
+#+end_src
+
+
+** Basic Control Flow
+
+*** Loops
+
+The fundamental loop in scopes is very general, but maybe not exactly
+what you are used to from a langauge like Python.
+
+Scopes does provide these comfy loops though and its very satisfying.
+
+**** For-Loop
+
+Here is a basic for loop like you would find in python:
+
+#+begin_src scopes :tangle _bin/loop_range-forloop.sc
+  for i in (range 10)
+      print i
+#+end_src
+
+
+You can loop over the language level lists, but they need to be
+"quoted" by placing a single apostrophe ~'~ at the beginning of the
+list just like in other Scheme languages. Otherwise it will try to
+call the function ~0~ on arguments ~1~ and ~2~.
+
+#+begin_src scopes :tangle _bin/loop_forloop.sc
+  for i in '(0 1 2)
+      print i
+#+end_src
