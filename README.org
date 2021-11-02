@@ -3,16 +3,68 @@
 https://github.com/radgeRayden/scopes-snippets
 
 
-** Exploratory Functionality
+** Prelude
 
-On the REPL the help command can tell you the signature of functions:
+Scopes programs are text files ending with the file extension ~.sc~.
+
+If you have a file you can run it on the command line like:
+
+#+begin_src sh
+scopes file.sc
+#+end_src
+
+You can also use the interpreter (typically called a REPL):
+
+#+begin_src sh
+scopes
+#+end_src
+
+On the REPL the help command can tell you the signature of functions,
+where you can see for yourself:
 
 #+begin_src scopes
   help print
 #+end_src
 
+** Printing Output
+
+What language is complete without a print statement!
+
+#+begin_src scopes :tangle _bin/print1.sc
+  print "Hello World!"
+#+end_src
+
+The print statement takes a variable number of arguments, just like in
+Python:
+
+#+begin_src scopes :tangle _bin/print2.sc
+  print "Hello" "World!"
+#+end_src
+
+** Variable Assignment
+
+
 
 ** Basic Control Flow
+
+*** Conditionals
+
+
+
+Many languages have more advanced features where they let you use
+things like "ternary operators" to assign to values based on a small
+conditional. This is quite beautiful in scopes:
+
+#+begin_src scopes :tangle _bin/conditional_assignment.sc
+  let b = 10
+  let a =
+      if (b < 100)
+          b
+      else
+          100
+  print a
+#+end_src
+
 
 *** Loops
 
@@ -39,4 +91,70 @@ call the function ~0~ on arguments ~1~ and ~2~.
 #+begin_src scopes :tangle _bin/loop_forloop.sc
   for i in '(0 1 2)
       print i
+#+end_src
+
+**** While-Loop
+
+#+begin_src scopes :tangle _bin/loop_whileloop.sc
+  local i = 0
+  while (i < 5)
+      print i
+      i += 1
+#+end_src
+
+
+**** General Loop
+
+The general loop has a few more requirements but is more flexible.
+
+There should be:
+
+1. A path to "repeat" the loop
+2. A path to break out of the loop
+
+#+begin_src scopes :tangle _bin/loop_loop-A.sc
+  loop (a = 0)
+      print a
+      if (a < 10)
+          repeat (a + 1)
+      else
+          break a
+#+end_src
+
+
+Technically the ~repeat~ is redundant and a bare value at the end of a
+scope will "return" it and continue the loop.
+
+#+begin_src scopes :tangle _bin/loop_loop-B.sc
+  loop (a = 0)
+      print a
+      if (a < 10)
+          a + 1
+      else
+          break a
+#+end_src
+
+You do need the break though, or it won't compile as this will always
+be an infinite loop.
+
+
+** Type Casting
+
+TODO:
+
+- ~imply~
+- ~as~
+
+
+** Including C Functions
+
+#+begin_src scopes
+
+  let printf =
+      do
+          let header = (include "stdio.h")
+          header.extern.printf
+
+  printf "hello\n"
+
 #+end_src
