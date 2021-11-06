@@ -48,6 +48,19 @@ throw parentheses around everything and work your way back.
 Comments are lines and indentation blocks starting with a ~#~. Symbols
 are not part of the parse tree.
 
+The ~;~ and ~,~ characters are also reserved by the SLN syntax, but
+this author doesn't think they are necessary to understand and write
+the code. They are more used to get around a few gnarly parts of the
+space and parens syntax or just to make a few things nicer.
+
+The ~;~ is the "list separator" and is similar to the "statement
+separator" of imperative languages like C/C++. In Python this would
+just be the "newline" of having commands run in order, for which the
+~;~ character can also be used to put them on a single line.
+
+The ~,~ character is a list separator which can be used without
+whitespace (or with too..) (see Lists section)
+
 There are 5 types of elements in SLN which will be discussed more in
 the primitives section.
 
@@ -78,9 +91,9 @@ where you can see for yourself:
   help print
 #+end_src
 
-** Some Things to Keep in Mind
+*** Some Things to Keep in Mind
 
-*** Keywords & Symbols
+**** Keywords & Symbols
 
 In scopes there are no proper "keywords" like in most languages in the
 sense that there is a compiler or interpreter that is hardcoded to
@@ -90,7 +103,20 @@ when approaching the more advanced features.
 
 # TODO: explain symbols
 
-** Printing Output
+
+**** Style Choices
+
+I don't pay attention too much to style here except that it should
+look decent and be easy to copy-paste into REPL in one line if
+possible.
+
+
+** Level 1: What you already know, just Scoped
+
+In this section we will cover the concepts that are basically the same
+between a scripting language like Python and Scopes.
+
+*** Printing Output
 
 What language is complete without a print statement!
 
@@ -111,9 +137,9 @@ detail later.
 
 We also show the use of comments in the last example
 
-** Primitives & Simple Expressions
+*** Primitives & Simple Expressions
 
-*** Overview
+**** Overview
 
 Overview:
 
@@ -154,7 +180,7 @@ language.
 - ~"hello"~ is a string
 - ~'()~ is a list
 
-*** Special Values
+**** Special Values
 
 There are a few special values defined in the core language:
 
@@ -162,7 +188,7 @@ There are a few special values defined in the core language:
 - ~null~ :: Which is similar to a null-pointer and is used for pointer
   comparisons.
 
-*** Booleans
+**** Booleans
 
 The two primitive boolean values are given by the two symbols ~true~
 and ~false~.
@@ -178,7 +204,87 @@ true or true
 #+end_src
 
 
-*** Integers & Unsigned Integers
+**** Primitive Strings
+
+Strings are anything surrounded by double-quotes ~"~. As we have
+already seen:
+
+#+begin_src scopes :tangle _bin/primitives_strings.sc
+  print "a string"
+  typeof "stringzz"
+#+end_src
+
+Multiline strings can be given with quadruple-double-quotes and then
+continued using indentation adjusted up to the column after the
+quadruple-double-quotes:
+
+#+begin_src scopes :tangle _bin/primitives_strings.sc
+  """"a multiline string
+      That is continued here
+      Thats 4 (four) double-"quotes"
+#+end_src
+
+Note you don't need to escape the double-quotes in the block since
+multiline blocks are considered "raw", unlike single line strings
+where double-quotes need to be escaped:
+
+#+begin_src scopes :tangle _bin/primitives_strings.sc
+  print "The man said \"hello\""
+#+end_src
+
+Note that unlike languages like Python single quotes (~'~) cannot be used
+for delimiting strings like double-quotes (~"~).
+
+
+#+begin_src scopes :tangle _bin/primitives_strings.sc
+  let multiline = """"a multiline string
+                      That is continued here
+                      Thats 4 (four) double-quotes
+
+  print multiline
+#+end_src
+
+For instance this will raise an error:
+
+#+begin_src scopes
+  let multiline = """"a multiline string
+      That is continued here
+      Thats 4 (four) double-quotes
+#+end_src
+
+To join strings together you can use the ~..~ operator:
+
+#+begin_src scopes :tangle _bin/primitives_strings.sc
+
+  let header = ("Hello" .. " There:")
+
+  print (header .. " Bob")
+#+end_src
+
+You can get the number of characters in a string with the ~countof~
+function:
+
+#+begin_src scopes :tangle _bin/primitives_strings.sc
+  let alphabet = "abcdefghijklmnopqrstuvwxyz"
+
+  print (countof alphabet)
+#+end_src
+
+There are also some slice routines:
+
+- ~slice~ :: Get characters from start to end
+- ~lslice~ :: Get characters to the left of an index
+- ~rslice~ :: Get characters to the right of an index
+
+#+begin_src scopes :tangle _bin/primitives_strings.sc
+  print (slice alphabet 0 3)
+  print (lslice alphabet 3)
+
+  print (slice alphabet 3 (countof alphabet))
+  print (rslice alphabet 3)
+#+end_src
+
+**** Integers & Unsigned Integers
 
 While integers are familiar to Python programmers the family of
 different types around them is unfamiliar. This is because Python
@@ -225,64 +331,173 @@ So that for the number ~8~ as an ~i8~ number you can write:
 #+end_src
 
 
-*** TODO Floating Point Numbers
+**** Floating Point Numbers
 
-*** Primitive Strings
+Floating point numbers ("floats") are similar to integers in
+syntax.
 
-Strings are anything surrounded by double-quotes ~"~. As we have
-already seen:
+| Num Bits              | Symbol |
+|-----------------------+--------|
+| 32 (single precision) | ~f32~  |
+| 64 (double precision) | ~f64~  |
 
-#+begin_src scopes :tangle _bin/primitives_strings.sc
-  print "a string"
+Floats can be gotten from literals by adding a decimal notation or the
+explicit annotation:
+
+#+begin_src scopes :tangle _bin/primitives_floats.sc
+
+  # integer
+  typeof 1
+
+  # floats
+  typeof 1.
+  typeof 1.0
+  typeof 1:f32
+  typeof 1:f64
 #+end_src
 
-Multiline strings can be given with quadruple-double-quotes and then
-continued using indentation adjusted up to the column after the
-quadruple-double-quotes:
+~f32~ is the default for unannotated literals.
 
-#+begin_src scopes :tangle _bin/primitives_strings.sc
-  """"a multiline string
-      That is continued here
-      Thats 4 (four) double-"quotes"
+You can also use scientific notation equivalent to ~1*10^n~:
+
+#+begin_src scopes :tangle _bin/primitives_floats.sc
+  3e4
+  typeof 3e4
+
+  3e-4
+  typeof 3e4
 #+end_src
 
-Note you don't need to escape the double-quotes in the block since
-multiline blocks are considered "raw", unlike single line strings
-where double-quotes need to be escaped:
+There are 3 special values for floating point numbers:
 
-#+begin_src scopes :tangle _bin/primitives_strings.sc
-  print "The man said \"hello\""
+- ~+inf~ or ~inf~ :: positive "infinity"
+- ~-inf~ :: negative "infinity"
+- ~nan~ or ~-nan~ :: not a number
+
+That have special relationships:
+
+#+begin_src scopes :tangle _bin/primitives_floats.sc
+  2. + inf
+  2. * inf
+  2. / inf
+  inf / 2.
+
+  2. // inf
+  # be careful...
+  inf // 2.
+
+  2. + nan
+  2. * nan
+  2. / nan
+  nan / 2.
+  2. // nan
+  # be careful...
+  nan // 2.
+
+
+  inf + inf
+  inf * inf
+  inf / inf
+  inf // inf
+  -inf + inf
+  -inf * inf
+  -inf / inf
+  inf / -inf
+  -inf // inf
 #+end_src
 
-Note that unlike languages like Python single quotes (~'~) cannot be used
-for delimiting strings like double-quotes (~"~).
+The operators are described later in the arithmetic section but should
+be obvious.
 
 
-#+begin_src scopes :tangle _bin/primitives_strings.sc
-  let multiline = """"a multiline string
-                      That is continued here
-                      Thats 4 (four) double-quotes
+**** TODO Lists
 
-  print multiline
+#+begin_src scopes :tangle _bin/primitives_lists.sc
 #+end_src
 
-For instance this will raise an error:
 
-#+begin_src scopes
-  let multiline = """"a multiline string
-      That is continued here
-      Thats 4 (four) double-quotes
+**** TODO Symbols
+
+A full description of symbols will have to wait until level 2 as this
+is Scheme territory. However we introduce them here since they are a
+primitive.
+
+Symbols are just everything that is not a number, string, or list (or
+comment).
+
+Symbols are what you assign values to:
+
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
+  let my_symbol = 0
 #+end_src
 
-TODO: string operators
+Here we are using a symbol syntax compatible with most other
+programming languages (in Python this is called "snake case"). However
+unlike other languages symbols have much more freedom in what their
+syntax is. As long as a symbol can't be parsed as a number, string,
+list, or comment it will be interpreted as a symbol. Also any of the
+brackets or separator symbols are not allowed in symbols
+(i.e. ~#;()[]{},~).
 
-*** Symbols
+That means all of the following are valid:
 
-** Arithmetic
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
+  let =a-Symbol+for_you~ = 0
+
+  let @begin = "itemize"
+
+  let * = 4
+  let two+two = 4
+  let 2+2 = 4
+
+  let `yes^you^can` = "but should you?"
+
+  let valid? = false
+  let !!important!! = "you are under arrest"
+
+#+end_src
+
+Symbols are kind of like strings in that they are a collection of
+characters. You can even get the strings from them (see Casting below):
+
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
+  print ('valid? as string)
+#+end_src
+
+Notice the leading ~'~ of the symbol. This is a special language
+construct which says I want the symbol itself and not the value it
+represents.
+
+Consider what happens without it:
+
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
+  print (valid? as string)
+#+end_src
+
+And in fact you don't even need to have assigned something to a symbol
+for it to "exist":
+
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
+  print ('IHaventBeenAssignedToYet as string)
+#+end_src
 
 
 
-** Variable Assignment
+*** TODO Arithmetic & Mathematics
+
+
+
+**** TODO Special Mathematical Functions and Numbers
+
+|   | symbol |
+|---+--------|
+|   | ~ln~   |
+|   | ~pi~   |
+|   | ~sin~  |
+|   | ~cos~  |
+
+
+*** Variable Assignment
 
 Variables can be assigned to with the ~let~ keyword:
 
@@ -290,11 +505,9 @@ Variables can be assigned to with the ~let~ keyword:
   let name = "Bob"
 #+end_src
 
-** Basic Control Flow
+*** Basic Control Flow
 
-*** Conditionals
-
-
+**** Conditionals
 
 Many languages have more advanced features where they let you use
 things like "ternary operators" to assign to values based on a small
@@ -311,14 +524,14 @@ conditional. This is quite beautiful in scopes:
 #+end_src
 
 
-*** Loops
+**** Loops
 
 The fundamental loop in scopes is very general, but maybe not exactly
 what you are used to from a langauge like Python.
 
 Scopes does provide these comfy loops though and its very satisfying.
 
-**** For-Loop
+***** For-Loop
 
 Here is a basic for loop like you would find in python:
 
@@ -338,7 +551,7 @@ call the function ~0~ on arguments ~1~ and ~2~.
       print i
 #+end_src
 
-**** While-Loop
+***** While-Loop
 
 #+begin_src scopes :tangle _bin/loop_whileloop.sc
   local i = 0
@@ -348,7 +561,7 @@ call the function ~0~ on arguments ~1~ and ~2~.
 #+end_src
 
 
-**** General Loop
+***** General Loop
 
 The general loop has a few more requirements but is more flexible.
 
@@ -383,9 +596,33 @@ You do need the break though, or it won't compile as this will always
 be an infinite loop.
 
 
-** Defining Functions
+*** Type Casting
 
-** Modules
+You can convert types using the ~as~ operator:
+
+#+begin_src scopes :tangle _bin/typecast_as.sc
+  # constant
+  0 as f32
+
+  1.2 as i32
+
+  -1 as u32
+
+  # not constant
+  'a-symbol as string
+#+end_src
+
+Which is a *static cast* and happens at compile time (see caveats above).
+
+
+TODO:
+
+- ~imply~
+
+
+*** Defining Functions
+
+*** Modules
 
 Scopes provides a module system very much like python.
 
@@ -432,37 +669,39 @@ And then import it like:
   hellomod.hello "Bob"
 #+end_src
 
-** TODO More Strings
+*** Errors & Assertions
 
+**** Assertions
 
+Scopes has the common assert function which you can use for quick
+checks of boolean expressions:
 
-** TODO Arrays
+#+begin_src scopes :tangle _bin/errors_assert.sc
+  assert true
 
-** Type Casting
+  assert not false
 
-You can convert types using the ~as~ operator:
-
-#+begin_src scopes :tangle _bin/typecast_as.sc
-  # constant
-  0 as f32
-
-  1.2 as i32
-
-  -1 as u32
-
-  # not constant
-  'a-symbol as string
+  assert (1 == 1)
 #+end_src
 
-Which is a *static cast* and happens at compile time (see caveats above).
+This will raise an error:
+
+#+begin_src scopes
+  assert false
+#+end_src
+
+**** TODO Error Propagation
+
+There is also the familiar ~raise~ and ~try~.
+
+** Level 2: Things you would know if you knew C/C++
+
+*** TODO More Strings
+
+*** TODO Arrays
 
 
-TODO:
-
-- ~imply~
-
-
-** Including C Functions
+*** Including C Functions
 
 You can load a single function:
 
@@ -488,32 +727,21 @@ Or a whole module:
 Note that ~std:io~ is just a symbol and not special syntax. It could
 have been: ~stdio~ or any other valid symbol.
 
-** Errors & Assertions
 
-*** Assertions
-
-Scopes has the common assert function which you can use for quick
-checks of boolean expressions:
-
-#+begin_src scopes :tangle _bin/errors_assert.sc
-  assert true
-
-  assert not false
-
-  assert (1 == 1)
-#+end_src
-
-This will raise an error:
-
-#+begin_src scopes
-  assert false
-#+end_src
-
-*** TODO Error Propagation
-
-There is also the familiar ~raise~ and ~try~.
-
-** TODO Pattern Matching
+*** TODO Pattern Matching
 
 See ~match~
 
+
+** Level 3: For Lisp/Scheme Gurus
+
+In this section we will cover the features that are similar to Lisp
+and Scheme like languages.
+
+Scopes is after all a Scheme-like language.
+
+
+** Level 4: Going super-saiyan, Scopes trick-shots
+
+
+** Level 5: ...
