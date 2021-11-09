@@ -1,0 +1,64 @@
+** Level 2: Things you would know if you knew C/C++
+
+*** TODO More Strings
+
+*** TODO Arrays
+
+
+*** Including C Functions
+
+You can load a single function:
+
+#+begin_src scopes :tangle _bin/externc1.sc
+  let printf =
+      do
+          let header = (include "stdio.h")
+          header.extern.printf
+
+  printf "hello\n"
+#+end_src
+
+
+Or a whole module:
+
+#+begin_src scopes :tangle _bin/externc2.sc
+  let std:io =
+      (include "stdio.h") . extern
+
+  std:io.printf "hello\n"
+#+end_src
+
+Note that ~std:io~ is just a symbol and not special syntax. It could
+have been: ~stdio~ or any other valid symbol.
+
+
+*** TODO Pattern Matching
+
+See ~match~
+
+
+** Level 3: For Lisp/Scheme Gurus
+
+In this section we will cover the features that are similar to Lisp
+and Scheme like languages.
+
+Scopes is after all a Scheme-like language.
+
+
+** Level 4: Going super-saiyan, Scopes trick-shots
+
+
+*** Code Transformation
+
+(From the unpublished docs)
+
+| Order | Stage       | From                    | To                 |
+|-------+-------------+-------------------------+--------------------|
+|     1 | Parsing     | Data Interchange Format | S-Expression Tree  |
+|     2 | Expansion   | S-Expression Tree       | Untyped Scopes AST |
+|     3 | Checking    | Untyped Scopes AST      | Typed Scopes IL    |
+|     4 | Translation | Typed Scopes IL         | LLVM IR / SPIR-V   |
+|     5 | Execution   | LLVM IR / SPIR-V        | Program Output     |
+
+
+** Level 5: ...
