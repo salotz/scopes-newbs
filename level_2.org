@@ -1,5 +1,6 @@
 ** Level 2: Things you would know if you knew C/C++
 
+*** TODO Operator Overload
 *** TODO More Strings
 
 *** TODO Arrays
@@ -42,10 +43,6 @@ library:
 #+end_src
 
 
-*** TODO Pattern Matching
-
-See ~match~
-
 
 ** Level 3: For Lisp/Scheme Gurus
 
@@ -54,6 +51,26 @@ and Scheme like languages.
 
 Scopes is after all a Scheme-like language.
 
+*** TODO Pattern Matching
+
+See ~match~
+
+
+*** TODO
+
+From the ~meta.md~ file in the unpublished docs.
+
+- [ ] macros
+- [ ] pattern matching
+- [ ] debugging
+- [ ] infix macros
+- [ ] symbol prefix macros
+- [ ] list hooks
+- [ ] symbol hooks
+- [ ] using macro libraries
+- [ ] quotes
+- [ ] meta-evaluation
+- [ ] conditional translation
 
 ** Level 4: Going super-saiyan, Scopes trick-shots
 

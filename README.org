@@ -143,7 +143,7 @@ detail later.
 We also show the use of comments in the last example
 
 
-*** Variable Assignment
+*** Variable Assignment & Binding
 
 Variables can be assigned to with the ~let~ syntax:
 
@@ -165,6 +165,9 @@ functions.
 
 For many things an infix operator is preferable because it mirrors the
 common notations such as in mathematics.
+
+In Scopes you can use both! And you can also overload operators
+although we won't talk about that until Level 2.
 
 We will take the ~+~ and ~*~ operators to demonstrate the point
 (arithmetic and numbers described in detail below, but nothing here
@@ -483,6 +486,8 @@ be obvious.
 
 **** Symbols
 
+***** Defining Symbols
+
 A full description of symbols will have to wait until level 2 as this
 is Scheme territory. However we introduce them here since they are a
 primitive.
@@ -543,23 +548,56 @@ However the following are fine:
   let hel`lo` = 0
 #+end_src
 
-Symbols are kind of like strings in that they are a collection of
-characters. You can even get the strings from them (see Type Casting
-below):
+The reason for this is is so that Scopes can distinguish between the
+value a symbol is bound to (like a variable name) and the structure of
+the symbol itself (i.e. the characters in the symbol).
+
+***** "Quoting" & Symbols
+
+This is our first encounter with a concept in the Lisp/Scheme world
+called "quoting".
+
+Lets bind a value to a symbol first:
 
 #+begin_src scopes :tangle _bin/primitives_symbols.sc
-  print ('valid? as string)
+  let message = "Hello"
 #+end_src
 
-Notice the leading ~'~ of the symbol. This is a special language
-construct which says I want the symbol itself and not the value it
-represents.
+We should already understand that printing ~message~ will print the
+string we assigned/bound to it:
 
-Consider what happens without it:
-
-#+begin_src scopes
-  print (valid? as string)
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
+  print message
 #+end_src
+
+However if we *quote* the ~message~ symbol we get what looks like a
+string "message":
+
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
+  print 'message
+#+end_src
+
+In some sense it really is a "string" in that it is a sequence of
+UTF-8 characters (with some restrictions).
+
+We can even get the string of the symbol as a real string:
+
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
+  'message as string
+#+end_src
+
+Its kind of like in English where you put quotes around a word to
+signify the word itself (or in the case of "scare quotes" some other
+connotation other than the typical meaning).
+
+Just to hammer this home that it really is a string you can take the
+symbol string and bind it to another symbol:
+
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
+  let message-symbol-string = ('message as string)
+#+end_src
+
+Meta...
 
 And in fact you don't even need to have assigned something to a symbol
 for it to "exist":
@@ -569,15 +607,13 @@ for it to "exist":
   'hello
 #+end_src
 
-Wait.. but I thought you said that we couldn't have a ~'~ in a symbol?
+This ~'~ character is called a "sugar-quote" and is used for syntax
+macros. There is another kind of quote called a "spice-quote" using
+the ~`~ character which works at a deeper level.
 
-Above we were assigning values to symbols and because the ~'~ (and the
-~`~) character have priveleged roles in the language there are
-restrictions on them being in symbols themselves.
-
-A full explanation is quite involved and is really a topic for Level 3
-and any Lisper or Schemer will already know about this (except for the
-~`~) so we will delay a more complete explanation until then.
+A full explanation of the implications of the sugar-quote won't be
+continued until Level 3. The spice-quote will be discussed at Level 4
+as it is a novel concept in Scopes.
 
 I will leave it here that you can use the special function
 ~sc_parse_from_string~ to see for yourself that these special
@@ -600,6 +636,22 @@ functions in the language:
   sc_parse_from_string "'hel'lo"
 
 #+end_src
+
+***** Operating On Symbols
+
+As we saw above we can cast them to strings:
+
+#+begin_src scopes
+  print ('newsymbol as string)
+#+end_src
+
+But we can also compare symbols like strings too:
+
+#+begin_src scopes
+  'newsymbol == 'newsymbol
+  'newsymbol != 'othersymbol
+#+end_src
+
 
 **** Lists
 
@@ -759,6 +811,13 @@ There is also a similar concatenation operator to strings:
   '(5 6) .. '(7 8)
 #+end_src
 
+Lists can also be compared for equality:
+
+#+begin_src scopes :tangle _bin/primitives_lists.sc
+  '(0 1) == '(0 1)
+  '(0) == '(1)
+#+end_src
+
 ***** Some Common Listy Structures
 
 Having only a list may seem kind of limiting; and it is in order to
@@ -823,6 +882,8 @@ And to add to an alist you would use cons:
 #+begin_src scopes :tangle _bin/primitives_lists.sc
   let alist = (cons '("dan" 15) alist)
 #+end_src
+
+
 
 *** TODO Arithmetic & Mathematics
 
@@ -991,6 +1052,7 @@ scope will "return" it and continue the loop.
 You do need the break though, or it won't compile as this will always
 be an infinite loop.
 
+**** TODO Blocks
 
 *** Type Casting
 
@@ -1080,7 +1142,7 @@ And then import it like:
   hellomod.hello "Bob"
 #+end_src
 
-*** Errors & Assertions
+*** Exceptions, Errors, & Assertions
 
 **** Assertions
 
@@ -1107,3 +1169,34 @@ There is also the familiar ~raise~ and ~try~.
 
 
 
+
+*** TODO
+
+From the ~lang.md~ outline in the unpublished docs:
+
+- [ ] functions
+- [-] bindings
+  - [X] let
+  - [ ] bind
+- [ ] blocks
+- [X] conditionals
+- [X] loops
+- [ ] iterators
+- [ ] streams
+- [X] modules
+- [ ] scopes
+- [X] numbers
+- [-] strings
+  - [X] builtin
+  - [ ] String
+  - [ ] rawstring
+- [ ] Tables
+- [X] Lists
+- [X] Infix
+  - [X] basics
+- [ ] dot notation
+- [X] number formats
+- [ ] splicing
+- [ ] exception handling
+- [ ] types
+- [ ] classes
