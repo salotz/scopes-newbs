@@ -22,14 +22,24 @@ You can load a single function:
 Or a whole module:
 
 #+begin_src scopes :tangle _bin/externc2.sc
-  let std:io =
+  let c:stdio =
       (include "stdio.h") . extern
 
-  std:io.printf "hello\n"
+  c:stdio.printf "hello\n"
 #+end_src
 
-Note that ~std:io~ is just a symbol and not special syntax. It could
+Note that ~c:stdio~ is just a symbol and not special syntax. It could
 have been: ~stdio~ or any other valid symbol.
+
+
+If you have a newer version it is also included in the standard
+library:
+
+#+begin_src scopes :tangle _bin/externc2.sc
+  let c:stdio = (import C.stdio)
+  let c:string = (import C.string)
+  let c:stdlib = (import C.stdlib)
+#+end_src
 
 
 *** TODO Pattern Matching
@@ -52,13 +62,13 @@ Scopes is after all a Scheme-like language.
 
 (From the unpublished docs)
 
-| Order | Stage       | From                    | To                 |
-|-------+-------------+-------------------------+--------------------|
-|     1 | Parsing     | Data Interchange Format | S-Expression Tree  |
-|     2 | Expansion   | S-Expression Tree       | Untyped Scopes AST |
-|     3 | Checking    | Untyped Scopes AST      | Typed Scopes IL    |
-|     4 | Translation | Typed Scopes IL         | LLVM IR / SPIR-V   |
-|     5 | Execution   | LLVM IR / SPIR-V        | Program Output     |
+| Order | Stage       | From                    | To                 | Macro System |
+|-------+-------------+-------------------------+--------------------+--------------|
+|     1 | Parsing     | Data Interchange Format | S-Expression Tree  |              |
+|     2 | Expansion   | S-Expression Tree       | Untyped Scopes AST | Sugar        |
+|     3 | Checking    | Untyped Scopes AST      | Typed Scopes IL    | Spice        |
+|     4 | Translation | Typed Scopes IL         | LLVM IR / SPIR-V   |              |
+|     5 | Execution   | LLVM IR / SPIR-V        | Program Output     |              |
 
 
 ** Level 5: ...
