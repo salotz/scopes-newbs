@@ -1,8 +1,13 @@
 * Scopes Programming Language for Scripting Language Users (AKA newbs)
 
+*** Official Resources
+
 - Homepage :: [[http://scopes.rocks]]
 - Project Repository :: https://hg.sr.ht/~duangle/scopes
 - Documentation :: https://scopes.readthedocs.io/en/latest/
+
+
+*** Helpful Links
 
 Some projects & repos using Scopes. These are very useful due to
 sparse documentation:
@@ -29,7 +34,7 @@ In this format words are separated by either whitespace, parentheses
 ~()~ (or brackets too if you want ~[]{}~), and
 newlines-followed-by-indentation (i.e. python style).
 
-Some examples of SLN that are not scopes code but are all equivalent:
+Some examples of SLN that are *NOT* Scopes code but are all equivalent:
 
 #+begin_src scopes
   person
@@ -137,6 +142,63 @@ detail later.
 
 We also show the use of comments in the last example
 
+
+*** Variable Assignment
+
+Variables can be assigned to with the ~let~ syntax:
+
+#+begin_src scopes :tangle _bin/assignment_let.sc
+  let name = "Bob"
+#+end_src
+
+Simple enough. As we will see once we learn about expressions though
+that the right hand side can be much more complex than in most
+languages.
+
+
+*** Operators
+
+In most Lisp/Schemes there are no "operators" in the sense of infix
+notations (i.e. ~arg1 operator arg2~) and only a uniform prefix
+notation (i.e. ~operator arg1 arg2~). Thus unifying operators and
+functions.
+
+For many things an infix operator is preferable because it mirrors the
+common notations such as in mathematics.
+
+We will take the ~+~ and ~*~ operators to demonstrate the point
+(arithmetic and numbers described in detail below, but nothing here
+should surprise you).
+
+We start with an understandable arithmetic expression which is also
+valid Scopes code. There is an order of operations but we write this
+unambiguously for now:
+
+#+begin_src scopes :tangle _bin/operators.sc
+  (0 * 3) + (1 * (4 * 5))
+#+end_src
+
+The equivalent prefix code is:
+
+#+begin_src scopes :tangle _bin/operators.sc
+  (+ (* 0 3) (* 1 (* 4 5)))
+#+end_src
+
+One advantage of prefix code is that for infix expressions like:
+
+#+begin_src scopes :tangle _bin/operators.sc
+  1 + 2 + 3 + 4
+#+end_src
+
+You can write them more simply in a summation type notation:
+
+#+begin_src scopes :tangle _bin/operators.sc
+  (+ 1 2 3 4)
+#+end_src
+
+Functions in prefix notation are also more flexible when you get to
+higher order functional programming.
+
 *** Primitives & Simple Expressions
 
 **** Overview
@@ -193,14 +255,22 @@ There are a few special values defined in the core language:
 The two primitive boolean values are given by the two symbols ~true~
 and ~false~.
 
-Like in Python other values can be interpreted implicitly as
-booleans. This will be discussed in the sections for each primitive.
-
-We have simple boolean logical operators in ~or~ and ~and~:
+We have simple boolean logical operators in ~and~, ~or~, and ~not~:
 
 #+begin_src scopes :tangle _bin/primitives_bool.sc
 true and false
 true or true
+not true
+#+end_src
+
+
+Similar to Python other values can be interpreted implicitly as
+booleans, however unlike in Python not all of them can do this.
+
+#+begin_src scopes :tangle _bin/primitives_bool.sc
+not 0
+not 1
+
 #+end_src
 
 
@@ -374,7 +444,8 @@ There are 3 special values for floating point numbers:
 - ~-inf~ :: negative "infinity"
 - ~nan~ or ~-nan~ :: not a number
 
-That have special relationships:
+That have special relationships (sorry went a little crazy with all of
+the combinations):
 
 #+begin_src scopes :tangle _bin/primitives_floats.sc
   2. + inf
@@ -410,13 +481,7 @@ The operators are described later in the arithmetic section but should
 be obvious.
 
 
-**** TODO Lists
-
-#+begin_src scopes :tangle _bin/primitives_lists.sc
-#+end_src
-
-
-**** TODO Symbols
+**** Symbols
 
 A full description of symbols will have to wait until level 2 as this
 is Scheme territory. However we introduce them here since they are a
@@ -437,7 +502,12 @@ unlike other languages symbols have much more freedom in what their
 syntax is. As long as a symbol can't be parsed as a number, string,
 list, or comment it will be interpreted as a symbol. Also any of the
 brackets or separator symbols are not allowed in symbols
-(i.e. ~#;()[]{},~).
+(i.e. ~#;()[]{},~ from the SLN definition).
+
+Additionally the Scopes language adds some extra restrictions you will
+notice for the ~'~ and ~`~ characters. We will see in a few places
+where ~'~ (~sugar-quote~) gets used in this level, but it will be much
+later that we encounter ~`~ (~spice-quote~).
 
 That means all of the following are valid:
 
@@ -450,15 +520,32 @@ That means all of the following are valid:
   let two+two = 4
   let 2+2 = 4
 
-  let `yes^you^can` = "but should you?"
+  let yes^you^can = "but should you?"
 
   let valid? = false
   let !!important!! = "you are under arrest"
 
 #+end_src
 
+However these will produce errors:
+
+#+begin_src scopes
+let 'hello = 0
+let hell'o = 0
+let hello' = 0
+
+let `hello = 0
+#+end_src
+
+However the following are fine:
+
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
+  let hel`lo` = 0
+#+end_src
+
 Symbols are kind of like strings in that they are a collection of
-characters. You can even get the strings from them (see Casting below):
+characters. You can even get the strings from them (see Type Casting
+below):
 
 #+begin_src scopes :tangle _bin/primitives_symbols.sc
   print ('valid? as string)
@@ -470,7 +557,7 @@ represents.
 
 Consider what happens without it:
 
-#+begin_src scopes :tangle _bin/primitives_symbols.sc
+#+begin_src scopes
   print (valid? as string)
 #+end_src
 
@@ -479,12 +566,265 @@ for it to "exist":
 
 #+begin_src scopes :tangle _bin/primitives_symbols.sc
   print ('IHaventBeenAssignedToYet as string)
+  'hello
+#+end_src
+
+Wait.. but I thought you said that we couldn't have a ~'~ in a symbol?
+
+Above we were assigning values to symbols and because the ~'~ (and the
+~`~) character have priveleged roles in the language there are
+restrictions on them being in symbols themselves.
+
+A full explanation is quite involved and is really a topic for Level 3
+and any Lisper or Schemer will already know about this (except for the
+~`~) so we will delay a more complete explanation until then.
+
+I will leave it here that you can use the special function
+~sc_parse_from_string~ to see for yourself that these special
+characters are just syntax that will get expanded to concrete
+functions in the language:
+
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
+  sc_parse_from_string "hello"
+
+  'hello
+
+  sc_parse_from_string "'hello"
+
+  ''hello
+
+  sc_parse_from_string "''hello"
+
+  sc_parse_from_string "`hello"
+
+  sc_parse_from_string "'hel'lo"
+
+#+end_src
+
+**** Lists
+
+***** Some Context
+
+In scripting languages like Python they often provide a number of
+primitive data structures like lists, tuples, and maps/dictionaries or
+even sets.
+
+These are all very high-level concepts compared to the "structs and
+arrays" of low-level languages like C or C++ (without the standard
+library).
+
+Scopes aims to combine the efficiency and control of languages like
+C/C++ while maintaining a relatively high-level veneer similar to
+Python.
+
+Thus the base language only provides a single seemingly-high-level
+data structure called simply a list.
+
+However, while similar in some aspects to the "list" of Python this
+list is very different in implementation and behavior and actually
+comes from the Scheme/Lisp heritage (LISt Processing).
+
+Describing the full behavior of lists is a topic for Level 3 but here
+we describe some ways that basic lists can be used in place of mutable
+lists and maps from a language like Python.
+
+In Level 2 we will also describe how you can get data structures that
+actually behave like Python lists (i.e. linked-lists),
+maps/dictionaries (i.e. hash-maps) from the standard library. Its
+worth forewarning that in the vast majority of cases you will probably
+want to employ these more classical data structures for performance
+reasons. The lists we are discussing here are flexible in a
+fundamental way but are only practically used in a specific context
+that won't really be elaborated on until Level 3 when we talk about
+syntax macros.
+
+We start with defining a simple list of numbers from 0 to 5 in a few
+different syntax forms:
+
+#+begin_src scopes :tangle _bin/primitives_lists.sc
+  '(0 1 2 3 4 5)
+
+  '(0,1,2, 3, 4 , 5)
+#+end_src
+
+Where we have the normal space delimiter, but also the comma character
+which lets you elide whitespace.
+
+The empty list can be given as:
+
+#+begin_src scopes :tangle _bin/primitives_lists.sc
+  '()
 #+end_src
 
 
+Notice our friend ~sugar-quote~ (~'~) from the Symbols section. You
+only need this on the outermost list when you define nested lists:
+
+#+begin_src scopes :tangle _bin/primitives_lists.sc
+  '(0
+    ("red" "blue" "green")
+    ()
+    10
+  )
+#+end_src
+
+
+Note that to define sublists you do not need another ~'~ character.
+
+***** A Quick But Necessary Tangent: Why the '?
+
+Again this is a topic for Level 3 but I'll give you the gist here.
+
+First try it out without the ~'~:
+
+#+begin_example
+  $0 ► (0 1)
+  <string>:1:1: in fn <string>:1
+      (0 1)
+  <string>:1:1: while checking expression
+      (0 1)
+  error: cannot call value of type i32
+#+end_example
+
+You can see that scopes is trying to call the function ~0~ on the
+parameter ~1~. Thats kind of weird...
+
+In Lisp & Scheme like languages the list is not only a data-structure
+for program data like numbers, strings, etc. but it is also the data
+structure in which the program itself is contained in. This property
+is called homoiconicity because code and data use the same (homo)
+syntax (iconicity). This basically makes it much easier to write
+programs that write other programs since a function can take in a
+piece of language syntax, rearrange it and output something
+else. These constructs are called macros and the practice in general
+is called "metaprogramming".
+
+Observe that even normal looking language syntax can also be a list if
+you ~sugar-quote~ it:
+
+#+begin_src scopes :tangle _bin/primitives_lists.sc
+  '(print "hello")
+#+end_src
+
+This is how "code is data"; although as we saw above data is not
+always code.
+
+This concept doesn't really have a good analog in most scripting
+languages primarily because metaprogramming is something of a
+dangerous and complex feature that requires a lot of sophistication on
+the part of the programmer. And scripting languages are meant to be
+simple and not too complicated for beginner to intermediate
+programmers.
+
+Don't be fooled though. Metaprogramming is an incredibly powerful
+language feature that used correctly can be very useful. Scopes uses
+these features extensively and so we will have to become familiar with
+them. Just not now. Levels 3 and above will deal with them.
+
+Enough metaprogramming I came here to manipulate some data!
+
+***** List Creation & Manipulation
+
+We have already shown a basic way to define lists manually. But you
+can also do this programmatically as well. The operations are a bit
+stripped down in Scheme fashion but its well known that these
+operations can be the foundation for arbitrary other manipulations.
+
+First is the cons function, which is a function taking two values, the
+second of which must be a list. It then returns a new list with the
+first element being the first argument and the rest of the elements
+are the elements of the second (list) argument. An example helps:
+
+#+begin_src scopes :tangle _bin/primitives_lists.sc
+  cons 0 '(0 1)
+  cons '() '(0 1 2)
+#+end_src
+
+Again I won't go reeling into all the mind-expanding implications this
+has here. Lets keep things grounded for now.
+
+Normally in Lisps/Schemes they would have the additional ~car~ and
+~cdr~ functions for taking lists apart. In Scopes we just have the
+opposite of ~cons~; ~decons~.
+
+#+begin_src scopes :tangle _bin/primitives_lists.sc
+  decons '(0 1)
+  decons '(() 0 1 2)
+#+end_src
+
+There is also a similar concatenation operator to strings:
+
+#+begin_src scopes :tangle _bin/primitives_lists.sc
+  .. '(0 1) '(2 3)
+  '(5 6) .. '(7 8)
+#+end_src
+
+***** Some Common Listy Structures
+
+Having only a list may seem kind of limiting; and it is in order to
+maintain simplicity.
+
+The most obvious omission is the lack of any kind of map type.
+
+A common convention in Lisps is to encode maps in lists 2 ways:
+
+- *plist* :: [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Property-Lists.html][Property List]]
+- *alist* :: [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Association-Lists.html][Association List]]
+
+A plist uses an un-nested list where every two elements are
+interpreted as a pair. Keys cannot be repeated (at least if you want
+it to work properly):
+
+#+begin_src scopes :tangle _bin/primitives_lists.sc
+  let plist = '( 
+      "bob" 10
+      "suzy" 12
+      "jill" 8
+  )
+#+end_src
+
+This is often how keyword function arguments are implemented in
+Lisp-like languages.
+
+An alist uses a single level of nesting where key-value pairs are sub
+lists of two elements:
+
+#+begin_src scopes :tangle _bin/primitives_lists.sc
+  let alist = '( 
+      ("bob" 10)
+      ("suzy" 12)
+      ("jill" 8)
+  )
+#+end_src
+
+The more elements you have in your mapping the "better" the
+datastructure you will want roughly in order of the number of
+elements you have:
+
+plist < alist < hash table
+
+Where plists are used for very small numbers of elements (1-20). The
+boundary between alists and hash tables would require some
+benchmarking. If in doubt you should probably use a hash table.
+
+I am unaware of any functions for dealing with these structures in
+Scopes, but I think it helps to understand how these things are used
+in practice since coming from a scripting language these kinds of
+things are not used.
+
+To add key-value pairs to a plist you could use concatenation:
+
+#+begin_src scopes :tangle _bin/primitives_lists.sc
+  let plist = (.. '("dan" 15) plist)
+#+end_src
+
+And to add to an alist you would use cons:
+
+#+begin_src scopes :tangle _bin/primitives_lists.sc
+  let alist = (cons '("dan" 15) alist)
+#+end_src
 
 *** TODO Arithmetic & Mathematics
-
 
 
 **** TODO Special Mathematical Functions and Numbers
@@ -497,32 +837,88 @@ for it to "exist":
 |   | ~cos~  |
 
 
-*** Variable Assignment
-
-Variables can be assigned to with the ~let~ keyword:
-
-#+begin_src scopes :tangle _bin/assignment_let.sc
-  let name = "Bob"
-#+end_src
 
 *** Basic Control Flow
 
-**** Conditionals
+**** Conditionals & Boolean Expressions
 
-Many languages have more advanced features where they let you use
-things like "ternary operators" to assign to values based on a small
-conditional. This is quite beautiful in scopes:
+Boolean expressions are expressions which evaluate to either ~true~ or
+~false~.
 
-#+begin_src scopes :tangle _bin/conditional_assignment.sc
-  let b = 10
-  let a =
-      if (b < 100)
-          b
-      else
-          100
-  print a
+#+begin_src scopes :tangle _bin/conditional_bool-exprs.sc
+  true and true or false
+
+  0 > 3
+
+  "goodbye" != "hello"
 #+end_src
 
+This can be used in combination with the familiar if-else kind of
+syntax:
+
+#+begin_src scopes :tangle _bin/conditional_bool-exprs.sc
+
+  let valid? = true
+
+  if valid? (print "SO TRUEE!!")
+
+
+  let height = 3.3
+
+  let MIN_HEIGHT = 4
+
+  if (height < MIN_HEIGHT)
+      print "You must be " MIN_HEIGHT "ft to ride"
+  else
+      print "Step aboard!"
+
+
+  let color-pick = "red"
+
+  # choose a complementary color
+  let complement =
+      if (color-pick == "blue")
+          "yellow"
+
+      elseif (color-pick == "red")
+          "green"
+
+      elseif (color-pick == "yellow")
+          "purple"
+
+      else
+          "invalid-color"
+
+  if (complement != "invalid-color")
+      print complement "is the complement to" color-pick
+  else
+      print "You did not pick a primary color"
+
+
+#+end_src
+
+Some values can be implicitly interpreted as booleans:
+
+#+begin_src scopes :tangle _bin/conditional_implicit-bool.sc
+  if (not none) (print "boolable")
+
+  if (not 0) (print "boolable")
+  if 1 (print "boolable")
+
+  if inf (print "boolable")
+  if nan (print "boolable")
+#+end_src
+
+As we will see in type casting these values can be explicitly cast as
+bools:
+
+#+begin_src scopes :tangle _bin/conditional_implicit-bool.sc
+  0 as bool
+  1 as bool
+  -1 as bool
+#+end_src
+
+~string~ and ~null~ types cannot be cast to booleans.
 
 **** Loops
 
@@ -620,7 +1016,22 @@ TODO:
 - ~imply~
 
 
-*** Defining Functions
+*** TODO Functions
+
+
+**** Recursion With Functions
+
+Recursion is achieved using ~this-function~:
+
+#+begin_src scopes :tangle _bin/recursion_01.sc
+  fn rec-count (n)
+      print n
+      if (n > 5)
+          return;
+      this-function (n + 1)
+
+  rec-count 0
+#+end_src
 
 *** Modules
 
@@ -694,54 +1105,5 @@ This will raise an error:
 
 There is also the familiar ~raise~ and ~try~.
 
-** Level 2: Things you would know if you knew C/C++
-
-*** TODO More Strings
-
-*** TODO Arrays
 
 
-*** Including C Functions
-
-You can load a single function:
-
-#+begin_src scopes :tangle _bin/externc1.sc
-  let printf =
-      do
-          let header = (include "stdio.h")
-          header.extern.printf
-
-  printf "hello\n"
-#+end_src
-
-
-Or a whole module:
-
-#+begin_src scopes :tangle _bin/externc2.sc
-  let std:io =
-      (include "stdio.h") . extern
-
-  std:io.printf "hello\n"
-#+end_src
-
-Note that ~std:io~ is just a symbol and not special syntax. It could
-have been: ~stdio~ or any other valid symbol.
-
-
-*** TODO Pattern Matching
-
-See ~match~
-
-
-** Level 3: For Lisp/Scheme Gurus
-
-In this section we will cover the features that are similar to Lisp
-and Scheme like languages.
-
-Scopes is after all a Scheme-like language.
-
-
-** Level 4: Going super-saiyan, Scopes trick-shots
-
-
-** Level 5: ...
