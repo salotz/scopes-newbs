@@ -106,9 +106,6 @@ understand certain words as special. In this document we may say
 "keyword" to not overcomplicate things, but just keep that in mind for
 when approaching the more advanced features.
 
-# TODO: explain symbols
-
-
 **** Style Choices
 
 I don't pay attention too much to style here except that it should
@@ -154,6 +151,16 @@ Variables can be assigned to with the ~let~ syntax:
 Simple enough. As we will see once we learn about expressions though
 that the right hand side can be much more complex than in most
 languages.
+
+For one we can do multiple assignments in the same let block:
+
+#+begin_src scopes :tangle _bin/assignment_let.sc
+  let
+      name = "Bob"
+      password = "password"
+      height = 6
+#+end_src
+
 
 
 *** Operators
@@ -887,6 +894,10 @@ And to add to an alist you would use cons:
 
 *** TODO Arithmetic & Mathematics
 
+We have kind of already seen arithmetic above in the section on
+Operators.
+
+
 
 **** TODO Special Mathematical Functions and Numbers
 
@@ -1152,7 +1163,7 @@ checks of boolean expressions:
 #+begin_src scopes :tangle _bin/errors_assert.sc
   assert true
 
-  assert not false
+  assert (not false)
 
   assert (1 == 1)
 #+end_src
