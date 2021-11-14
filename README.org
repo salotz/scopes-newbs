@@ -96,6 +96,12 @@ where you can see for yourself:
   help print
 #+end_src
 
+You can also run shell commands with the ~sh~ command:
+
+#+begin_src scopes
+  sh ls
+#+end_src
+
 *** Some Things to Keep in Mind
 
 **** Keywords & Symbols
