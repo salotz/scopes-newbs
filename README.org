@@ -1,14 +1,5 @@
 * Scopes Programming Language for Scripting Language Users (AKA newbs)
 
-Testing:
-
-#+begin_src scopes
-print "hello"
-#+end_src
-
-#+RESULTS:
-: hello
-
 *** Official Resources
 
 - Homepage :: [[http://scopes.rocks]]
