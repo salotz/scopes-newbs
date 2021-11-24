@@ -1,5 +1,14 @@
 * Scopes Programming Language for Scripting Language Users (AKA newbs)
 
+Testing:
+
+#+begin_src scopes
+print "hello"
+#+end_src
+
+#+RESULTS:
+: hello
+
 *** Official Resources
 
 - Homepage :: [[http://scopes.rocks]]
@@ -1034,7 +1043,6 @@ call the function ~0~ on arguments ~1~ and ~2~.
       i += 1
 #+end_src
 
-
 ***** General Loop
 
 The general loop has a few more requirements but is more flexible.
@@ -1068,6 +1076,13 @@ scope will "return" it and continue the loop.
 
 You do need the break though, or it won't compile as this will always
 be an infinite loop.
+
+
+***** Fold-Loop
+
+
+
+
 
 **** TODO Blocks
 
