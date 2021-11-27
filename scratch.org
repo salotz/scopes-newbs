@@ -1,0 +1,9 @@
+
+
+#+begin_src scopes
+  do
+      print "hello"
+#+end_src
+
+#+RESULTS:
+: hello

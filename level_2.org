@@ -64,6 +64,41 @@ library:
 #+end_src
 
 
+*** Non-standard Libraries
+
+This works for standard libraries. But what about vendored libraries?
+
+Here is a minimal example for loading the cross-platform windowing
+etc. library GLFW:
+
+#+begin_src scopes :tangle _bin/externc_glfw.sc
+  let glfw =
+      include
+          "GLFW/glfw3.h"
+          options
+              # "-v"
+              .. "-I" module-dir "/../_guix/dev/dev/include"
+
+  let glfw-lib-path = (.. module-dir "/../_guix/dev/dev/lib/libglfw.so")
+
+  load-library glfw-lib-path
+
+  run-stage;
+  glfw.extern.glfwInit;
+#+end_src
+
+Here we have to add some options to the ~include~ function for the
+path to search for include files. These options correspond to what the
+clang compiler would expect from the command line.
+
+In this example we installed the packages using the ~guix~ package
+manager in the ~_guix/dev/dev~ directory.
+
+ ~module-dir~ gives the current directory of the module that is
+ executing and doesn't include a trailing slash.
+
+
+
 
 ** Level 3: For Lisp/Scheme Gurus
 
@@ -95,6 +130,75 @@ From the ~meta.md~ file in the unpublished docs.
 
 ** Level 4: Going super-saiyan, Scopes trick-shots
 
+*** Decorators
+
+
+Similar to decorators in Python; Scopes has decorators to remove
+levels of wrapping/indentation.
+
+First is the ~vvv~ decorator. Think of this symbol as downward
+pointing arrows.
+
+#+begin_src scopes :tangle _bin/level_4__vvv.sc
+  vvv bind a
+  12
+
+  print a
+#+end_src
+
+
+This is equivalent to:
+
+#+begin_src scopes :tangle _bin/level_4__vvv.sc
+  let a = 12
+#+end_src
+
+This small example makes it seem stupid, but we are kind of abusing
+the return behavior to make a point. In other languages decorators
+wrap only functions but in Scopes they wrap blocks, where the last
+value of the block is returned.
+
+A demonstrative, but still contrived example:
+
+#+begin_src scopes :tangle _bin/level_4__vvv.sc
+  vvv bind a
+  _ 1 2
+
+  print a
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src scopes
+print "hello"
+#+end_src
+
+#+RESULTS:
+: hello
+
+
+You can even instrument your code with it.
+
+#+begin_src scopes
+  vvv print
+  let
+      a = 3
+      b = 4
+#+end_src
+
+#+RESULTS:
+: 3 4
+
+#+begin_src scopes :tangle _bin/level_4__decorator.sc
+  @@ bind a
+  let c = 12
+
+  print a
+
+  # not an error
+  print c
+#+end_src
 
 *** Code Transformation
 
