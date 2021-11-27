@@ -1,5 +1,26 @@
 ** Level 2: Things you would know if you knew C/C++
 
+*** Type Annotations
+
+The return values of functions can be explicitly typed, and will be
+type-checked:
+
+#+begin_src scopes :tangle _bin/functions_returns.sc
+  fn get-origin ()
+      returning (_: i32 i32)
+
+      _ 0 0
+
+  let a b  = (get-origin)
+
+#+end_src
+
+#+RESULTS:
+
+The ~returning~ statement can occur anywhere in the function
+block. Types will not be cast and the annotation will be strictly
+checked.
+
 *** TODO Operator Overload
 *** TODO More Strings
 

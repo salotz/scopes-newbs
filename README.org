@@ -187,6 +187,17 @@ For one we can do multiple assignments in the same let block:
       height = 6
 #+end_src
 
+#+RESULTS:
+
+You can also do a multiple assignment like so:
+
+#+begin_src scopes
+  let a b c = 1 2 3
+  print "a:" a "b:" b "c:" c
+#+end_src
+
+#+RESULTS:
+: a: 1 b: 2 c: 3
 
 
 *** Operators
@@ -1123,12 +1134,90 @@ TODO:
 
 *** TODO Functions
 
+**** Defining & Calling Functions
+
+As tradition in Scheme-like functional-ish programming languages there
+are a variety of syntaxes for defining functions, due to them being
+higher order and possible anonymous. Here we go over the equivalent
+ways for defining functions to a simple language like Python.
+
+First we can explicitly define a function with the ~fn~ syntax:
+
+#+begin_src scopes :tangle _bin/functions_definitions.sc
+  fn say-hello (name)
+      print "Hello:" name
+
+  # and call them like you would guess
+  say-hello "Bob"
+#+end_src
+
+#+RESULTS:
+: Hello: Bob
+
+
+Functions without any arguments can be called in two ways:
+
+#+begin_src scopes :tangle _bin/functions_definitions.sc
+  fn yell ()
+      print "AHHHHH!!!!"
+
+  (yell)
+  yell;
+#+end_src
+
+#+RESULTS:
+: AHHHHH!!!!
+: AHHHHH!!!!
+
+
+**** Return Values
+
+As in all "blocks" in scopes the last value is returned, as was seen
+in the loop examples. The same is true for functions:
+
+#+begin_src scopes :tangle _bin/functions_returns.sc
+  fn gimme ()
+      "that"
+
+  print (gimme)
+#+end_src
+
+#+RESULTS:
+: that
+
+You can also use a return statement to be explicit:
+
+#+begin_src scopes :tangle _bin/functions_returns.sc
+  fn get-over ()
+      return "here"
+
+  print (get-over)
+#+end_src
+
+#+RESULTS:
+: here
+
+Scopes can perform "unpacking" in a general way similar to "tuple
+unpacking" in Python using the ~_~ prefix operator. This is often used
+to "forward" multiple return values from function returns, rather than
+having to do the destructuring yourself.
+
+#+begin_src scopes :tangle _bin/functions_returns.sc
+  fn args ()
+      _ 1 2 3
+
+  let a b c = (args)
+  print a b c
+#+end_src
+
+#+RESULTS:
+: 1 2 3
 
 **** Recursion With Functions
 
 Recursion is achieved using ~this-function~:
 
-#+begin_src scopes :tangle _bin/recursion_01.sc
+#+begin_src scopes :tangle _bin/functions_recursion_01.sc
   fn rec-count (n)
       print n
       if (n > 5)
@@ -1136,7 +1225,17 @@ Recursion is achieved using ~this-function~:
       this-function (n + 1)
 
   rec-count 0
+
 #+end_src
+
+#+RESULTS:
+: 0
+: 1
+: 2
+: 3
+: 4
+: 5
+: 6
 
 *** Modules
 
@@ -1212,6 +1311,10 @@ There is also the familiar ~raise~ and ~try~.
 
 
 
+
+*** Documentation
+
+- [ ] Docstrings
 
 *** TODO
 
