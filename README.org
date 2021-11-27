@@ -102,6 +102,26 @@ You can also run shell commands with the ~sh~ command:
   sh ls
 #+end_src
 
+**** Bonus: Emacs Org Mode Users
+
+The scopes interpreter is limited in that it has trouble with
+multiline snippets, and scopes uses a lot of newlines. This can become
+a nuisance.
+
+If you use Emacs Org-Mode for writing code snippets you can use the
+[[https://github.com/salotz/ob-scopes][ob-scopes]] module to execute code directly in an org mode notebook
+(in fact this document is such a thing). For example it would look
+like this:
+
+#+begin_example
+  ,#+begin_src scopes
+     print "hello"
+  ,#+end_src
+#+end_example
+
+Then you can evaluate it by placing your cursor in the block and
+running the keybinding ~C-c C-c~.
+
 *** Some Things to Keep in Mind
 
 **** Keywords & Symbols
