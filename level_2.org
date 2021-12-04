@@ -1,5 +1,17 @@
 ** Level 2: Things you would know if you knew C/C++
 
+*** Const
+
+#+begin_src scopes
+  print (constant? 1)
+  local a = 1
+  print (constant? a)
+#+end_src
+
+#+RESULTS:
+: true
+: false
+
 *** Type Annotations
 
 The return values of functions can be explicitly typed, and will be
@@ -111,6 +123,32 @@ Scopes is after all a Scheme-like language.
 
 See ~match~
 
+*** Named Lets
+
+NOTE: Doesn't seem to actually be working in the latest scopes
+versions.
+
+In Scheme there is a common macro called the "named let" which is a
+convenient way to avoid the common pattern of defining internal
+functions for recursion and maintain a clean outer interface.
+
+Scopes also has named lets. One such useful form is to use it as a DIY
+looping construct:
+
+#+begin_src scopes :tangle _bin/level_3__named-let.sc
+
+  fn say-many (n)
+      # here is the "named let". The name is "loop"
+      let loop (i) = 1
+      if (i <= n)
+          print i
+          loop (i + 1)
+
+  say-many 3
+
+#+end_src
+
+#+RESULTS:
 
 *** TODO
 

@@ -21,6 +21,7 @@ def task_tangle():
         ],
 
         'actions' : [
+            "rm -rf _bin",
             "mkdir -p _bin",
             "emacs -Q --batch -l org {dependencies} -f org-babel-tangle"
         ]

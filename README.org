@@ -166,9 +166,16 @@ detail later.
 We also show the use of comments in the last example
 
 
-*** Variable Assignment & Binding
+*** Assignment, Binding, Values & Variables
 
-Variables can be assigned to with the ~let~ syntax:
+In Scopes there is an explicit distinction between variables and
+values. *Variables* are names bound to a place or slot of explicit
+memory that can then be mutated later, whereas *values* are immutable
+once created and cannot be modified in place.
+
+Because Scopes is a semi-functional Scheme-like language values are
+more common than variables, so we describe them first in terms of the
+~let~ syntax:
 
 #+begin_src scopes :tangle _bin/assignment_let.sc
   let name = "Bob"
@@ -191,13 +198,80 @@ For one we can do multiple assignments in the same let block:
 
 You can also do a multiple assignment like so:
 
-#+begin_src scopes
+#+begin_src scopes :tangle _bin/assignment_let.sc
   let a b c = 1 2 3
   print "a:" a "b:" b "c:" c
 #+end_src
 
 #+RESULTS:
 : a: 1 b: 2 c: 3
+
+
+Note that if you reassign a value to the same name this is not
+actually mutating the first value.
+
+#+begin_src scopes :tangle _bin/assignment_let.sc
+  let count = 0
+  let count = (count + 1)
+#+end_src
+
+The storage location (i.e. stack or data-segment (AKA heap)) of the
+value generated from an expression is determined by the kind of
+expression.
+
+You can explicitly choose stack or data-segment by using the ~local~
+or ~global~ mechanisms. 
+
+# For those unaware the "stack" is a data structure used in most
+# programming languages that provides a fast and convenient way to store
+# data in nested scopes that can easily be managed and torn down without
+# manual memory managemeng. For example when a function goes out of
+# scope all of the locally defined memory values can be freed.
+
+# NOTE: not sure this comment about the data-segment is actually
+# correct. It might be another construct that is a part of the final
+# executable binary.
+
+# The "data-segment" is all the memory that is not in the stack and can
+# essentially be accessed in any scope as long as the layout of data is
+# known. This memory must be manually managed since it lacks a mechanism
+# like scoping rules to know when data is no longer needed. It is
+# typically called the "heap" due to the use of a heap datastructure in
+# managing (i.e. *allocating*) this data in C, although any allocating
+# algorithm in principle can be used.
+
+# The "data-segment" part of programming in languages with manual memory
+# management is a large part of what makes them so challenging to use
+# compared to a language with a garbage collector like Python.
+
+#+begin_src scopes
+  local count = 0
+  count = (count + 1)
+  print count
+#+end_src
+
+#+RESULTS:
+
+
+Globals are a little bit different since we would need to talk about
+pointers (which is a topic for Level 2) and you don't actually use
+globals ever. Do you?
+
+#+begin_src scopes
+  global count = 0
+  count = (count + 1)
+  print count
+  print (count as i32)
+  print (typeof count)
+  print (deref count)
+#+end_src
+
+#+RESULTS:
+: PureCast$hatiwudah
+: PureCast$hatiwudah
+: i32
+: 1
+
 
 
 *** Operators
@@ -685,13 +759,13 @@ functions in the language:
 
 As we saw above we can cast them to strings:
 
-#+begin_src scopes
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
   print ('newsymbol as string)
 #+end_src
 
 But we can also compare symbols like strings too:
 
-#+begin_src scopes
+#+begin_src scopes :tangle _bin/primitives_symbols.sc
   'newsymbol == 'newsymbol
   'newsymbol != 'othersymbol
 #+end_src
@@ -929,6 +1003,9 @@ And to add to an alist you would use cons:
 
 
 
+
+
+
 *** TODO Arithmetic & Mathematics
 
 We have kind of already seen arithmetic above in the section on
@@ -1055,6 +1132,28 @@ call the function ~0~ on arguments ~1~ and ~2~.
   for i in '(0 1 2)
       print i
 #+end_src
+
+The for-loop also supports the ~break~ and ~continue~ statements which
+are similar to those in other languages.
+
+#+begin_src scopes
+  for i in (range 10)
+      if (i == 1)
+          print "continuing"
+          continue;
+      elseif (i > 2)
+          print "breaking"
+          break;
+      else
+          print "nothing"
+#+end_src
+
+#+RESULTS:
+: nothing
+: continuing
+: nothing
+: breaking
+
 
 ***** While-Loop
 
@@ -1237,9 +1336,11 @@ Recursion is achieved using ~this-function~:
 : 5
 : 6
 
-*** Modules
+*** Modules, Namespaces, & Scopes
 
 Scopes provides a module system very much like python.
+
+**** Using Modules
 
 You can import installed libraries and use their methods such as:
 
@@ -1263,9 +1364,46 @@ You can also directly bind a loaded module to a symbol:
   let str = (string_mod.String "hello")  
 #+end_src
 
-TODO:
+**** Writing Modules
 
-You can write a module like this in a file ~hellomod.sc~:
+Like in Python a module is implicitly defined for files. Unlike Python
+(and more like Lua) however is that the module only "returns" or
+"exports" the last thing in the file. This behavior is consistent with
+most other constructs in Scopes.
+
+However, it is a little strange at first since a module can return not
+just a "module" or namespace but even single functions or values in
+the simplest case.
+
+So you can export a function like this in the file ~first_mod.sc~:
+
+#+begin_src scopes  :tangle _bin/test_mod.sc
+  fn not-exported ()
+      print "I don't do anything"
+
+  fn test()
+      print "testing out the function"
+#+end_src
+
+Then import the function directly:
+
+#+begin_src scopes :tangle _bin/modules_load-local-first-module.sc
+  let test = (import .test_mod)
+
+  test;
+#+end_src
+
+Notice that unlike the other modules we have imported or the behavior
+in other languages that the module is just a single function.
+
+Also notice that the first function ~not-exported~ is not available to
+be called from the import.
+
+If you want to export all of the symbols in module you can use the
+builtin ~locals~ which is function that returns a namespace of all the
+locally defined functions.
+
+For example if you have the module in a file ~hellomod.sc~:
 
 #+begin_src scopes :tangle _bin/hellomod.sc
   fn hello (name)
@@ -1276,13 +1414,92 @@ You can write a module like this in a file ~hellomod.sc~:
       locals;
 #+end_src
 
+#+RESULTS:
+
 And then import it like:
 
-#+begin_src scopes :tangle _bin/modules_load-local-module.sc
-  let mod = (import .hellomod)
+#+begin_src scopes :tangle _bin/modules_load-local-hello-module.sc
+  let hellomod = (import .hellomod)
 
   hellomod.hello "Bob"
 #+end_src
+
+Next we explain the do-block from above.
+
+**** do-blocks
+
+The ~do~ block can thought of being equivalent to defining and
+executing a new unnamed function.
+
+#+begin_src scopes
+  let msg = "Do the do"
+
+  do
+      print msg
+#+end_src
+
+#+RESULTS:
+: Do the do
+
+As you can see it can use values in the surrounding scope (a "closure").
+
+But anything defined in the block is not available in the outer scope:
+
+#+begin_src scopes
+  let name = "Bob"
+
+  do
+      let other = "Alice"
+      print "hello" name
+      print "hello" other
+
+  # this would raise an error
+  # print other
+
+#+end_src
+
+#+RESULTS:
+: hello Bob
+: hello Alice
+
+The ~do-let-locals~ pattern is essentially a nifty trick to export
+symbols from a module in a clean way. It should be used as the most
+common convention.
+
+You can also use this block to customize what gets exported. Much like
+the ~__all__~ magic variable in Python.
+
+#+begin_src scopes
+
+  fn thing1 ()
+      print "Thing1"
+
+  fn thing2 ()
+      print "Thing2"
+
+
+  do
+      let mything = thing1
+      let thing2
+      locals;
+#+end_src
+
+
+**** TODO Scopes
+
+We should talk about the namesake of the language ~Scope~, and what
+makes it different from a module system like Python.
+
+#+begin_src scopes
+  let scope =
+      'bind (Scope) (Symbol "message") "hello"
+
+  for k v in scope (print k ":" v)
+#+end_src
+
+#+RESULTS:
+: message : "hello"
+
 
 *** Exceptions, Errors, & Assertions
 
