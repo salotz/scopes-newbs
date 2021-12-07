@@ -40,16 +40,16 @@ That said feel free to contribute.
   a fairly close equivalence to a scripting language like Python. The
   compilation/execution model is not clear at this point.
 
-- [[./level_2.org][Level 2[]] :: Scopes features roughly equivalent with core C/C++ or
+- [[./level_2.org][Level 2]] :: Scopes features roughly equivalent with core C/C++ or
   Rust. Includes topics like arrays, constant vs. dynamic values, heap
   allocated data structures, type checking, and interfacing with C
   code.
 
-- [[./level_3.org][Level 3[]] :: What it means for Scopes as a "Scheme-like" language
+- [[./level_3.org][Level 3]] :: What it means for Scopes as a "Scheme-like" language
   beyond just the syntax. The main focus here is functional
   programming and some of the basic metaprogramming features.
 
-- [[./level_4.org][Level 4[]]:: Novel Scopes features. Includes advanced metaprogramming,
+- [[./level_4.org][Level 4]]:: Novel Scopes features. Includes advanced metaprogramming,
   multi-stage programming, dynamic compilation, and achieving AOT
   compilation.
 
