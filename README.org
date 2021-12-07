@@ -23,11 +23,19 @@ knowledge.
 # graphics up and running.
 
 
-Lastly, this is a work in progress as I myself learn the
-language. Currently Level 1 is mostly complete and quite thorough. The
-higher levels are much less so although the documents do contain some
-small snippets I have collected and may be of use until this guide
-becomes more polished.
+This is a work in progress as I myself learn the language. Currently
+Level 1 is mostly complete and quite thorough. The higher levels are
+much less so although the documents do contain some small snippets I
+have collected and may be of use until this guide becomes more
+polished.
+
+Lastly there are a few typographical problems due to the use of
+org-mode. If you see some text wrapped in '~' symbols that should be a
+code snippet. This might be fixed if I move to using a different
+format, but for now being able to execute code in org-mode source
+blocks results in higher quality content. So while there is an HTML
+rendered version in Github, I recommend reading it in an editor that
+understands org mode like Emacs.
 
 That said feel free to contribute.
 
