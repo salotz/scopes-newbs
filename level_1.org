@@ -189,7 +189,7 @@ Overview:
 | Empty Signifier       | ~Nothing~                                 | ~none~                                         |
 | Null Pointer          | ~NullType~                                | ~null~                                         |
 | Fixed-lengthString    | ~string~                                  | ~"hello"~                                      |
-| Lists                 | ~List~                                    | ~'()~, ~'("a" true 1)~, ~'[0 1]~, ~{3; 1 }~    |
+| Lists                 | ~List~                                    | ~\'()~, ~'("a" true 1)~, ~'[0 1]~, ~{3; 1 }~   |
 
 Note that you can determine the type of a value with the ~typeof~
 function:
