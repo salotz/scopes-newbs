@@ -1,0 +1,117 @@
+* Level 0: Prelude
+
+** Source Code
+
+Scopes programs are text files ending with the file extension ~.sc~.
+
+The "format" of these files is independent of the language and is
+called "Scopes List Notation" (SLN). Its equivalent to writing a
+programming language in XML, JSON or YAML syntax.
+
+In this format words are separated by either whitespace, parentheses
+~()~ (or brackets too if you want ~[]{}~), and
+newlines-followed-by-indentation (i.e. python style).
+
+Some examples of SLN that are *NOT* Scopes code but are all equivalent:
+
+#+begin_src scopes
+  person
+      first_name Bob
+      last_name Bobson
+#+end_src
+
+#+begin_src scopes
+  person (first_name Bob) (last_name Bobson)
+#+end_src
+
+The full description is in the documentation. Don't get too caught up
+in the details. If you get stuck with the indentation method just
+throw parentheses around everything and work your way back.
+
+Comments are lines and indentation blocks starting with a ~#~. Symbols
+are not part of the parse tree.
+
+The ~;~ and ~,~ characters are also reserved by the SLN syntax, but
+this author doesn't think they are necessary to understand and write
+the code. They are more used to get around a few gnarly parts of the
+space and parens syntax or just to make a few things nicer.
+
+The ~;~ is the "list separator" and is similar to the "statement
+separator" of imperative languages like C/C++. In Python this would
+just be the "newline" of having commands run in order, for which the
+~;~ character can also be used to put them on a single line.
+
+The ~,~ character is a list separator which can be used without
+whitespace (or with too..) (see Lists section)
+
+There are 5 types of elements in SLN which will be discussed more in
+the primitives section.
+
+- Numbers
+- Strings
+- Symbols
+- Lists
+- Comments
+
+** Running Programs
+
+If you have a file you can run it on the command line like:
+
+#+begin_src sh
+scopes file.sc
+#+end_src
+
+You can also use the interpreter (typically called a REPL):
+
+#+begin_src sh
+scopes
+#+end_src
+
+On the REPL the help command can tell you the signature of functions,
+where you can see for yourself:
+
+#+begin_src scopes
+  help print
+#+end_src
+
+You can also run shell commands with the ~sh~ command:
+
+#+begin_src scopes
+  sh ls
+#+end_src
+
+*** Bonus: Emacs Org Mode Users
+
+The scopes interpreter is limited in that it has trouble with
+multiline snippets, and scopes uses a lot of newlines. This can become
+a nuisance.
+
+If you use Emacs Org-Mode for writing code snippets you can use the
+[[https://github.com/salotz/ob-scopes][ob-scopes]] module to execute code directly in an org mode notebook
+(in fact this document is such a thing). For example it would look
+like this:
+
+#+begin_example
+  ,#+begin_src scopes
+     print "hello"
+  ,#+end_src
+#+end_example
+
+Then you can evaluate it by placing your cursor in the block and
+running the keybinding ~C-c C-c~.
+
+** Some Things to Keep in Mind
+
+*** Keywords & Symbols
+
+In scopes there are no proper "keywords" like in most languages in the
+sense that there is a compiler or interpreter that is hardcoded to
+understand certain words as special. In this document we may say
+"keyword" to not overcomplicate things, but just keep that in mind for
+when approaching the more advanced features.
+
+*** Style Choices
+
+I don't pay attention too much to style here except that it should
+look decent and be easy to copy-paste into REPL in one line if
+possible.

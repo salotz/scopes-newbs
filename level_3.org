@@ -1,0 +1,54 @@
+* Level 3: For Lisp/Scheme Gurus
+
+In this section we will cover the features that are similar to Lisp
+and Scheme like languages.
+
+Scopes is after all a Scheme-like language.
+
+** TODO Pattern Matching
+
+See ~match~
+
+** Named Lets
+
+NOTE: Doesn't seem to actually be working in the latest scopes
+versions.
+
+In Scheme there is a common macro called the "named let" which is a
+convenient way to avoid the common pattern of defining internal
+functions for recursion and maintain a clean outer interface.
+
+Scopes also has named lets. One such useful form is to use it as a DIY
+looping construct:
+
+#+begin_src scopes :tangle _bin/level_3__named-let.sc
+
+  fn say-many (n)
+      # here is the "named let". The name is "loop"
+      let loop (i) = 1
+      if (i <= n)
+          print i
+          loop (i + 1)
+
+  say-many 3
+
+#+end_src
+
+#+RESULTS:
+
+** TODO
+
+From the ~meta.md~ file in the unpublished docs.
+
+- [ ] macros
+- [ ] pattern matching
+- [ ] debugging
+- [ ] infix macros
+- [ ] symbol prefix macros
+- [ ] list hooks
+- [ ] symbol hooks
+- [ ] using macro libraries
+- [ ] quotes
+- [ ] meta-evaluation
+- [ ] conditional translation
+

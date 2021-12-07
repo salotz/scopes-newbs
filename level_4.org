@@ -1,0 +1,87 @@
+* Level 4: Going super-saiyan, Scopes trick-shots
+
+** Decorators
+
+
+Similar to decorators in Python; Scopes has decorators to remove
+levels of wrapping/indentation.
+
+First is the ~vvv~ decorator. Think of this symbol as downward
+pointing arrows.
+
+#+begin_src scopes :tangle _bin/level_4__vvv.sc
+  vvv bind a
+  12
+
+  print a
+#+end_src
+
+
+This is equivalent to:
+
+#+begin_src scopes :tangle _bin/level_4__vvv.sc
+  let a = 12
+#+end_src
+
+This small example makes it seem stupid, but we are kind of abusing
+the return behavior to make a point. In other languages decorators
+wrap only functions but in Scopes they wrap blocks, where the last
+value of the block is returned.
+
+A demonstrative, but still contrived example:
+
+#+begin_src scopes :tangle _bin/level_4__vvv.sc
+  vvv bind a
+  _ 1 2
+
+  print a
+#+end_src
+
+#+RESULTS:
+: 1
+
+#+begin_src scopes
+print "hello"
+#+end_src
+
+#+RESULTS:
+: hello
+
+
+You can even instrument your code with it.
+
+#+begin_src scopes
+  vvv print
+  let
+      a = 3
+      b = 4
+#+end_src
+
+#+RESULTS:
+: 3 4
+
+#+begin_src scopes :tangle _bin/level_4__decorator.sc
+  @@ bind a
+  let c = 12
+
+  print a
+
+  # not an error
+  print c
+#+end_src
+
+** Code Transformation
+
+(From the unpublished docs)
+
+| Order | Stage       | From                    | To                 | Macro System |
+|-------+-------------+-------------------------+--------------------+--------------|
+|     1 | Parsing     | Data Interchange Format | S-Expression Tree  |              |
+|     2 | Expansion   | S-Expression Tree       | Untyped Scopes AST | Sugar        |
+|     3 | Checking    | Untyped Scopes AST      | Typed Scopes IL    | Spice        |
+|     4 | Translation | Typed Scopes IL         | LLVM IR / SPIR-V   |              |
+|     5 | Execution   | LLVM IR / SPIR-V        | Program Output     |              |
+
+
+
+

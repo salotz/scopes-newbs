@@ -1,6 +1,6 @@
-** Level 2: Things you would know if you knew C/C++
+* Level 2: Things you would know if you knew C/C++
 
-*** Const
+** Const
 
 #+begin_src scopes
   print (constant? 1)
@@ -12,7 +12,7 @@
 : true
 : false
 
-*** Type Annotations
+** Type Annotations
 
 The return values of functions can be explicitly typed, and will be
 type-checked:
@@ -33,13 +33,13 @@ The ~returning~ statement can occur anywhere in the function
 block. Types will not be cast and the annotation will be strictly
 checked.
 
-*** TODO Operator Overload
-*** TODO More Strings
+** TODO Operator Overload
+** TODO More Strings
 
-*** TODO Arrays
+** TODO Arrays
 
 
-*** Including C Functions
+** Including C Functions
 
 You can load a single function:
 
@@ -76,7 +76,7 @@ library:
 #+end_src
 
 
-*** Non-standard Libraries
+** Non-standard Libraries
 
 This works for standard libraries. But what about vendored libraries?
 
@@ -112,143 +112,3 @@ manager in the ~_guix/dev/dev~ directory.
 
 
 
-** Level 3: For Lisp/Scheme Gurus
-
-In this section we will cover the features that are similar to Lisp
-and Scheme like languages.
-
-Scopes is after all a Scheme-like language.
-
-*** TODO Pattern Matching
-
-See ~match~
-
-*** Named Lets
-
-NOTE: Doesn't seem to actually be working in the latest scopes
-versions.
-
-In Scheme there is a common macro called the "named let" which is a
-convenient way to avoid the common pattern of defining internal
-functions for recursion and maintain a clean outer interface.
-
-Scopes also has named lets. One such useful form is to use it as a DIY
-looping construct:
-
-#+begin_src scopes :tangle _bin/level_3__named-let.sc
-
-  fn say-many (n)
-      # here is the "named let". The name is "loop"
-      let loop (i) = 1
-      if (i <= n)
-          print i
-          loop (i + 1)
-
-  say-many 3
-
-#+end_src
-
-#+RESULTS:
-
-*** TODO
-
-From the ~meta.md~ file in the unpublished docs.
-
-- [ ] macros
-- [ ] pattern matching
-- [ ] debugging
-- [ ] infix macros
-- [ ] symbol prefix macros
-- [ ] list hooks
-- [ ] symbol hooks
-- [ ] using macro libraries
-- [ ] quotes
-- [ ] meta-evaluation
-- [ ] conditional translation
-
-** Level 4: Going super-saiyan, Scopes trick-shots
-
-*** Decorators
-
-
-Similar to decorators in Python; Scopes has decorators to remove
-levels of wrapping/indentation.
-
-First is the ~vvv~ decorator. Think of this symbol as downward
-pointing arrows.
-
-#+begin_src scopes :tangle _bin/level_4__vvv.sc
-  vvv bind a
-  12
-
-  print a
-#+end_src
-
-
-This is equivalent to:
-
-#+begin_src scopes :tangle _bin/level_4__vvv.sc
-  let a = 12
-#+end_src
-
-This small example makes it seem stupid, but we are kind of abusing
-the return behavior to make a point. In other languages decorators
-wrap only functions but in Scopes they wrap blocks, where the last
-value of the block is returned.
-
-A demonstrative, but still contrived example:
-
-#+begin_src scopes :tangle _bin/level_4__vvv.sc
-  vvv bind a
-  _ 1 2
-
-  print a
-#+end_src
-
-#+RESULTS:
-: 1
-
-#+begin_src scopes
-print "hello"
-#+end_src
-
-#+RESULTS:
-: hello
-
-
-You can even instrument your code with it.
-
-#+begin_src scopes
-  vvv print
-  let
-      a = 3
-      b = 4
-#+end_src
-
-#+RESULTS:
-: 3 4
-
-#+begin_src scopes :tangle _bin/level_4__decorator.sc
-  @@ bind a
-  let c = 12
-
-  print a
-
-  # not an error
-  print c
-#+end_src
-
-*** Code Transformation
-
-(From the unpublished docs)
-
-| Order | Stage       | From                    | To                 | Macro System |
-|-------+-------------+-------------------------+--------------------+--------------|
-|     1 | Parsing     | Data Interchange Format | S-Expression Tree  |              |
-|     2 | Expansion   | S-Expression Tree       | Untyped Scopes AST | Sugar        |
-|     3 | Checking    | Untyped Scopes AST      | Typed Scopes IL    | Spice        |
-|     4 | Translation | Typed Scopes IL         | LLVM IR / SPIR-V   |              |
-|     5 | Execution   | LLVM IR / SPIR-V        | Program Output     |              |
-
-
-** Level 5: ...
