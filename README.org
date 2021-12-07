@@ -49,7 +49,7 @@ That said feel free to contribute.
   beyond just the syntax. The main focus here is functional
   programming and some of the basic metaprogramming features.
 
-- [[./level_4.org][Level 4]]:: Novel Scopes features. Includes advanced metaprogramming,
+- [[./level_4.org][Level 4]] :: Novel Scopes features. Includes advanced metaprogramming,
   multi-stage programming, dynamic compilation, and achieving AOT
   compilation.
 
