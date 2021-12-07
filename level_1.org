@@ -74,34 +74,23 @@ actually mutating the first value.
   let count = (count + 1)
 #+end_src
 
-The storage location (i.e. stack or data-segment (AKA heap)) of the
-value generated from an expression is determined by the kind of
-expression.
+The storage location (stack, heap, and data segment) of the value
+generated from an expression is determined by the kind of expression.
 
 You can explicitly choose stack or data-segment by using the ~local~
 or ~global~ mechanisms. 
 
-# For those unaware the "stack" is a data structure used in most
-# programming languages that provides a fast and convenient way to store
-# data in nested scopes that can easily be managed and torn down without
-# manual memory managemeng. For example when a function goes out of
-# scope all of the locally defined memory values can be freed.
+For those unaware the "stack" is a data structure used in most
+programming languages that provides a fast and convenient way to store
+data in nested scopes that can easily be managed and torn down without
+manual memory managemeng. For example when a function goes out of
+scope all of the locally defined memory values can be freed.
 
-# NOTE: not sure this comment about the data-segment is actually
-# correct. It might be another construct that is a part of the final
-# executable binary.
+The heap is all the memory that is not in the stack and can
+essentially be accessed in any scope as long as the layout of data is
+known. This memory must be manually managed since it lacks a mechanism
+like scoping rules to know when data is no longer needed.
 
-# The "data-segment" is all the memory that is not in the stack and can
-# essentially be accessed in any scope as long as the layout of data is
-# known. This memory must be manually managed since it lacks a mechanism
-# like scoping rules to know when data is no longer needed. It is
-# typically called the "heap" due to the use of a heap datastructure in
-# managing (i.e. *allocating*) this data in C, although any allocating
-# algorithm in principle can be used.
-
-# The "data-segment" part of programming in languages with manual memory
-# management is a large part of what makes them so challenging to use
-# compared to a language with a garbage collector like Python.
 
 #+begin_src scopes
   local count = 0
@@ -111,26 +100,32 @@ or ~global~ mechanisms.
 
 #+RESULTS:
 
+In scopes there is also another location values can stored in called
+the *data segment* which is an actual location in the output
+binary. Therefore it is not located on either the stack or the
+heap. However, because of this you must be careful not to put too
+large of data because your final executable binary will have to carry
+it around with it.
 
-Globals are a little bit different since we would need to talk about
-pointers (which is a topic for Level 2) and you don't actually use
-globals ever. Do you?
+Global values can be defined as such.
+
+NOTE: Currently there is a bug in scopes that causes the ~print~
+command to show some gobbledy-gook like ~PureCast$halafakes~ instead
+of the normal representation of the value. The following snippet shows
+how to rectify this with the ~deref~ function which won't be explained
+until Level 2.
+
 
 #+begin_src scopes
   global count = 0
   count = (count + 1)
   print count
-  print (count as i32)
-  print (typeof count)
   print (deref count)
 #+end_src
 
 #+RESULTS:
-: PureCast$hatiwudah
-: PureCast$hatiwudah
-: i32
+: PureCast$fomilutop
 : 1
-
 
 
 ** Operators
