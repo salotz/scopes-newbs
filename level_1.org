@@ -1285,7 +1285,7 @@ And then import it like:
 
 Next we explain the do-block from above.
 
-*** do-blocks
+**** do-blocks
 
 The ~do~ block can thought of being equivalent to defining and
 executing a new unnamed function.
@@ -1343,6 +1343,23 @@ the ~__all__~ magic variable in Python.
       locals;
 #+end_src
 
+**** Executing a module
+
+Similar to the common python refrain of ~if __name__ == "__main__":~
+Scopes has a similar special value that can be used to conditionally
+execute code if a module is executed like ~scopes mod.sc~ rather than
+being imported using ~main-module?~.
+
+#+begin_src scopes :tangle _bin/modules_main.sc
+  print "module code"
+
+  if main-module?
+      print "running tests..."
+#+end_src
+
+#+RESULTS:
+: module code
+: running tests...
 
 *** Scopes
 
