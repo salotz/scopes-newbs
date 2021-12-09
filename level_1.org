@@ -1171,6 +1171,26 @@ having to do the destructuring yourself.
 #+RESULTS:
 : 1 2 3
 
+You can unpack arguments for function parameters as well:
+
+#+begin_src scopes
+  fn trio (a b c)
+      print a
+      print b
+      print c
+
+  let args = '(0 1 2)
+
+  trio (unpack args)
+
+#+end_src
+
+#+RESULTS:
+: 0
+: 1
+: 2
+
+
 *** Recursion With Functions
 
 Recursion is achieved using ~this-function~:
