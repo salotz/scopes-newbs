@@ -33,6 +33,19 @@ The ~returning~ statement can occur anywhere in the function
 block. Types will not be cast and the annotation will be strictly
 checked.
 
+
+** dump
+
+#+begin_src scopes
+  fn add (a b)
+      dump a b
+      a + b
+
+  add 3 4
+#+end_src
+
+#+RESULTS:
+
 ** TODO Operator Overload
 ** TODO More Strings
 
