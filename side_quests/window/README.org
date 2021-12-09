@@ -1,0 +1,26 @@
+* Making an OpenGL Window with GLFW
+
+In this side quest we will show how to make a simple window using the
+GLFW library and how to load OpenGL with GLAD (https://glad.dav1d.de/).
+
+I generated GLAD bindings from the web page on Ubuntu 20.04 using the
+OpenGL specification Core profile for C++. This is saved in the
+~cdeps~ folder.
+
+I use the ~guix~ package manager to install the latest version of glfw
+as specified in the ~dev.manifest.scm~ into a local profile under
+~_guix/dev~.
+
+The load paths for glfw are then hardcoded to this.
+
+You must then compile the glad bindings:
+
+#+begin_src sh
+  make build
+#+end_src
+
+Then you can run the ~src/main.sc~ module.
+
+#+begin_src sh
+  scopes src/main.sc
+#+end_src
