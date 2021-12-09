@@ -1,6 +1,34 @@
 
 
 #+begin_src scopes
+  fn trio (a b c)
+      print a
+      print b
+      print c
+
+  let a = '(0 1 2)
+
+  trio (unpack a)
+
+#+end_src
+
+#+RESULTS:
+: 0
+: 1
+: 2
+
+
+Instead of a python pass:
+
+#+begin_src scopes
+  fn nothing ()
+
+  nothing;
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scopes
   do
       print "hello"
 #+end_src
