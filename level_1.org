@@ -128,6 +128,22 @@ until Level 2.
 : 1
 
 
+You can unbind names by using ~unlet~:
+
+#+begin_src scopes
+  let
+      a = 3
+      b = 4
+
+  unlet a
+  # print a
+  print b
+#+end_src
+
+#+RESULTS:
+: 4
+
+
 ** Operators
 
 In most Lisp/Schemes there are no "operators" in the sense of infix
@@ -306,6 +322,10 @@ To join strings together you can use the ~..~ operator:
   print (header .. " Bob")
 #+end_src
 
+#+begin_src scopes
+
+#+end_src
+
 You can get the number of characters in a string with the ~countof~
 function:
 
@@ -314,6 +334,7 @@ function:
 
   print (countof alphabet)
 #+end_src
+
 
 There are also some slice routines:
 
@@ -1404,12 +1425,12 @@ accessing the values in it programmatically.
 #+begin_src scopes
   let scope =
       'bind (Scope) (Symbol "message") "hello"
+      'bind (Scope) (Symbol "name") "bob"
 
   for k v in scope (print k ":" v)
 #+end_src
 
 #+RESULTS:
-: message : "hello"
 
 
 In essence this is all the ~locals~ function above does except in a
@@ -1453,6 +1474,157 @@ There is also the familiar ~raise~ and ~try~.
 
 
 
+
+** Data Structures
+
+So far the only kind of datastructure we have seen is the list. We
+also stressed that lists aren't really the same as lists or maps in
+other languages and are really only used for either very simple
+structures with small amounts of data and for implementing the (sugar)
+syntax macros (a very advanced feature).
+
+So what really are the comparable structures to lists, dicts, tuples,
+and sets like in Python?
+
+Here is where we need to come to grips with the fact that while Scopes
+provides many of the comfy pleasantries of a language like Python, it
+really is intended to be in the same class of languages as C/C++, Ada,
+and Rust. That is underneath the scripting language like veneer Scopes
+is both statically typed and "low level" in the sense that it allows
+you to have complete control of your data structures.
+
+So where in a language like Python you have built-in syntax for things
+like linked lists (roughly) using ~[a, b]~, hash maps ~{'a' : 1}~, or
+tuples ~(1, "hello")~. In low-level statically typed languages there
+usually isn't specific syntax for any "blessed" high-level data
+structures. Instead you either implement them yourselves or import
+them from libraries; either the "standard library" which ships with
+the language implementation or perhaps a third-party one.
+
+You can also do this in Python with Classes, but is considered
+bad-taste when the built-in types are sufficient.
+
+The term "low-level" here is a bit ambiguous and roughly means a
+language that is more-or-less similar to the C programming language in
+terms of the basic datastructures that are built in to the
+language. Namely *arrays* and *structs* (and unions which are much
+less used).
+
+Scopes intends to be one-to-one compatible with C programs and so has
+similar built-in types. We will see much more of this in action later.
+
+We won't talk about arrays or structs until Level 2 (since that is a
+C/C++ equivalent feature); but we can skip over them to discuss some
+easy to use high-level Python-like equivalents.
+
+The above explanation was just to soften the blow of some divergence
+from the Pythonic simplicity we have seen up until now.
+
+*** Tuples
+
+The tuple is probably the simplest of these.
+
+A tuple is an immutable datastructure of a fixed size which can
+contain any combination of element types.
+
+You can use the function ~tupleof~ to construct them directly:
+
+#+begin_src scopes
+  let tup = (tupleof 1 2:f32 "hello")
+  print tup
+#+end_src
+
+#+RESULTS:
+: (tupleof 1 2.0 "hello")
+
+You can get the values of the tuple in a few ways.
+
+Via unpacking:
+
+#+begin_src scopes
+  let tup = (tupleof 1 2:f32 "hello")
+
+  let a b c = (unpack tup)
+
+  print a b c
+#+end_src
+
+#+RESULTS:
+: 1 2.0 hello
+
+Explicitly accessing values via the ~@~ syntax:
+
+#+begin_src scopes
+  let tup = (tupleof 1 2:f32 "hello")
+
+  print (@ tup 2)
+  print (tup @ 1)
+#+end_src
+
+#+RESULTS:
+: hello
+: 2.0
+
+#+begin_src scopes
+  let tup = (tupleof (a = 1) (b = "hello"))
+  print tup
+
+  # TODO  seems to be broken
+  # print ('explode tup)
+  print ('emit tup 'a)
+#+end_src
+
+#+RESULTS:
+: (tupleof 1 "hello")
+: 1 hello
+: 1
+
+
+And further you can actually define values to have keys associated
+with them, much like the Python ~namedtuple~:
+
+#+begin_src scopes
+  let namedtuple = (tupleof (a = 3) (b = "hello"))
+
+  print "a" namedtuple.a
+  print "b" namedtuple.b
+#+end_src
+
+#+RESULTS:
+: a 3
+: b hello
+
+Here we see the first use of the "dot" notation which is also used in
+Python.
+
+Lets take a quick diversion to discuss attributes in the context of
+the tuple but that will be similar across other data structures as
+well.
+
+**** COMMENT Attributes
+
+
+*** COMMENT Map
+
+This gives an error:
+
+#+begin_src scopes
+  using import Map
+  using import String
+
+  global mymap : (Map string i32)
+
+  'set mymap "a" 3:i32
+
+  if ('in? mymap "a")
+      print ('get mymap "a")
+#+end_src
+
+#+RESULTS:
+
+
+** Generators & Iteration
+
 ** COMMENT Documentation
 
 - [ ] Docstrings
@@ -1461,11 +1633,12 @@ There is also the familiar ~raise~ and ~try~.
 
 From the ~lang.md~ outline in the unpublished docs:
 
-- [ ] functions
+- [X] functions
 - [-] bindings
   - [X] let
   - [ ] bind
-- [ ] blocks
+- [ ] report
+- [X] do-blocks
 - [X] conditionals
 - [X] loops
 - [ ] iterators
@@ -1483,6 +1656,7 @@ From the ~lang.md~ outline in the unpublished docs:
   - [X] basics
 - [ ] dot notation
 - [X] number formats
+- [ ] copying
 - [ ] splicing
 - [ ] exception handling
 - [ ] types

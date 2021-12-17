@@ -36,7 +36,7 @@ looping construct:
 
 #+RESULTS:
 
-** TODO
+** TODO COMMENT
 
 From the ~meta.md~ file in the unpublished docs.
 
@@ -49,6 +49,7 @@ From the ~meta.md~ file in the unpublished docs.
 - [ ] symbol hooks
 - [ ] using macro libraries
 - [ ] quotes
+- [ ] quasiquote
 - [ ] meta-evaluation
 - [ ] conditional translation
 

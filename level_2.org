@@ -1,5 +1,88 @@
 * Level 2: Things you would know if you knew C/C++
 
+** structs
+
+#+begin_src scopes
+  using import struct
+  using import String
+
+  struct Example plain
+      value : i32
+      choice = false
+      text : string = ""
+
+  global example : Example
+      value = 100
+      text = "test"
+
+
+  print example.value
+  print example.text
+#+end_src
+
+#+RESULTS:
+: 100
+: test
+
+
+#+begin_src scopes
+  using import struct
+
+  struct thing
+      what : string
+
+  let t = (thing (what = "test"))
+
+  print t.what
+#+end_src
+
+#+RESULTS:
+: test
+
+#+begin_src scopes
+  using import struct
+
+  struct thing
+      what : string
+      size : u32
+
+  let t =
+      thing
+          "Other thing"
+          1:u32
+
+  print t.what
+  print t.size
+
+  let d =
+      thing
+          size = 1:u32
+          what = "Other thing"
+
+  print d.what
+  print d.size
+#+end_src
+
+#+RESULTS:
+: Other thing
+: 1:u32
+: Other thing
+: 1:u32
+
+
+** Types
+
+#+begin_src scopes
+  print (typeof 'print)
+  print (storageof Symbol)
+  print (storagecast 'print)
+#+end_src
+
+#+RESULTS:
+: Symbol
+: u64
+: 4809770749102710031:u64
+
 ** Const
 
 #+begin_src scopes
@@ -47,9 +130,65 @@ checked.
 #+RESULTS:
 
 ** TODO Operator Overload
+
+** C-like Strings
+
+
+#+begin_src scopes :tangle _bin/primitives_strings_extractvalue.sc
+  let digits = "0123456789"
+
+  print (digits @ 1)
+#+end_src
+
+#+RESULTS:
+: 49:i8
+
+Where the value is the int value for the char it encodes.
+
 ** TODO More Strings
 
 ** TODO Arrays
+
+#+begin_src scopes
+  let arr = ((array f32 2) 0 1)
+  print arr
+#+end_src
+
+#+RESULTS:
+: (arrayof f32 0.0 1.0)
+
+
+#+begin_src scopes
+  let arr = (arrayof f32 0 1 2 3)
+
+  print arr
+#+end_src
+
+#+RESULTS:
+: (arrayof f32 0.0 1.0 2.0 3.0)
+
+** Tuples
+
+In Level 1 we saw how to dynamically define tuples with ~tupleof~. You
+can also declare the type in full first before instantiating.
+
+#+begin_src scopes
+
+  print
+      ((tuple i32 f32) 0:i32 1:f32)
+#+end_src
+
+#+RESULTS:
+: (tupleof 0 1.0)
+
+#+begin_src scopes
+  let tup-type = (tuple (a = i32) (b = u64))
+
+  print (tup-type (a = 0) (b = 1:u64))
+#+end_src
+
+#+RESULTS:
+: (tupleof 0 1:u64)
 
 
 ** Including C Functions
@@ -125,3 +264,25 @@ manager in the ~_guix/dev/dev~ directory.
 
 
 
+
+** defer
+
+Not really a feature in C++ but more from the Go family.
+
+#+begin_src scopes
+  defer print "end of module"
+
+  let name = "Bob"
+
+  defer print (.. "Goodbye " name "!")
+#+end_src
+
+#+RESULTS:
+: Goodbye Bob!
+: end of module
+
+** TODO COMMENT
+
+- [ ] pointers and references
+- [ ] constant values
+- [ ] defer

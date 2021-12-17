@@ -1,4 +1,38 @@
 
+#+begin_src scopes
+  ...
+#+end_src
+
+#+begin_src scopes
+  print ::
+#+end_src
+
+#+RESULTS:
+: $unnamed<List,Scope>$f4e7342eaedc433eb_c:SugarMacro
+
+Testing some fancy slicing syntax I'm making up:
+
+#+begin_src scopes
+  let arr = [[0 1 2] [3 4 5]]
+
+  # basics
+  (fslice arr 0 2)
+  (fslice arr 0 :)
+  (fslice arr 0-1 ...)
+  (fslice arr (0 2) ...)
+
+  let arr = ndarray
+      [[0 1 2]
+       [3 4 5]]
+
+  let arr = ndarray
+      0 1 2
+          0 1 2
+      3 4 5
+          3 4 5
+#+end_src
+
+#+RESULTS:
 
 #+begin_src scopes
   fn trio (a b c)
@@ -57,3 +91,91 @@ Why doesn't this work?
 : continuing
 : 2
 : breaking
+
+
+#+begin_src scopes
+  vvv bind Colors
+  do
+      let
+          LIGHTGRAY =  '(200, 200, 200, 255)
+          GRAY = '(130, 130, 130, 255)
+          DARKGRAY = '(80, 80, 80, 255)
+          YELLOW = '(253, 249, 0, 255)
+          GOLD = '(255, 203, 0, 255)
+          ORANGE = '(255, 161, 0, 255)
+          PINK = '(255, 109, 194, 255)
+          RED = '(230, 41, 55, 255)
+          MAROON = '(190, 33, 55, 255)
+          GREEN = '(0, 228, 48, 255)
+          LIME = '(0, 158, 47, 255)
+          DARKGREEN = '(0, 117, 44, 255)
+          SKYBLUE = '(102, 191, 255, 255)
+          BLUE = '(0, 121, 241, 255)
+          DARKBLUE = '(0, 82, 172, 255)
+          PURPLE = '(200, 122, 255, 255)
+          VIOLET = '(135, 60, 190, 255)
+          DARKPURPLE = '(112, 31, 126, 255)
+          BEIGE  = '(211, 176, 131, 255)
+          BROWN = '(127, 106, 79, 255)
+          DARKBROWN = '(76, 63, 47, 255)
+          WHITE = '(255, 255, 255, 255)
+          BLACK = '(0, 0, 0, 255)
+          BLANK = '(0, 0, 0, 0)
+          MAGENTA = '(255, 0, 255, 255)
+          RAYWHITE = '(245, 245, 245, 255)
+
+#+end_src
+
+
+#+begin_src scopes
+  sugar log (body...)
+      qq
+          do
+              print "Start"
+              unquote-splice body...
+              print "End"
+
+  run-stage;
+
+  (log (print "work"))
+#+end_src
+
+#+RESULTS:
+
+
+#+begin_src scopes
+
+  let macros = ('bind-symbols (Scope) (a = "hello"))
+
+  run-stage;
+
+  print macros.a
+#+end_src
+
+#+RESULTS:
+: hello
+
+
+#+begin_src scopes
+  let a = 3
+
+  report a
+
+  print a
+#+end_src
+
+#+RESULTS:
+: /tmp/babel-EFGjGa/prefix7aQGWT.sc:3:1: 3
+: 3
+
+
+#+begin_src scopes
+  defer print "end of module"
+  let a = (1 + 3)
+
+  print a
+#+end_src
+
+#+RESULTS:
+: 4
+: end of module
