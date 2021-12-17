@@ -1,13 +1,14 @@
-let raylib-repo-path = "third_party/raylib-4.0.0"
-let raylib-lib-path = (.. module-dir "/../" raylib-repo-path "/libraylib.so")
-let raylib-include-path = (.. module-dir "/../" raylib-repo-path "/src/")
+# this loads the site specific packaging information
+let pkg = (import ..pkg)
 
 let header =
     include
         "raylib.h"
         options
             # "-v"
-            .. "-I" raylib-include-path
+            .. "-I" pkg.include-path
+
+let raylib-lib-path = (.. pkg.lib-path "/libraylib.so")
 
 load-library raylib-lib-path
 
@@ -89,9 +90,6 @@ let macros =
 do
     let
         header
-        raylib-repo-path
-        raylib-lib-path
-        raylib-include-path
         Colors
         do-draw:
         do-window:

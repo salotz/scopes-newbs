@@ -18,7 +18,8 @@ contain the headers and libraries etc.
   spack env create -d .
 #+end_src
 
-Activate the environment and install the packages:
+Activate the environment (i.e. set the environment variables
+appropriately) and install the packages:
 
 #+begin_src sh
   spacktivate .
@@ -28,6 +29,7 @@ Activate the environment and install the packages:
 Note that the first time running this could take quite a while since
 Spack actually compiles *all* of the dependencies from scratch and
 doesn't use your system packages at all.
+
 
 Once this is done the examples should just work. The ~pkg.sc~ file is
 a kind of locale specific file that gives the paths to the include and
@@ -41,6 +43,18 @@ tools or editing the ~spack.yaml~ file.
 The ~spack.lock~ file has the full listing of concrete
 dependencies. For developing on the same machine you can keep this
 around to be 100% reproducible.
+
+To rebuild the ~spack.lock~ file run and update dependencies:
+
+#+begin_src sh
+  spack concretize --force
+#+end_src
+
+To exit the environment (i.e. unset the env variables):
+
+#+begin_src sh
+  despacktivate
+#+end_src
 
 ** Running
 
