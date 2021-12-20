@@ -1327,7 +1327,28 @@ And then import it like:
   hellomod.hello "Bob"
 #+end_src
 
-Next we explain the do-block from above.
+Lastly sometimes you can unintentionally return things from a module
+(especially when writing small scripts for learning). To stop this you
+can put a ~none~ at the end of a module.
+
+
+#+begin_src scopes
+  let a = 3
+  none
+#+end_src
+
+#+RESULTS:
+
+Or more stylistically you can call the null function ~()~:
+
+#+begin_src scopes
+  let a = 3
+  ;
+#+end_src
+
+We will see in higher levels that some values cannot be returned from
+modules and so we might guard the end of the module like this, rather
+than raising an error.
 
 **** do-blocks
 
