@@ -94,6 +94,7 @@ like scoping rules to know when data is no longer needed.
 
 #+begin_src scopes
   local count = 0
+  print count
   count = (count + 1)
   print count
 #+end_src
