@@ -2,19 +2,28 @@
 
 ** structs
 
+Here is a basic example of using a struct:
+
 #+begin_src scopes
   using import struct
-  using import String
 
-  struct Example plain
+  struct Example
       value : i32
       choice = false
       text : string = ""
 
-  global example : Example
+  # There are two ways to construct a value:
+
+  # 1. C-ish looking declaration
+  local example : Example
       value = 100
       text = "test"
 
+  # 2. Assignment "scopes-style"
+  local example =
+      Example
+          value = 100
+          text = "test"
 
   print example.value
   print example.text
@@ -149,6 +158,8 @@ Where the value is the int value for the char it encodes.
 
 ** TODO Arrays
 
+First we must talk about the C-style arrays.
+
 #+begin_src scopes
   let arr = ((array f32 2) 0 1)
   print arr
@@ -166,6 +177,67 @@ Where the value is the int value for the char it encodes.
 
 #+RESULTS:
 : (arrayof f32 0.0 1.0 2.0 3.0)
+
+
+#+begin_src scopes
+  let arr = (arrayof f32 0 1 2 3)
+
+  print (arr @ 1)
+#+end_src
+
+#+RESULTS:
+: 1.0
+
+Array of structs
+
+#+begin_src scopes
+  using import struct
+
+  struct Dog
+      name : string
+      bark : string = "woof"
+      height : f32
+
+  let d0 =
+      Dog
+          "Fido"
+          "Bow! Wow!"
+          43
+
+  let d1 =
+      Dog
+          "Max"
+          "Wong! Wong!"
+          56
+
+  # array type can't be accessed with dynamically generated indices
+  # (like from the for loop below) because you could easily go beyond
+  # the bounds of the array
+  local dogs = (arrayof Dog d0 d1)
+
+  for idx in (range 2)
+      # access the struct members of the array elements
+      print ((dogs @ idx) . name) "says" ((dogs @ idx) . bark)
+
+  for idx in (range 2)
+      # access the struct members of the array elements
+      ((dogs @ idx) . name) = "George"
+
+      print ((dogs @ idx) . name)
+
+
+  local dog-arr = (array Dog 2)
+  for i in (range 2)
+      (dog-arr @ i) =
+          Dog
+              "Max"
+              "Wong! Wong!"
+              56
+
+#+end_src
+
+#+RESULTS:
+
 
 ** Tuples
 
@@ -189,7 +261,6 @@ can also declare the type in full first before instantiating.
 
 #+RESULTS:
 : (tupleof 0 1:u64)
-
 
 ** Including C Functions
 
@@ -280,6 +351,14 @@ Not really a feature in C++ but more from the Go family.
 #+RESULTS:
 : Goodbye Bob!
 : end of module
+
+** Ownership and the Borrow Checker
+
+See:
+https://gist.github.com/radgeRayden/67b654b5bb8f3227749b5dd7a577ec4d
+
+Namely remember when making small snippets that you can't return
+unique values from a module.
 
 ** TODO COMMENT
 
