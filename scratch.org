@@ -179,3 +179,44 @@ Why doesn't this work?
 #+RESULTS:
 : 4
 : end of module
+
+
+#+begin_src scopes
+  fn a ()
+      none
+
+  let t = (static-typify a)
+
+  print t
+  print (typeof t)
+#+end_src
+
+#+RESULTS:
+: (%1: fn a () : (opaque@ (Nothing <-: ())) (return none)):(opaque@ (Nothing <-: ()))
+: (opaque@ (Nothing <-: ()))
+
+
+#+begin_src scopes
+  let llvm.debugtrap = (extern 'llvm.debugtrap (function void))
+#+end_src
+
+#+RESULTS:
+
+
+#+begin_src scopes
+  using import struct
+  using import String
+  using import Array
+
+  struct Dog
+      name : String
+      bark : String = "woof"
+      height : f32
+
+  local dog-arr = ((array Dog 2))
+
+  print ((dog-arr @ 0) . bark)
+  # print dog-arr
+
+  ;
+#+end_src
