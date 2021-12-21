@@ -1600,8 +1600,8 @@ Explicitly accessing values via the ~@~ syntax:
 
 #+RESULTS:
 : (tupleof 1 "hello")
-: 1 hello
 : 1
+: hello
 
 
 And further you can actually define values to have keys associated
@@ -1621,16 +1621,100 @@ with them, much like the Python ~namedtuple~:
 Here we see the first use of the "dot" notation which is also used in
 Python.
 
-Lets take a quick diversion to discuss attributes in the context of
-the tuple but that will be similar across other data structures as
-well.
+But you can also use the ~@~ selector instead of the keys:
+
+#+begin_src scopes
+  let namedtuple = (tupleof (a = 3) (b = "hello"))
+
+  print "0" (namedtuple @ 0)
+  print "1" (namedtuple @ 1)
+#+end_src
+
+Before we dig into the other datastructures we will go over some of
+the common patterns to all of them using the ~tuple~ as an example.
+
+**** Mutable Datastructure
+
+If you declare a datastructure as ~local~ you can mutate the
+components as long as they are the same type as in the construction or
+declaration.
+
+For an indexed structure this is:
+
+#+begin_src scopes
+  local things = (tupleof 3 "hello")
+
+  things @ 0 = 5
+  print (things @ 0)
+#+end_src
+
+#+RESULTS:
+: 5
+
+Notice that you don't need parens around the first part because of the
+infix operator precedence rules, but you can add them if you like:
+
+#+begin_src scopes
+  local things = (tupleof 3 "hello")
+
+  (things @ 0) = 5
+  print (things @ 0)
+#+end_src
+
+#+RESULTS:
+: 5
+
+
+#+begin_src scopes
+  local things = (tupleof (a = 3) (b = "hello"))
+
+  things.a = 4
+  print things.a
+
+  # NOT allowed
+  # things.a = "test"
+#+end_src
+
+#+RESULTS:
+: 4
+
+
+#+begin_src scopes
+  fn scopetest ()
+      local t-inside =
+          tupleof
+              (a = 3)
+              (b = "hello")
+
+      print (t-inside @ 0)
+
+      t-inside
+
+
+  # This won't be mutable since it will rebind it as immutable in the
+    outside scope
+   
+    let t-outside = (scopetest)
+
+  local t-outside = (scopetest)
+
+  print t-outside.a
+
+  t-outside.a = 10
+
+  print t-outside.a
+
+#+end_src
+
+#+RESULTS:
+: 3
+: 3
+: 10
+
 
 **** COMMENT Attributes
 
-
 *** COMMENT Map
-
-This gives an error:
 
 #+begin_src scopes
   using import Map
