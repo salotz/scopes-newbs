@@ -884,6 +884,32 @@ And to add to an alist you would use cons:
 
 
 
+** Converting Values To Strings
+
+You can get the implicit "stringified" version of primitives using
+either ~tostring~ or ~repr~.
+
+#+begin_src scopes
+  print (tostring 10)
+  print (repr 10)
+#+end_src
+
+#+RESULTS:
+: 10
+: 10
+
+~tostring~ give a plain kind of string whereas ~repr~ is meant for
+making it look pretty in different contexts. Here it returns the same
+result as ~tostring~ but on a terminal it gives the raw string:
+~"\x1b[33m10\x1b[0m"~ and when you ~print~ it you get a colored ~10~.
+
+Note that this stringification is not meant to be a reliable
+*serialization* of the values and is just meant for human inspection
+like for in logs or reporting the value on the terminal.
+
+We will see in higher levels that these two functions are hookable
+similar to the Python "magic method" protocols e.g. ~__repr__~.
+
 ** TODO COMMENT Arithmetic & Mathematics
 
 We have kind of already seen arithmetic above in the section on
