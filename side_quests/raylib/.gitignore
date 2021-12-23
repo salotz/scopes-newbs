@@ -1,4 +1,0 @@
-# this project is meant to compile on many different machines so the
-# lockfile will not work everywhere
-spack.lock
-.spack-env
