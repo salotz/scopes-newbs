@@ -158,6 +158,8 @@ Where the value is the int value for the char it encodes.
 
 ** TODO Arrays
 
+*** C-style Arrays
+
 First we must talk about the C-style arrays.
 
 #+begin_src scopes
@@ -238,6 +240,147 @@ Array of structs
 
 #+RESULTS:
 
+*** Arrays
+
+#+begin_src scopes
+  using import Array
+
+  # Fixed size array
+  local arr = ((Array i32 10))
+  print (typeof arr)
+
+  # Growing array (e.g. C++ vector)
+  local arr = ((Array i32))
+  print (typeof arr)
+
+  # You can explicitly use GrowingArray or FixedArray types
+  local garr = ((GrowingArray i32))
+  local farr = ((FixedArray i32 10))
+
+  # add a value to the array
+  let element = ('append arr 0)
+
+  print element
+
+  print (countof arr)
+  print (arr @ 0)
+
+  # assign to a particular location
+  arr @ 0 = 2
+  print (arr @ 0)
+
+  # TODO
+  # insert values in between
+  # 'append arr 4
+  # 'insert arr 1 3
+
+  print "last:" ('last arr)
+  print "pop:" ('pop arr)
+
+  # WARNING: segfault, no last element
+  # print "last:" ('last arr)
+
+  # remove
+  'append arr 0
+  'append arr 1
+
+  'remove arr 0
+
+  print arr
+
+  # you can swap values
+  print "Before Swap"
+
+  'append arr 0
+  print (arr @ 0)
+  print (arr @ 1)
+
+  print "After Swap"
+  'swap arr 0 1
+
+  print (arr @ 0)
+  print (arr @ 1)
+
+  # # reverse
+  # print "reverse"
+
+  # arr = ('reverse arr)
+  # print (arr @ 0)
+  # print (arr @ 1)
+
+  # # sort
+  # print "sort"
+  # 'sort arr
+  # print (arr @ 0)
+  # print (arr @ 1)
+
+
+  # remove all values in the array
+  'clear arr
+  print (countof arr)
+
+  # WARNING: segfault if you try to access values that aren't there
+  #
+  # arr @ 0
+
+  # get the capacity of the array, when this is exceeded it will be
+  # expanded
+  print "capacity:" ('capacity arr)
+
+  # add capacity + 1 elements
+  for i in (range 5)
+      'append arr i
+
+  # capacity is expanded
+  print "capacity:" ('capacity arr)
+
+  # again
+  for i in (range 6)
+      'append arr (i + 5)
+  print "capacity:" ('capacity arr)
+
+  # etc.
+
+  # fixed arrays have the capacity you give them
+  local arr = ((Array i32 10))
+
+  print "capacity:" ('capacity arr)
+
+
+  # You can use 'resize' or 'reserve' to force a particular capacity
+
+  # resize will initialize the elements
+  print "resize"
+
+  local arr = ((Array i32))
+
+  print "capacity:" ('capacity arr)
+  print "countof:" (countof arr)
+  'resize arr 10
+  print "capacity:" ('capacity arr)
+  print "countof:" (countof arr)
+
+  print (arr @ 0)
+
+  # reserve will not initialize the elements
+
+  print "reserve"
+  local arr = ((Array i32))
+
+  print "capacity:" ('capacity arr)
+  print "countof:" (countof arr)
+  'reserve arr 10
+  print "capacity:" ('capacity arr)
+  print "countof:" (countof arr)
+
+  # WARNING: segfault, not initialized
+  # print (arr @ 0)
+
+
+  # casting to generators
+#+end_src
+
+#+RESULTS:
 
 ** Tuples
 
