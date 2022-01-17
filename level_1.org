@@ -242,6 +242,21 @@ There are a few special values defined in the core language:
 - ~null~ :: Which is similar to a null-pointer and is used for pointer
   comparisons.
 
+Some interesting identities:
+
+#+begin_src scopes
+  print (typeof none)
+  print (typeof null)
+
+  let a = ()
+  print (typeof a)
+#+end_src
+
+#+RESULTS:
+: Nothing
+: NullType
+: Nothing
+
 *** Booleans
 
 The two primitive boolean values are given by the two symbols ~true~
@@ -1292,6 +1307,46 @@ You can also directly bind a loaded module to a symbol:
   let string_mod = (import String)
   let str = (string_mod.String "hello")  
 #+end_src
+
+
+You can also do some fancier imports although they are a little
+imperfect in their operation.
+
+Firstly you can rebind particular symbols from a module to another
+name using the ~from~ keyword:
+
+#+begin_src scopes
+  let myString = (from (import String) let String)
+
+  print (myString "Hello")
+
+  print (String "Hello")
+#+end_src
+
+#+RESULTS:
+: Hello
+: hello
+
+**** TODO COMMENT
+TODO: This would work with an updated version of scopes.
+
+However, as you can see the ~String~ symbol is also bound.
+
+This syntax lets you explicitly rebind the symbol without leaving the
+old one around:
+
+#+begin_src scopes
+  from (import String) let
+      myString = String
+
+  print (myString "Hello")
+
+  # isn't available now:
+  # print (String "Hello")
+#+end_src
+
+#+RESULTS:
+
 
 *** Writing Modules
 
