@@ -1,85 +1,146 @@
 * Level 2: Things you would know if you knew C/C++
 
-** structs
 
-Here is a basic example of using a struct:
+** Big Concepts
 
-#+begin_src scopes
-  using import struct
+Scopes can be said to to have the following features/properties which
+will be discussed throughout this section and assumed to have
+knowledge of.
 
-  struct Example
-      value : i32
-      choice = false
-      text : string = ""
+These are that Scopes:
 
-  # There are two ways to construct a value:
+1. supports the C ABI directly.
+2. is statically typed,
+3. is low level and concerned with memory layout and management directly,
+4. supports *multi-stage programming* where the compiler can stay
+   online during exectution,
+5. supports many zero-cost abstractions when possible, and
+6. has a borrow checker.
 
-  # 1. C-ish looking declaration
-  local example : Example
-      value = 100
-      text = "test"
+We will discuss everything but the borrow checker in detail in this
+section. Borrow checking and lifetime management is a somewhat more
+advanced feature than is available in C/C++; made popular by the Rust
+programming language. It is unavoidable that we must confront it when
+using C/C++ equivalent functionality in this level, however we avoid
+discussion of direct manipulation of its features or constructs meant
+to directly leverage it.
 
-  # 2. Assignment "scopes-style"
-  local example =
-      Example
-          value = 100
-          text = "test"
+Instead we will describe the general behavior and the minimum amount
+of annotations and code needed to "make it happy" and avoid
+errors. This is good because ultimately it helps us make less errors
+and the overhead on the code is rather minimal when compared to
+writing C/C++ code.
 
-  print example.value
-  print example.text
-#+end_src
+*** Compilation & Code Generation
 
-#+RESULTS:
-: 100
-: test
+**** The Scopes Compilation Model
+
+The following table summarizes the stages of compilation and execution
+of Scopes code:
+
+| Order | Stage       | From                          | To                 | Macro System |
+|-------+-------------+-------------------------------+--------------------+--------------|
+|     1 | Parsing     | Data Interchange Format (SLN) | S-Expression Tree  |              |
+|     2 | Expansion   | S-Expression Tree             | Untyped Scopes AST | Sugar        |
+|     3 | Checking    | Untyped Scopes AST            | Typed Scopes IL    | Spice        |
+|     4 | Translation | Typed Scopes IL               | LLVM IR / SPIR-V   |              |
+|     5 | Execution   | LLVM IR / SPIR-V              | Program Output     |              |
+
+This table will be very important to understand later concepts in
+metaprogramming and the two macro systems (sugars and spices of which
+we briefly met in Level 1).
+
+However for now its enough to look at stages 3 through 5.
+
+In a scripting language like python you would probably only have steps
+1 and 5, and perhaps 4 depending on the runtime.
+
+In a language with metaprogramming (i.e. macros) you add in step 2
+which allows for generating new code. C/C++ both have this with
+different sophistication levels.
+
+For a statically typed language you add in step 3 which is to do type
+checking.
+
+Step 4 is common to both Scopes and C/C++ however it is different in
+that this is controlled directly in the code rather than through a
+compiler and/or build system which is controlled though either a
+command line interface (unix), GUI (MSVSC), or separate language (most
+build systems like Make, CMake, ninja, etc.)
+
+This opens up a wide number of possibilities that you can do in your
+actual code and removes most of the need for interacting with a build
+system -- which are notoriously aggravating to use.
+
+This does come at the tradeoff that the actual executable code is much
+larger because it must carry around the compiler it uses to generate
+that code at run time. In the case of Scopes this (currently) is the
+LLVM toolset which while sophisticated and generates high quality
+code, is quite heavy weight.
+
+This requirement is perhaps one of the major considerations to make
+when deciding whether scopes is the right tool for the job. In the
+creator's (Leonard Ritter's) own words Scopes is suitable for
+"monolithic multimedia applications". This includes things like video
+games but is perhaps also applicable to native GUI applications,
+window managers, desktop environments, audio or video editing programs
+etc.
+
+These kinds of applications are normally very large anyway due purely
+to the kinds of assets that are needed to ship with them and the
+overhead of a compiler is likely to be negligible.
+
+Also considering the bloat of many GUI frameworks, like Electron,
+having a compiler come for the ride is a drop in the bucket and more
+than pulls its weight for the price.
+
+All that said AOT compilation is possible with Scopes, so you can have
+your cake and eat it too. However, this not being the primary use-case
+for Scopes applications you will have to work a little extra hard to
+achieve it. I consider this an advanced topic and will be covered in
+Level 5.
 
 
-#+begin_src scopes
-  using import struct
-
-  struct thing
-      what : string
-
-  let t = (thing (what = "test"))
-
-  print t.what
-#+end_src
-
-#+RESULTS:
-: test
-
-#+begin_src scopes
-  using import struct
-
-  struct thing
-      what : string
-      size : u32
-
-  let t =
-      thing
-          "Other thing"
-          1:u32
-
-  print t.what
-  print t.size
-
-  let d =
-      thing
-          size = 1:u32
-          what = "Other thing"
-
-  print d.what
-  print d.size
-#+end_src
-
-#+RESULTS:
-: Other thing
-: 1:u32
-: Other thing
-: 1:u32
+**** COMMENT Code Generation
 
 
-** Types
+*** COMMENT Static Types
+
+That Scopes is statically typed (like C/C++) is one of the biggest
+differences between a "dynamically typed" scripting language like
+Python.
+
+In Level 1 we were mostly able to ignore having to declare types at
+all. This is because Scopes is able to infer types. Being able to
+infer types is not a unique feature of Scopes and other languages,
+particularly those from the functional languages like OCaml, have type
+inference.
+
+However, the mainstream statically typed languages like C/C++ or Rust
+all do not do type inference, meaning you must -- almost -- always
+declare your types; even if the compiler could have done it for you.
+
+While these seems annoying there is a utility in this in that
+everything is annotated explicitly so you don't get confused when
+something gets inferred to a type you didn't intend to.
+
+In Scopes you can choose to let the compiler infer types for you (when
+it can) or explicitly declare them.
+
+Because the syntax is often optimized for automatic type inference the
+explicit type declarations typically are available as optional extra
+syntax.
+
+
+TODO:
+- type constructors (typedef)
+- constructing values from types
+- type declaration syntax (annotate examples from Level 1)
+- 
+
+
+
+TODO:
 
 #+begin_src scopes
   print (typeof 'print)
@@ -92,71 +153,30 @@ Here is a basic example of using a struct:
 : u64
 : 4809770749102710031:u64
 
-** Const
+**** TODO COMMENT Typification
 
-#+begin_src scopes
-  print (constant? 1)
-  local a = 1
-  print (constant? a)
-#+end_src
+~static-typify~
 
-#+RESULTS:
-: true
-: false
+*** COMMENT Low Level Memory Management & Layout
 
-** Type Annotations
+**** Pointers
 
-The return values of functions can be explicitly typed, and will be
-type-checked:
+**** Heap Memory Allocation
 
-#+begin_src scopes :tangle _bin/functions_returns.sc
-  fn get-origin ()
-      returning (_: i32 i32)
+**** Constructors & Destructors
 
-      _ 0 0
+**** defer and other lifetime management
 
-  let a b  = (get-origin)
+*** COMMENT Constants
 
-#+end_src
+*Constant* values are opposed to *dynamic* values in that constant
+values can be known before compilation to machine code.
 
-#+RESULTS:
+The compile-time vs run-time distinction in Scopes is considerably
+different than in most purely AOT compiled languages like C/C++ and is
+a major feature of the language.
 
-The ~returning~ statement can occur anywhere in the function
-block. Types will not be cast and the annotation will be strictly
-checked.
-
-
-** dump
-
-#+begin_src scopes
-  fn add (a b)
-      dump a b
-      a + b
-
-  add 3 4
-#+end_src
-
-#+RESULTS:
-
-** TODO Operator Overload
-
-** C-like Strings
-
-
-#+begin_src scopes :tangle _bin/primitives_strings_extractvalue.sc
-  let digits = "0123456789"
-
-  print (digits @ 1)
-#+end_src
-
-#+RESULTS:
-: 49:i8
-
-Where the value is the int value for the char it encodes.
-
-** TODO More Strings
-
-** TODO Arrays
+** Arrays
 
 *** C-style Arrays
 
@@ -382,6 +402,320 @@ Array of structs
 
 #+RESULTS:
 
+** Strings
+
+There are two common types of strings in Scopes which is necessary for
+C compatibility. This might be simplified in the future but
+nonetheless its useful to understand the difference between them.
+
+*** Scopes Strings
+
+The vanilla string in Scopes is the type ~string~. This is what you
+get from the primitive form.
+
+#+begin_src scopes
+  let digits = "0123456789"
+
+  print (typeof digits)
+#+end_src
+
+#+RESULTS:
+: string
+
+You can retrieve elements (characters) from this string.
+
+Where the value is the int value for the char (~i8~) it encodes.
+
+#+begin_src scopes
+  let digits = "0123456789"
+
+  print (typeof (digits @ 1))
+  print (digits @ 1)
+
+#+end_src
+
+#+RESULTS:
+: i8
+: 49:i8
+
+
+The other kind of string is similar to the ~Array~ type previously
+discussed. It is allocated on the heap and can grow in size.
+
+It is provided in the standard library module ~String~:
+
+#+begin_src scopes
+  using import String
+
+  let str = (String "Hello")
+  let str = ("Hello" as String)
+
+  print (typeof str)
+#+end_src
+
+#+RESULTS:
+: <GrowingString i8>
+
+You will notice that the type of ~String~ is only ~<GrowingString i8>~. 
+
+In the future their may be support for similar constructs like
+~FixedString~ and parametric types.
+
+It has similar methods as ~Array~:
+
+#+begin_src scopes
+  using import String
+
+  local str = (String "Hello")
+
+  print ('capacity str)
+  'append str " there sir"
+  print ('capacity str)
+
+  print str
+
+#+end_src
+
+#+RESULTS:
+: 10:usize
+: 27:usize
+: Hello there sir
+
+*** C-like Strings
+
+These are null-terminated strings that are compatible with C-strings.
+
+They can be constructed using the ~rawstring~ type.
+
+#+begin_src scopes
+  let cstring = ("hello" as rawstring)
+
+  print (typeof cstring)
+#+end_src
+
+#+RESULTS:
+: (@ i8)
+
+In keeping with how strings are implemented in C, this is really just
+a pointer to an array of characters (~i8~) as we can see from the
+above type.
+
+
+
+*** Putting Them Together
+
+This is perhaps the biggest "wart" in Scopes that most users will
+encounter and it is there for a good reason: compatibility with C.
+
+Hating on C strings is a very common thing to do, but because
+maintaining a 1:1 correspondance with C is a very high priority it
+must be dealt with. Thankfully Scopes provides some great tools for
+working with this complication.
+
+Also, you may not actually have to deal with ~rawstring~ very often in
+your code. Only in the places where you interface with C code will it
+be a problem.
+
+In practice you can cast `rawstring` to the appropriate Scopes type
+and move on.
+
+Here are some other notes on converting between the string types.
+
+When declaring a string literal, because it is constant, a cast via
+~as~ is zero-cost and the ~string~ type for the literal is never
+instantiated.
+
+E.g.:
+
+#+begin_src scopes
+  "hello" as rawstring
+
+  using import String
+  "hello" as String
+#+end_src
+
+** structs
+
+Structs are a similar construction as in C/C++, however they are
+different in that they aren't a concept built into the core language
+and instead are provided in the standard library.
+
+Here is an example of defining a struct type:
+
+#+begin_src scopes
+  using import struct
+
+  struct Example
+      value : i32
+      choice = false
+      text : string = ""
+
+#+end_src
+
+First we import the symbols in the struct module (i.e. ~struct~) and
+then we define the fields.
+
+Fields can be declared in 3 ways:
+
+1. with a type only (which must be provided upon construction)
+2. with only a default value which the type will be inferred
+3. both a type and a default value, which must match
+
+In the syntax used above there will be a new symbol defined as
+~Example~.
+
+#+begin_src scopes
+  using import struct
+
+  let Example =
+      struct
+          value : i32
+          choice = false
+          text : string = ""
+
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scopes
+
+  # 1. C-ish looking declaration
+  local example : Example
+      value = 100
+      text = "test"
+
+  # 2. Assignment "scopes-style"
+  local example =
+      Example
+          value = 100
+          text = "test"
+
+  print example.value
+  print example.text
+
+#+end_src
+
+
+Just to emphasize that we are still in Scopes and that you can still
+use all the parens you want to make them:
+
+#+begin_src scopes
+  using import struct
+
+  struct thing
+      what : string
+
+  let t = (thing (what = "test"))
+
+  print t.what
+#+end_src
+
+#+RESULTS:
+: test
+
+#+begin_src scopes
+  using import struct
+
+  struct thing
+      what : string
+      size : u32
+
+  let t =
+      thing
+          "Other thing"
+          1:u32
+
+  print t.what
+  print t.size
+
+  let d =
+      thing
+          size = 1:u32
+          what = "Other thing"
+
+  print d.what
+  print d.size
+#+end_src
+
+#+RESULTS:
+: Other thing
+: 1:u32
+: Other thing
+: 1:u32
+
+
+** Const
+
+#+begin_src scopes
+  print (constant? 1)
+  local a = 1
+  print (constant? a)
+#+end_src
+
+#+RESULTS:
+: true
+: false
+
+** Type Annotations
+
+The return values of functions can be explicitly typed, and will be
+type-checked:
+
+#+begin_src scopes :tangle _bin/functions_returns.sc
+  fn get-origin ()
+      returning (_: i32 i32)
+
+      _ 0 0
+
+  let a b  = (get-origin)
+
+#+end_src
+
+#+RESULTS:
+
+The ~returning~ statement can occur anywhere in the function
+block. Types will not be cast and the annotation will be strictly
+checked.
+
+
+** dump
+
+#+begin_src scopes
+  fn add (a b)
+      dump a b
+      a + b
+
+  add 3 4
+#+end_src
+
+#+RESULTS:
+
+** TODO COMMENT Operator Overload
+
+** Dynamic Dispatch
+
+#+begin_src scopes
+  using import enum
+  enum State
+      a : StateA
+      b : StateB
+
+  local curState : State = (State.a (StateA))
+  # now when you deal with states, you do this:
+  dispatch curState
+  case a ()
+      'init a
+  case b ()
+      'init b
+  default
+      ;
+
+  # there's a shorthand for doing the same thing with all fields of an enum:
+  'apply curState
+      inline (T self)
+          'init self
+#+end_src
+
 ** Tuples
 
 In Level 1 we saw how to dynamically define tuples with ~tupleof~. You
@@ -502,9 +836,3 @@ https://gist.github.com/radgeRayden/67b654b5bb8f3227749b5dd7a577ec4d
 
 Namely remember when making small snippets that you can't return
 unique values from a module.
-
-** TODO COMMENT
-
-- [ ] pointers and references
-- [ ] constant values
-- [ ] defer

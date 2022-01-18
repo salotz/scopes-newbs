@@ -338,9 +338,26 @@ To join strings together you can use the ~..~ operator:
   print (header .. " Bob")
 #+end_src
 
-#+begin_src scopes
+Or like the `+=` etc. you can concatenate and assign in a single
+statement:
 
+#+begin_src scopes
+  local msg = ""
+
+  msg ..= "Dear Scopes,\n"
+  msg ..= "    Your charm is irresistable!\n\n"
+  msg ..= "    Love,\n"
+  msg ..= "    Rust"
+
+  print msg
 #+end_src
+
+#+RESULTS:
+: Dear Scopes,
+:     Your charm is irresistable!
+: 
+:     Love,
+:     Rust
 
 You can get the number of characters in a string with the ~countof~
 function:
@@ -351,6 +368,17 @@ function:
   print (countof alphabet)
 #+end_src
 
+You can retrieve a particular character like this:
+
+#+begin_src scopes
+  let alphabet = "abcdefghijklmnopqrstuvwxyz"
+
+  alphabet @ 4
+  (@ alphabet 4)
+#+end_src
+
+#+RESULTS:
+
 
 There are also some slice routines:
 
@@ -359,12 +387,24 @@ There are also some slice routines:
 - ~rslice~ :: Get characters to the right of an index
 
 #+begin_src scopes :tangle _bin/primitives_strings.sc
+  let alphabet = "abcdefghijklmnopqrstuvwxyz"
+
   print (slice alphabet 0 3)
   print (lslice alphabet 3)
 
   print (slice alphabet 3 (countof alphabet))
   print (rslice alphabet 3)
 #+end_src
+
+#+RESULTS:
+: abc
+: abc
+: defghijklmnopqrstuvwxyz
+: defghijklmnopqrstuvwxyz
+
+One final note is that being a low-level language we will have much
+more to talk about with regards to strings in Level 2 for concerns
+regarding interop with C and memory allocation etc.
 
 *** Integers & Unsigned Integers
 
@@ -1627,7 +1667,9 @@ from the Pythonic simplicity we have seen up until now.
 
 *** Tuples
 
-The tuple is probably the simplest of these.
+The tuple is probably the simplest of these. As such we will use it as
+an example to describe general features of more complex types and
+class-like constructs.
 
 A tuple is an immutable datastructure of a fixed size which can
 contain any combination of element types.
@@ -1670,12 +1712,11 @@ Explicitly accessing values via the ~@~ syntax:
 : hello
 : 2.0
 
+There are two methods
 #+begin_src scopes
   let tup = (tupleof (a = 1) (b = "hello"))
   print tup
 
-  # TODO  seems to be broken
-  # print ('explode tup)
   print ('emit tup 'a)
 #+end_src
 
@@ -1683,6 +1724,15 @@ Explicitly accessing values via the ~@~ syntax:
 : (tupleof 1 "hello")
 : 1
 : hello
+
+#+begin_src scopes
+  let tup = (tupleof (a = 1) (b = "hello"))
+
+  print ('explode tup)
+#+end_src
+
+#+RESULTS:
+: 1 hello
 
 
 And further you can actually define values to have keys associated
@@ -1714,7 +1764,7 @@ But you can also use the ~@~ selector instead of the keys:
 Before we dig into the other datastructures we will go over some of
 the common patterns to all of them using the ~tuple~ as an example.
 
-**** Mutable Datastructure
+**** Mutability
 
 If you declare a datastructure as ~local~ you can mutate the
 components as long as they are the same type as in the construction or
@@ -1746,6 +1796,8 @@ infix operator precedence rules, but you can add them if you like:
 : 5
 
 
+#+TODO: explain this part
+
 #+begin_src scopes
   local things = (tupleof (a = 3) (b = "hello"))
 
@@ -1758,6 +1810,7 @@ infix operator precedence rules, but you can add them if you like:
 
 #+RESULTS:
 : 4
+
 
 
 #+begin_src scopes
@@ -1793,7 +1846,63 @@ infix operator precedence rules, but you can add them if you like:
 : 10
 
 
-**** COMMENT Attributes
+**** Attributes, Methods, and Meta-Methods
+
+In the above examples we have used a number of recurring conventions
+for retrieving and setting data using the "dot" operator or the ~@~
+operator.
+
+#+begin_src scopes
+  let t = (tupleof (a = 3) (b = "hello"))
+
+  t @ 0
+  t.a
+  (t . a)
+  (. t a)
+#+end_src
+
+#+RESULTS:
+
+These are implemented via the "metamethods" system which is similar to
+the "magic methods" in Python.
+
+These are protocols which can be customized by each type. This is also
+how operator overload is implemented.
+
+The only difference when compared to operator overload in other
+languages is that this extends to general function-looking
+metamethods.
+
+For instance functions like ~unpack~ as we have seen above. However
+these are different in that they are not infix operators like the dot
+operator.
+
+#+begin_src scopes
+  let t = (tupleof (a = 3) (b = "hello"))
+
+  (unpack t)
+#+end_src
+
+On the dot operator there are 3 different syntaxes which should be
+described.
+
+There is the "prefix" version ~(. t a)~, "infix" version ~(t . a)~,
+and the "sugar" version ~t.a~.
+
+The last one is of interest because it is actually a symbol that gets
+expanded to the prefix version.
+
+Lastly we see the use of this syntax:
+
+#+begin_src scopes
+  let t = (tupleof (a = 3) (b = "hello"))
+
+  ('emit t)
+#+end_src
+
+#+RESULTS:
+
+This is called the "method" syntax.
 
 *** COMMENT Map
 
@@ -1818,9 +1927,32 @@ infix operator precedence rules, but you can add them if you like:
 
 - [ ] Docstrings
 
-** TODO COMMENT
 
-From the ~lang.md~ outline in the unpublished docs:
+** Final Notes
+
+*** Where are the Classes?
+
+One of the most important features of Python is the use of defining
+classes yet we haven't talked about them at all. Does Scopes have an
+equivalent?
+
+The answer is yes, and more!
+
+The short answer to the class equivalent is in the use of structs
+which we will see early on in Level 2 so just continue on to see that.
+
+The longer answer is that because Scopes has extensive support for
+metaprogramming you aren't required to use paradigms like Object
+Oriented Programming and classes to organize your code and
+data. Furthermore, because of this metaprogramming there are multiple
+paradigms that can coexist together. So you might find that using
+classes isn't actually necessary if you aren't forced to like in
+Python.
+
+
+
+
+** TODO COMMENT
 
 - [X] functions
 - [-] bindings
@@ -1835,18 +1967,15 @@ From the ~lang.md~ outline in the unpublished docs:
 - [X] modules
 - [ ] scopes
 - [X] numbers
-- [-] strings
-  - [X] builtin
-  - [ ] String
-  - [ ] rawstring
-- [ ] Tables
+- [X] strings
 - [X] Lists
 - [X] Infix
   - [X] basics
 - [ ] dot notation
+- [ ] attributes and methods
+- [ ] metamethods
 - [X] number formats
 - [ ] copying
 - [ ] splicing
 - [ ] exception handling
-- [ ] types
-- [ ] classes
+- [X] classes
