@@ -534,6 +534,81 @@ E.g.:
   "hello" as String
 #+end_src
 
+You can also convert a ~String~ to a ~rawstring~ easily:
+
+#+begin_src scopes
+  using import String
+
+  ("hello" as String) as rawstring
+#+end_src
+
+#+RESULTS:
+
+However to convert a rawstring to a String you will need to construct
+it directly.
+
+#+begin_src scopes
+  using import String
+
+  let rstr = ("hello" as rawstring)
+
+  let str = (String rstr 5)
+
+  # or get the length dynamically using the string C lib
+  import C.string
+  let str = (String rstr (C.string.strlen rstr))
+
+#+end_src
+
+#+RESULTS:
+
+The last thing you might want to convert to a string fairly often (and
+especially when interacting with the C standard library) is an array
+of char to a string.
+
+This can be done as follows:
+
+#+begin_src scopes
+  using import String
+
+  # Must be local because we need a pointer to it
+  local arr = (arrayof i8 0 1 2 3)
+
+  # pass a pointer to the array and the length of the array
+  let str = (String (& arr) (countof arr))
+#+end_src
+
+
+** I/O
+
+Currently low level I/O is handled using the C standard libraries (or
+whatever other library you want).
+
+Some tips though for interfacing with them.
+
+#+begin_src scopes
+  using import String
+  import C.stdio
+
+  let input-prompt = ">"
+  let result-prompt = "==>"
+
+  # display a prompt
+  (C.stdio.fputs "> " C.stdio.stdout)
+
+  # allocate a C-array for collecting input
+  local input = ((array i8 2048))
+
+  # get input from stdin
+  (C.stdio.fgets input 2048 C.stdio.stdin)
+
+  # then convert to a string
+  let input-str = (String (& input) (countof input))
+
+  print (result-prompt input-str)
+#+end_src
+
+
 ** structs
 
 Structs are a similar construction as in C/C++, however they are
