@@ -1,0 +1,4 @@
+* I/O
+
+Some examples with I/O. These just don't work well in the notebook
+execution so I put them here.
