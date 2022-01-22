@@ -191,6 +191,10 @@ You can write them more simply in a summation type notation:
 Functions in prefix notation are also more flexible when you get to
 higher order functional programming.
 
+*** COMMENT List of Built-In Operators
+
+
+
 ** Primitives & Simple Expressions
 
 *** Overview
