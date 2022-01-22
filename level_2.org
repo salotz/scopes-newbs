@@ -658,6 +658,26 @@ use all the parens you want to make them:
 
 ** Type Annotations
 
+
+*** Variables
+
+Similar to C/C++ you can declare variables without explicitly setting
+their values and give them a type.
+
+#+begin_src scopes
+  local count : i32
+
+  print count
+  count = 4
+  print count
+#+end_src
+
+#+RESULTS:
+: 0
+: 4
+
+*** Functions
+
 The return values of functions can be explicitly typed, and will be
 type-checked:
 
