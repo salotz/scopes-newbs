@@ -220,3 +220,25 @@ Why doesn't this work?
 
   ;
 #+end_src
+
+
+#+begin_src scopes
+  fn dovoid ()
+
+  print (typeof (dovoid))
+#+end_src
+
+#+RESULTS:
+
+
+#+begin_src scopes
+
+
+  fn dothing ()
+      1 + 1
+
+  print (typeof dothing)
+#+end_src
+
+#+RESULTS:
+: Closure

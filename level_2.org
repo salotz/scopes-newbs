@@ -1497,7 +1497,7 @@ manager in the ~_guix/dev/dev~ directory.
 
 
 
-** defer
+** Destructors & defer
 
 Not really a feature in C++ but more from the Go family.
 

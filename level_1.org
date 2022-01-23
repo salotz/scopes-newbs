@@ -191,9 +191,106 @@ You can write them more simply in a summation type notation:
 Functions in prefix notation are also more flexible when you get to
 higher order functional programming.
 
-*** COMMENT List of Built-In Operators
+*** List of Built-In Operators
+
+| symbol     | name | function | prefix? |
+|------------+------+----------+---------|
+| -          |      |          |         |
+| ~/~        |      |          |         |
+| <<         |      |          |         |
+| >>         |      |          |         |
+| bitcount   |      |          |         |
+| findmsb    |      |          |         |
+| findlsb    |      |          |         |
+| bitreverse |      |          |         |
+
+*** COMMENT Bitwise Operators
+
+TODO move to level 2 for these conversions
+
+Convert an int to a bitstring
+
+Method one of converting a u32 int to a bitstring. This has potential
+problems and is more operations.
+
+#+begin_src scopes
+  using import String
+
+  let n = 8
+
+  local bits = (String 32)
+
+  for k in (range 32)
+      let mask = (1 << k)
+      let masked_n = (n & mask)
+      let the-bit = (masked_n >> k)
+      'append bits (tostring the-bit)
+
+  print bits
+#+end_src
+
+#+RESULTS:
+: 00010000000000000000000000000000
 
 
+A better way of doing this, but requires using a u32
+
+#+begin_src scopes
+
+  using import String
+
+  let n = 8:u32
+
+  local bits = (String 32)
+
+  for k in (range 32:u32)
+      let bit = ((n >> k) & 1)
+      'append bits (tostring bit)
+
+  print bits
+
+#+end_src
+
+#+RESULTS:
+: 00010000000000000000000000000000
+
+
+Function to do this:
+
+#+begin_src scopes
+  using import String
+
+  fn reverse-string (str)
+
+      local revstr = (String)
+      for char in ('reverse (String str))
+          'append revstr char
+
+      (tostring revstr)
+
+  print (reverse-string "hello")
+
+  fn u32_to_bitstring (n)
+      local bits = (String 32)
+
+      for k in (range 32:u32)
+          let bit = ((n >> k) & 1)
+          'append bits (tostring bit)
+
+      return (reverse-string (tostring bits))
+
+  # for i in (range 10:u32)
+  #     print (.. (tostring i) ": " (u32_to_bitstring i))
+
+  print (u32_to_bitstring 8:u32)
+  print (u32_to_bitstring (~ 8:u32))
+
+#+end_src
+
+#+RESULTS:
+: olleh
+: 00000000000000000000000000001000
+: 11111111111111111111111111110111
 
 ** Primitives & Simple Expressions
 
@@ -201,16 +298,16 @@ higher order functional programming.
 
 Overview:
 
-| Type                  | Type Symbols                              | Example                                        |
-|-----------------------+-------------------------------------------+------------------------------------------------|
-| Boolean               | ~bool~                                    | ~true~, ~false~                                |
-| Integer               | ~i32~ (default), ~i8~, ~i16~, ~i64~       | ~1~, ~-4~, ~+7~, ~3:i8~, ~0x20~                |
-| Unsigned Integer      | ~u8~, ~u16~, ~u32~, ~u64~                 | ~3:u64~                                        |
-| Floating Point Number | ~f32~ (default), ~f64~ (double precision) | ~1.~, ~1.0~, ~3.456:f64~, ~nan~, ~inf~, ~1e12~ |
-| Empty Signifier       | ~Nothing~                                 | ~none~                                         |
-| Null Pointer          | ~NullType~                                | ~null~                                         |
-| Fixed-lengthString    | ~string~                                  | ~"hello"~                                      |
-| Lists                 | ~List~                                    | ~'()~, ~'("a" true 1)~, ~'[0 1]~, ~{3; 1 }~    |
+| Type                  | Type Symbols                              | Example                                          |
+|-----------------------+-------------------------------------------+--------------------------------------------------|
+| Boolean               | ~bool~                                    | ~true~, ~false~                                  |
+| Integer               | ~i32~ (default), ~i8~, ~i16~, ~i64~       | ~1~, ~-4~, ~+7~, ~3:i8~, ~0x20~, ~0b01101001:i8~ |
+| Unsigned Integer      | ~u8~, ~u16~, ~u32~, ~u64~                 | ~3:u64~                                          |
+| Floating Point Number | ~f32~ (default), ~f64~ (double precision) | ~1.~, ~1.0~, ~3.456:f64~, ~nan~, ~inf~, ~1e12~   |
+| Empty Signifier       | ~Nothing~                                 | ~none~                                           |
+| Null Pointer          | ~NullType~                                | ~null~                                           |
+| Fixed-lengthString    | ~string~                                  | ~"hello"~                                        |
+| Lists                 | ~List~                                    | ~'()~, ~'("a" true 1)~, ~'[0 1]~, ~{3; 1 }~      |
 
 Note that you can determine the type of a value with the ~typeof~
 function:
