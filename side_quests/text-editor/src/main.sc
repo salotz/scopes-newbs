@@ -1,46 +1,95 @@
 using import struct
 using import String
-import C.string
 using import UTF-8
 
-fn import_c_stdlib (header-name)
+import C.string
+import C.stdlib
 
-    let header = (include header-name)
+# TODO: make this easier
+# fn import_c_stdlib (header-name)
 
-    ..
-        header.extern
-        header.typedef
-        header.define
-        header.const
-        header.struct
+#     let header = (include header-name)
 
-let C.termios = (import_c_stdlib "termios.h")
-let C.termios = (import_c_stdlib "unistd.h")
+#     ..
+#         header.extern
+#         header.typedef
+#         header.define
+#         header.const
+#         header.struct
 
-# just define the FILNOs ourselves instead of loading from unistd.h
-let STDIN_FILENO = 0
-let STDOUT_FILENO = 1
-let STDERR_FILENO = 2
+# let C.termios = (import_c_stdlib "termios.h")
+# let C.termios = (import_c_stdlib "unistd.h")
 
-let C.termios =
-    (include "termios.h") . extern
 
-let C.unistd =
-    (include "unistd.h") . extern
+let C:termios = (include "termios.h")
+let C:unistd = (include "unistd.h")
 
-# fn enable_term_rawmode ()
-    
+# the original termios struct so we can revert, definition
+global orig_termios : C:termios.struct.termios
 
-# fn disable_term_rawmode ()
+fn disable_term_rawmode ()
+
+    print "Disabling Raw Mode"
+
+    C:termios.extern.tcsetattr
+        C:unistd.define.STDIN_FILENO
+        C:termios.define.TCSAFLUSH
+        (& orig_termios)
+
+
+fn enable_term_rawmode ()
+
+    print "Enabling Raw Mode"
+
+    # collect the original termios structure
+    C:termios.extern.tcgetattr
+        C:unistd.define.STDIN_FILENO
+        (& orig_termios)
+
+    # NOTE: atexit doesn't seem to work since it is loaded weirdly
+
+    # set the atexit handler to disable rawmode
+    # (C.stdlib.atexit disable_term_rawmode)
+
+    # start the rawmode termios with the original
+    local raw_termios = orig_termios
+
+    # then set the flags in raw_termios
+    C:termios.extern.tcgetattr
+        C:unistd.define.STDIN_FILENO
+        (& raw_termios)
+
+    # all the flags you want to set
+    raw_termios.c_lflag =
+        ~
+            |
+                (C:termios.define.ECHO as u32)
+                (C:termios.define.ICANON as u32)
+
+    C:termios.extern.tcsetattr
+        C:unistd.define.STDIN_FILENO
+        C:termios.define.TCSAFLUSH
+        (& raw_termios)
+
 
 
 fn read_char (input)
-    (C.unistd.read STDIN_FILENO (& input) 1)
+
+    C:unistd.extern.read
+        C:unistd.define.STDIN_FILENO
+        (& input)
+        1
 
 # fn rawstring_to_String (rstr)
 #     (String rstr (C.string.strlen rstr))
 
+## Constants
+
+
 fn main ()
+
+    enable_term_rawmode;
+    defer disable_term_rawmode;
 
     local input : i8
 
@@ -61,5 +110,7 @@ fn main ()
             read-result = (read_char input)
 
 
+    # uses the atexit handler to make sure this works
+    # disable_term_rawmode;
 
 main;
