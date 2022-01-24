@@ -2045,6 +2045,23 @@ This is called the "method" syntax.
 - [ ] Docstrings
 
 
+
+** Other Helpful Miscellanea
+
+TODO: move this to level 2 since it is basically the info you would
+have in a C/C++ type declaration.
+
+You can get the qualifiers of a value using the `qualifiersof`
+operator. This is similar to `typeof` but with more information:
+
+#+begin_src scopes
+  let a = 2
+  local b = 2
+
+  qualifiersof a
+  qualifiersof b
+#+end_src
+
 ** Final Notes
 
 *** Where are the Classes?
