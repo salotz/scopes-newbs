@@ -579,6 +579,51 @@ This can be done as follows:
 #+end_src
 
 
+*** Encodings & Conversion
+
+In addition to converting between the string types you will also at
+some point need to deal with encodings and converting between arrays
+of bytes/ints and strings.
+
+For this there is the ~UTF-8~ module in the standard library for which
+we already saw the use of the ~char32~ function.
+
+The encoding (ints to string) and decoding (string to ints) functions
+are currently only implemented as generators; which while very useful
+are a little cumbersome to use if you aren't familiar with generators
+and collectors yet.
+
+So we suggest simply making a wrapper function that will do the
+conversion for you without generators:
+
+#+begin_src scopes
+  using import itertools
+  let utf = (import UTF-8)
+
+  fn utf8-encode (arr)
+      ->>
+          arr
+          utf.encoder
+          string.collector ((countof arr) * (sizeof i32))
+
+  local decoded-string = (arrayof i32 63:i32 97:i32)
+  print (utf8-encode decoded-string)
+
+  # single charactar encode
+  fn char-encode (ch)
+      local arr = (arrayof i32 ch)
+      (utf8-encode arr)
+
+  print (char-encode 63:i32)
+#+end_src
+
+#+RESULTS:
+: ?a
+: ?
+
+
+TODO make the decoder since there is no default collector for arrays.
+
 ** I/O
 
 Currently low level I/O is handled using the C standard libraries (or

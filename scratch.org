@@ -242,3 +242,169 @@ Why doesn't this work?
 
 #+RESULTS:
 : Closure
+
+
+#+begin_src scopes
+  vvv bind C:ctype
+  include
+      """"#include <ctype.h>
+          typeof(iscntrl('a')) patched_iscntrl(char c) {
+              return iscntrl(c);
+          }
+
+
+  using import UTF-8
+
+  print (C:ctype.extern.patched_iscntrl (char32 "a"))
+#+end_src
+
+#+RESULTS:
+: 0
+
+
+#+begin_src scopes
+  using import itertools
+  let utf = (import UTF-8)
+
+  fn utf8-encode (arr)
+      ->>
+          arr
+          utf.encoder
+          string.collector ((countof arr) * (sizeof i32))
+
+  local src = (arrayof i32 63:i32 97:i32)
+
+  let dst = (utf8-encode src)
+
+  print dst
+#+end_src
+
+#+RESULTS:
+: ?a
+
+
+encode a single character:
+
+#+begin_src scopes
+  using import itertools
+  let utf = (import UTF-8)
+
+  fn utf8-char-encode (ch)
+      local arr = (arrayof i32 ch)
+      ->>
+          arr
+          utf.encoder
+          string.collector (sizeof i32)
+
+  local src = (arrayof i32 63:i32 97:i32)
+
+  let src = (63:i8 as i32)
+
+  let dst = (utf8-char-encode src)
+
+  print dst
+#+end_src
+
+#+RESULTS:
+: ?
+
+
+#+begin_src scopes
+  using import struct
+
+  struct myException
+      what : string
+
+  try
+      raise (myException "an error occurred")
+  except (e)
+      print e.what
+#+end_src
+
+#+RESULTS:
+: an error occurred
+
+
+
+
+#+begin_src scopes
+  using import Option
+  using import struct
+
+  struct Thing global
+      always : i32
+      sometimes : (Option i32)
+
+  let t1 =
+      Thing
+          1
+          2
+
+  let t2 =
+      Thing
+          1
+          none
+
+  print t1.sometimes
+  print t2.sometimes
+
+  ;
+#+end_src
+
+#+RESULTS:
+: Some
+: None
+
+
+#+begin_src scopes
+  using import Option
+
+  global option : (Option i32)
+
+  option = 2
+
+#+end_src
+
+#+RESULTS:
+
+
+
+#+begin_src scopes
+  using import String
+
+  local a = (String "hello")
+
+  print a
+
+  local b = (copy a)
+
+  print b
+
+  b = (String "testing")
+
+  print b
+  print a
+#+end_src
+
+#+RESULTS:
+: hello
+: hello
+: testing
+: hello
+
+
+#+begin_src scopes
+  inline hidden ()
+      defer print "inline destructor"
+      print "body of inline"
+
+  print "Calling inline"
+  hidden;
+  print "After inline"
+#+end_src
+
+#+RESULTS:
+: Calling inline
+: body of inline
+: After inline
+: inline destructor
