@@ -4,6 +4,10 @@ using import Option
 let C:termios = (include "termios.h")
 let C:unistd = (include "unistd.h")
 
+# we hardcode VMIN so that the terminal always returns
+let
+    VMIN = 0
+
 struct TermiosError
     error-code : i32
     termios-state : C:termios.struct.termios
@@ -63,7 +67,7 @@ fn disable_term_rawmode (original_termios)
 
     ;
 
-fn enable_term_rawmode ()
+fn enable_term_rawmode (vtime)
 
     # the termios state when we started rawmode
     local orig_termios = (get_termios_state)
@@ -100,8 +104,8 @@ fn enable_term_rawmode ()
                 (C:termios.define.ISIG as u32)
 
     # set the timeout for reading
-    (raw_termios.c_cc @ C:termios.define.VMIN) = 0
-    (raw_termios.c_cc @ C:termios.define.VTIME) = 1
+    (raw_termios.c_cc @ C:termios.define.VMIN) = VMIN
+    (raw_termios.c_cc @ C:termios.define.VTIME) = vtime
 
     C:termios.extern.tcsetattr
         C:unistd.define.STDIN_FILENO
@@ -119,26 +123,31 @@ inline raw_print! (str)
 ## Macros
 
 # set and forget
-sugar ~do_rawmode
-    # """"Starts rawmode and registers the defer to reset to original
-    #     mode at the end of the containing scope.
+sugar ~do_rawmode (vtime)
 
-    let raw_print!
+    let
+        raw_print!
+        vtime
+        get_termios_state
+        disable_term_rawmode
+        enable_term_rawmode
 
-    qq
-        # patch print to use the correct newlines
-        let _print = print
-        let print = [raw_print!]
+    let result =
+        qq
+            # patch print to use the correct newlines
+            let _print = print
+            let print = [raw_print!]
 
-        local orig-termios-state = (termios.get_termios_state)
-        defer termios.disable_term_rawmode orig-termios-state
-        (termios.enable_term_rawmode)
+            local orig-termios-state = ([get_termios_state])
+            defer [disable_term_rawmode] orig-termios-state
+            ([enable_term_rawmode] [vtime])
 
+    result
 
 # context manager
-sugar term_rawmode: (body...)
+sugar term_rawmode: (vtime body...)
 
-    let raw_print!
+    let raw_print! vtime
 
     qq
         do
@@ -148,7 +157,7 @@ sugar term_rawmode: (body...)
 
             local orig-termios-state = (termios.get_termios_state)
             defer termios.disable_term_rawmode orig-termios-state
-            (termios.enable_term_rawmode)
+            (termios.enable_term_rawmode [vtime])
             unquote-splice body...
 
 let macros =
@@ -159,7 +168,7 @@ let macros =
 
 do
     let
-        # TermiosError
+        TermiosError
         tcsetattr
         tcgetattr
         get_termios_state

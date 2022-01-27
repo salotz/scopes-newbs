@@ -408,3 +408,11 @@ encode a single character:
 : body of inline
 : After inline
 : inline destructor
+
+
+#+begin_src scopes
+  exit
+  ;
+#+end_src
+
+#+RESULTS:

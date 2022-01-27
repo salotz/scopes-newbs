@@ -25,6 +25,13 @@ using termios.macros
 
 import .util
 
+## Constants
+
+# in tenths of a second how long read times out on
+let TERMIOS_VTIME = 1:u8
+
+
+
 ## Functions
 fn read_char (input)
 
@@ -33,8 +40,6 @@ fn read_char (input)
         (& input)
         1
 
-## Constants
-
 
 fn main ()
 
@@ -42,14 +47,22 @@ fn main ()
     print "Press any key"
     print "Press 'q' to quit"
 
+    local terminate? = false
+    local error? = false
+
     # turns rawmode on and shuts it down at the end of the surrounding function
-    ~do_rawmode
+    # try
+    local orig-termios-state = (termios.get_termios_state)
+    defer termios.disable_term_rawmode orig-termios-state
+    (termios.enable_term_rawmode TERMIOS_VTIME)
+    # patch the print statement
+    let _print = print
+    let print = termios.raw_print!
 
     # set up the main loop
     local input : i8
 
-    local terminate = false
-    while (not terminate)
+    while (not terminate?)
 
         # read input
         let read-result = (read_char input)
@@ -68,9 +81,12 @@ fn main ()
         # q for the terminate condition, do this first so we can always exit
         if (input == (char32 "q"))
             print  "terminating"
-            terminate = true
+            terminate? = true
 
-    ;
+    if error?
+        return false
+    else
+        return true
 
 
 main;
