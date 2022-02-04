@@ -2208,7 +2208,7 @@ Python.
 - [X] conditionals
 - [X] loops
 - [X] modules
-- [ ] scopes
+- [X] scopes
 - [X] numbers
 - [X] strings
 - [X] Lists
@@ -2223,4 +2223,3 @@ Python.
 - [X] exception handling
 - [ ] iterators
 - [ ] streams
-- [X] classes
