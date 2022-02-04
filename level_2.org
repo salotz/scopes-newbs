@@ -830,7 +830,28 @@ checked.
 
 #+RESULTS:
 
+
 ** TODO COMMENT Operator Overload
+
+** Type Methods
+
+Types can have methods associated with them similar to how classes do.
+
+#+begin_src scopes
+
+#+end_src
+
+
+** Metamethods
+
+Similar to Python types support the idea of metamethods (called magic
+methods in Python) which are special methods that when implemented can
+be used in a protocol for various kinds of tasks.
+
+Metamethods are methods that start with a double underscore. The
+metamethod symbol must match the corresponding operators.
+
+
 
 ** Dynamic Dispatch
 
