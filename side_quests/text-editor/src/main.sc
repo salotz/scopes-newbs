@@ -1,7 +1,8 @@
 using import struct
 using import String
 using import Option
-let char32 = (from (import UTF-8) let char32)
+using import enum
+(from (import UTF-8) let char32)
 
 
 import C.string
@@ -30,7 +31,15 @@ import .util
 # in tenths of a second how long read times out on
 let TERMIOS_VTIME = 1:u8
 
+let CTRL_KEY_BITMASK = 0x1f
 
+## Structs
+enum EditorActions
+    Nothing
+    Terminate
+
+# enum Keys plain
+#     C-q = 
 
 ## Functions
 fn read_char (input)
@@ -40,12 +49,61 @@ fn read_char (input)
         (& input)
         1
 
+    input
+
+# modifier keys
+
+# gets the code for a C-<key> that is pressed
+inline ctrl_key (k)
+    (& k CTRL_KEY_BITMASK)
+
+fn editor_read_key ()
+
+    local input : i8
+
+    let read-result = (read_char input)
+
+    read-result
+
+    # TODO
+    # # handle control characters
+    # let is_control_char = (C:ctype.extern.patched_iscntrl input)
+
+    # # echo the correct representation of the input to stdout
+    # if (is_control_char == 0)
+    #     print (util.char_encode input)
+
+
+fn editor_dispatch_keypress ()
+
+    let input-key = (editor_read_key)
+
+    print input-key
+
+    switch input-key
+
+    case (ctrl_key (char32 "q"))
+        EditorActions.Terminate
+
+    default
+        EditorActions.Nothing
+
+fn perform_editor_action (action)
+
+    switch action
+
+    case EditorActions.Terminate
+        print "terminating"
+        action
+
+    default
+        action
 
 fn main ()
 
     print "Welcome to skilo"
     print "Press any key"
-    print "Press 'q' to quit"
+    print "Press 'C-q' to quit"
 
     local terminate? = false
     local error? = false
@@ -59,36 +117,25 @@ fn main ()
     let _print = print
     let print = termios.raw_print!
 
-    # set up the main loop
-    local input : i8
+    local k : i64
+    # local action : EditorActions
 
-    while (not terminate?)
+    while true
+        # k = (editor_read_key)
 
-        # read input
-        let read-result = (read_char input)
+        let action = (editor_dispatch_keypress)
 
-        # handle control characters
-        let is_control_char = (C:ctype.extern.patched_iscntrl input)
+        # (perform_editor_action action)
 
-        # echo the correct representation of the input to stdout
-        if (is_control_char == 0)
-            print (util.char_encode input)
 
         # elseif (is_control_char == 2)
         #     print (tostring input)
 
-
         # q for the terminate condition, do this first so we can always exit
-        if (input == (char32 "q"))
-            print  "terminating"
-            terminate? = true
+        # if (input == (ctrl_key (char32 "q")))
+        #     print  "terminating"
+        #     terminate? = true
 
-    if error?
-        return false
-    else
-        return true
+# main;
 
-
-main;
-
-;
+locals;
