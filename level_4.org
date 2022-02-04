@@ -1,5 +1,24 @@
 * Level 4: Going super-saiyan, Scopes trick-shots
 
+
+** Borrow Checker
+
+From the discord chat from Leonard:
+
+#+begin_quote
+lose has no equivalent; it's basically like saying "stop tracking this unique value", which means it will never be dropped
+[2:06 PM]
+dupe clones a unique value without making a real copy; meaning, if lose isn't called on either value afterwards, there's going to be two drops of the same resource
+[2:06 PM]
+what you should use instead to make copies is copy
+[2:06 PM]
+in C++, copies are implicit, so such a call isn't necessary
+[2:07 PM]
+but in scopes, every assignment is a move
+[2:07 PM]
+and let is just a binding, it generates no code
+#+end_quote
+
 ** Decorators
 
 
