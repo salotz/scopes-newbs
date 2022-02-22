@@ -803,6 +803,19 @@ But we can also compare symbols like strings too:
 #+end_src
 
 
+You can also construct symbols from strings using the constructor:
+
+#+begin_src scopes
+  print ('thingy == (Symbol "thingy"))
+#+end_src
+
+#+RESULTS:
+: true
+
+We will see later that this is very useful for programmatically
+accessing symbols from a module.
+
+
 *** Lists
 
 **** Some Context
@@ -1425,7 +1438,7 @@ Recursion is achieved using ~this-function~:
 
 Scopes provides a module system very much like python.
 
-*** Using Modules
+*** Importing Modules
 
 You can import installed libraries and use their methods such as:
 
@@ -1483,6 +1496,7 @@ accepts keyed values for imported values:
 #+RESULTS:
 : type
 : hello
+
 
 *** Writing Modules
 
@@ -1668,9 +1682,7 @@ being imported using ~main-module?~.
 : module code
 : running tests...
 
-*** Scopes
-
-NOTE: this is a bit more of an advanced section.
+*** Modules are Just First Class Scopes
 
 We should talk about the namesake of the language ~Scope~, and what
 makes it different from a module system like Python.
@@ -1773,6 +1785,15 @@ Here is an example of this building on a constructed ~Scope~:
 
 #+RESULTS:
 : hello
+
+
+Scopes are actually a really useful as a mapping data structure for
+small numbers of static assets and can kind of replace a Python ~dict~
+for a lot of use cases.
+
+To hear more about this and the other utilities of ~Scopes~ see the
+section on them in Datastructures.
+
 
 ** Characters
 
@@ -2217,7 +2238,168 @@ Lastly we see the use of this syntax:
 
 This is called the "method" syntax.
 
-*** COMMENT Map
+*** Scopes
+
+We saw how ~Scopes~ are the foundation of modules and first class
+namespaces in Scopes (the language). This brings up an interesting use
+case of a ~Scope~ as a kind of simple "map" type akin to a hash table
+or python dictionary.
+
+We saw in the 'List' section how to implement some "map" types with
+simple lists, but these are undesirable as data structures because
+they are purely syntactic and don't really exist at run time at all.
+Lists really only exist to contain syntax and to be manipulated for
+macros, the core metaprogramming feature of lisp-like languages.
+
+But what if you aren't metaprogramming? You just want to use something
+like Python. In this case a ~Scope~ might be a good choice for
+replacing a dictionary.
+
+However, because Scopes is a low-level language there will be a
+necessary distinction between data-structures like Hash Maps (see
+'Maps' below) which will dynamically allocate memory and static,
+immutable ones like the ~Scope~.
+
+~Scopes~ are useful for if you know up front what all the entries will
+be in the map, or they rarely change.
+
+For instance you might have the following kind of code somewhere
+defining some constants. This could be transformed into a
+~Scope~. Both are shown in this snippet:
+
+#+begin_src scopes
+  # using variables
+  let
+      retriever = "A loyal dog that fetches dead ducks."
+      poodle = "A haute one, with curly locks."
+      dachsund = "Kills badgers."
+
+  print "Variable style"
+  print "retriever: " retriever
+  print "poodle: " poodle
+  print "dachsund: " dachsund
+
+
+  # using a Scope
+  let breeds =
+      do
+          let
+              retriever = "A loyal dog that fetches dead ducks."
+              poodle = "A haute one, with curly locks."
+              dachsund = "Kills badgers."
+          locals;
+
+
+  print "\nScope style"
+  for breed description in breeds
+      print description
+#+end_src
+
+#+RESULTS:
+: Variable style
+: retriever:  A loyal dog that fetches dead ducks.
+: poodle:  A haute one, with curly locks.
+: dachsund:  Kills badgers.
+: 
+: Scope style
+: "A loyal dog that fetches dead ducks."
+: "A haute one, with curly locks."
+: "Kills badgers."
+
+As you can see in this example you can loop over all of the values in
+a ~Scope~.
+
+You can get values out of the scope using a lookup by using the
+~getattr~ metamethod:
+
+#+begin_src scopes
+  let breeds =
+      do
+          let
+              retriever = "A loyal dog that fetches dead ducks."
+              poodle = "A haute one, with curly locks."
+              dachsund = "Kills badgers."
+          locals;
+
+  # use the symbol syntax
+  print (getattr scope 'poodle)
+
+  # programatically construct the symbol
+  print (getattr scope (Symbol "dachsund"))
+#+end_src
+
+#+RESULTS:
+: A haute one, with curly locks.
+: Kills badgers.
+
+~Scopes~ also have a number of other operators and metamethods you can
+use. Here are some useful ones.
+
+
+Combine scopes together with ~..~:
+
+#+begin_src scopes
+  let breeds =
+      do
+          let
+              retriever = "A loyal dog that fetches dead ducks."
+              poodle = "A haute one, with curly locks."
+              dachsund = "Kills badgers."
+          locals;
+
+  let other-breeds =
+      do
+          let
+              shepherd = "Can keep your sheep in line."
+          locals;
+
+
+  let all-breeds = (.. breeds other-breeds)
+
+  run-stage;
+
+  print all-breeds.shepherd
+  print all-breeds.poodle
+#+end_src
+
+#+RESULTS:
+: Can keep your sheep in line.
+: A haute one, with curly locks.
+
+
+**** COMMENT More Scopes Stuff
+
+Nested ~Scopes~:
+
+#+begin_src scopes
+  let breeds =
+      do
+          let
+              retriever = "A loyal dog that fetches dead ducks."
+              poodle = "A haute one, with curly locks."
+              dachsund = "Kills badgers."
+          locals;
+
+
+  let dog-info =
+      do
+          let
+              breeds = breeds
+              dog = "A dog is a kind of quadruped."
+          locals;
+
+  print dog-info.dog
+  print dog-info.breeds.poodle
+#+end_src
+
+#+RESULTS:
+: A dog is a kind of quadruped.
+: A haute one, with curly locks.
+: (nullof Scope):Scope
+
+*** Map
+
+Basics of a Map.
 
 #+begin_src scopes
   using import Map
@@ -2227,11 +2409,14 @@ This is called the "method" syntax.
 
   'set mymap "a" 3:i32
 
-  if ('in? mymap "a")
+  try
       print ('get mymap "a")
+  except (e)
+      print "'a' not in mymap "
 #+end_src
 
 #+RESULTS:
+: 3
 
 
 ** COMMENT Generators & Iteration
