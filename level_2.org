@@ -402,6 +402,151 @@ Array of structs
 
 #+RESULTS:
 
+
+You can also construct arrays with initial values:
+
+#+begin_src scopes
+  using import Array
+
+  let things = ((Array string) "a" "b" "c")
+
+  let numbers =
+      (Array f32)
+          4.0
+          3.0
+
+  print (numbers @ 0)
+
+  using import struct
+
+  struct Dog plain
+      name : string
+      bark : string = "woof"
+      height : f32
+
+  let dogs =
+      (Array Dog)
+          Dog
+              "Fido"
+              "Bow! Wow!"
+              43
+          Dog
+              "Max"
+              "Wong! Wong!"
+              56
+
+
+  print ((dogs @ 0) . name)
+#+end_src
+
+#+RESULTS:
+: 4.0
+: Fido
+
+
+*** Some Examples
+
+
+**** Looping Over Arrays
+
+Arrays can be cast to generators implicitly so we can loop over them
+directly:
+
+#+begin_src scopes
+  using import Array
+
+  let things = ((Array string) "a" "b" "c")
+
+  for thing in things
+      print thing
+#+end_src
+
+#+RESULTS:
+: a
+: b
+: c
+
+A common pattern in programming languages is to loop over a range of
+values with an index.
+
+In "C-style" you would use a for-loop with an increment counter and
+then access the data from the array you want to iterate over.
+
+In Scopes you can do this if you know everything statically/constant:
+
+#+begin_src scopes
+  using import Array
+
+  let array_size = 3
+
+  let things = ((Array string array_size) "a" "b" "c")
+
+  # print (things @ 0)
+
+  loop (idx = 0)
+
+      if (idx < array_size)
+
+          print (.. (tostring idx) ": " (things @ idx))
+
+          repeat (idx + 1)
+      else
+          break idx
+
+  ;
+#+end_src
+
+#+RESULTS:
+: 0: a
+: 1: b
+: 2: c
+
+
+If you don't know the length of the array you can do something like
+this:
+
+#+begin_src scopes
+  using import Array
+
+  local things = ((Array string) "a" "b" "c")
+
+  for idx in (range (countof things))
+      print (.. (tostring idx) ": " (things @ idx))
+#+end_src
+
+#+RESULTS:
+: 0: a
+: 1: b
+: 2: c
+
+However, here you have a potential to go out-of-bounds with the loop
+because the ~range~ is not constant and computed at run time. I.e. if
+it was ~(range 4)~ you would get a segfault.
+
+Notice also that to make this work we needed to make the ~things~ a
+mutable variable with ~local~.
+
+So this isn't really a recommended way to do things.
+
+Similar to how you would do this in Python you can use the ~zip~
+generator from ~itertools~:
+
+#+begin_src scopes
+  using import itertools
+  using import Array
+
+  let things = ((Array string) "a" "b" "c")
+
+  for idx thing in (zip (range (countof things)) things)
+      print (.. (tostring idx) ": " thing)
+
+#+end_src
+
+#+RESULTS:
+: 0: a
+: 1: b
+: 2: c
+
 ** Strings
 
 There are two common types of strings in Scopes which is necessary for
@@ -762,6 +907,9 @@ use all the parens you want to make them:
 : 1:u32
 : Other thing
 : 1:u32
+
+** Scopes (not the language)
+
 
 
 ** Const
