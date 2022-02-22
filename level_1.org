@@ -1468,26 +1468,21 @@ name using the ~from~ keyword:
 : Hello
 : hello
 
-**** TODO COMMENT
-TODO: This would work with an updated version of scopes.
-
-However, as you can see the ~String~ symbol is also bound.
-
-This syntax lets you explicitly rebind the symbol without leaving the
-old one around:
+However notice that the ~String~ is dumped into the local
+namespace. To get around this we can use another (newer) syntax which
+accepts keyed values for imported values:
 
 #+begin_src scopes
   from (import String) let
-      myString = String
+      str = String
 
-  print (myString "Hello")
-
-  # isn't available now:
-  # print (String "Hello")
+  print (typeof str)
+  print (str "hello")
 #+end_src
 
 #+RESULTS:
-
+: type
+: hello
 
 *** Writing Modules
 
