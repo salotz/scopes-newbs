@@ -1,4 +1,14 @@
 
+#+begin_src scopes
+  fn log (msg)
+      (print (.. "===>" msg))
+
+  log "hjello"
+#+end_src
+
+#+RESULTS:
+: ===>hjello
+
 ** dunno
 
 #+begin_src scopes
@@ -166,6 +176,41 @@ Why doesn't this work?
 #+RESULTS:
 : hello
 
+#+begin_src scopes
+  let scope =
+      'bind-symbols (Scope)
+          message = "hello"
+          name = "Bob"
+
+  run-stage;
+
+  print (typeof scope)
+  print scope.name
+  ;
+#+end_src
+
+#+RESULTS:
+: Scope
+: Bob
+
+
+
+#+begin_src scopes
+  let sc =
+      do
+          let
+              x = 1
+              y = "Hello"
+          locals;
+
+  print sc.x
+  print sc.y
+#+end_src
+
+#+RESULTS:
+: 1
+: Hello
+
 ** report
 
 #+begin_src scopes
@@ -216,6 +261,7 @@ Why doesn't this work?
 
 #+RESULTS:
 
+
 ** array of structs
 
 #+begin_src scopes
@@ -235,6 +281,30 @@ Why doesn't this work?
 
   ;
 #+end_src
+
+
+** Array
+
+#+begin_src scopes
+
+  using import Array
+
+  let a = ((Array i32) 1 2)
+
+  print (countof a)
+#+end_src
+
+#+RESULTS:
+: 2:usize
+
+#+begin_src scopes
+  let a = (arrayof i32 0 1)
+
+  print (typeof a)
+#+end_src
+
+#+RESULTS:
+: (array i32 2)
 
 ** void return type
 
@@ -484,3 +554,49 @@ The "hidden" named inline which doesn't have a lifetime scope
 
 #+RESULTS:
 : Actions
+
+
+
+** Indexing for-loop
+
+The range is not constant so you can't do something like this:
+
+#+begin_src scopes
+  let things = (tupleof "a" "b" "c")
+
+  for i in (range (countof things))
+      print (things @ i)
+#+end_src
+
+#+RESULTS:
+
+You also can't do this:
+
+#+begin_src scopes
+  let things = (tupleof "a" "b" "c")
+
+  for thing in things
+      print thing
+
+#+end_src
+
+#+RESULTS:
+
+But you can do:
+
+#+begin_src scopes
+  using import itertools
+  using import Array
+
+  let things = ((Array string) "a" "b" "c")
+
+  for idx thing in (zip (range (countof things)) things)
+      print (tostring idx) thing
+#+end_src
+
+#+RESULTS:
+: 0 a
+: 1 b
+: 2 c
+
+
