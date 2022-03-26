@@ -1,5 +1,130 @@
 * Level 0: Prelude
 
+** Getting & Compiling Scopes
+
+This section will change as this landscape changes.
+
+The latest "releases" and tags of Scopes are very out of date and
+should not be used (i.e. [[https://hg.sr.ht/~duangle/scopes-binaries][this page]]).
+
+At this time it is recommended to use the tip of the main branch in
+the Mercurial repository and to keep up to date with it as new,
+important features are added.
+
+*** From Package Managers
+
+Here we list instructions for the different package managers which
+support installing Scopes.
+
+**** Spack
+
+[[https://spack.io/][Spack]] is a python based package manager that can easily be installed
+and used with user priveleges on any Linux or Mac machine (Windows
+support is new and untested for Scopes).
+
+The [[https://github.com/salotz/snailpacks][snailpacks]] repository provides a recipe for compiling and
+installing Scopes and all of its dependencies. Please see the section
+in its [[https://github.com/salotz/snailpacks#scopes-programming][documentation]] for more information.
+
+*** Standalone Installation
+
+If you don't want to use one of the available package managers you can
+compile Scopes manually. This method uses the prebuilt binaries of
+LLVM.
+
+**** Ubuntu Linux
+
+You must have Mercurial, Git, and [[https://github.com/bkaradzic/GENie][Genie]] installed.
+
+#+begin_src sh
+  program_name="scopes"
+
+  # you must have this exact version of Clang
+  clang_version="12.0.1"
+
+  build_cores=$(($(grep -c ^processor /proc/cpuinfo)-1))
+
+  # NOTE: you can choose where you want to install
+  PROGRAMS_DIR=~/programs
+
+  cd $PROGRAMS_DIR
+  mkdir -p ${program_name}
+  cd ${program_name}
+
+  rm -rf latest
+
+  hg_url="https://hg.sr.ht/~duangle/scopes"
+  hg clone $hg_url latest || exit
+
+  cd latest
+
+  # NOTE: there are no prebuilts for Ubuntu 20, that is fine just use the 16 one
+  clang_filename="clang+llvm-${clang_version}-x86_64-linux-gnu-ubuntu-16.04"
+
+  clang_url="https://github.com/llvm/llvm-project/releases/download/llvmorg-${clang_version}/${clang_filename}.tar.xz"
+
+  wget $clang_url || exit
+
+  tar -xvf ${clang_filename}.tar.xz
+
+  rm -f ${clang_filename}.tar.xz
+  mv ${clang_filename} clang
+
+  # clone the SPIRV related dependencies
+  git clone https://github.com/KhronosGroup/SPIRV-Tools.git \
+      SPIRV-Tools
+
+  git clone https://github.com/KhronosGroup/SPIRV-Headers.git \
+      SPIRV-Tools/external/spirv-headers
+
+  git clone https://github.com/KhronosGroup/SPIRV-Cross
+
+  # compile SPIRV-Tools
+  cd SPIRV-Tools
+
+  rm -rf build && \
+      mkdir -p build && \
+      cd build && \
+      cmake .. -DCMAKE_BUILD_TYPE=Release && \
+      make -j "${build_cores}"
+
+  cd ../../
+
+  # generate the project files for Scopes
+  genie gmake
+
+  # compile Scopes itself
+  make -C build config=release -j "${build_cores}"
+
+  # Install the Clang header files which are needed for the bridge to C
+  # code
+  clang_bridge="$(llvm-config --prefix)/lib/clang/$(llvm-config --version)/include"
+
+  mkdir -p lib/clang
+  ln -sf -T ${clang_bridge} ./lib/clang/include
+
+  # Install the Scopes binary
+  ln -sf -T $(realpath ./bin/scopes) $HOME/.local/bin/scopes-latest
+  ln -sf -T $HOME/.local/bin/scopes-latest $HOME/.local/bin/scopes
+
+#+end_src
+
+*** Keeping Up To Date
+
+We recommend checking the [[https://hg.sr.ht/~duangle/scopes/log][commit log]] to see what new changes have been
+made.
+
+If there are only changes to Scopes code (typically ~core.sc~ and the
+standard libraries) then you only need to update the repo and no
+recompilation is necessary:
+
+#+begin_src sh
+  cd $SCOPES_DIR && hg pull --update
+#+end_src
+
+If there have been changes to any of the C++ files you will need to
+recompile after updating your repo.
+
 ** Source Code
 
 Scopes programs are text files ending with the file extension ~.sc~.
