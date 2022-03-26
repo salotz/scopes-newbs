@@ -205,6 +205,13 @@ You can also run shell commands with the ~sh~ command:
   sh ls
 #+end_src
 
+
+You can also execute code strings directly:
+
+#+begin_src sh
+  scopes -c 'print "hello"'
+#+end_src
+
 *** Bonus: Emacs Org Mode Users
 
 The scopes interpreter is limited in that it has trouble with
