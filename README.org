@@ -69,18 +69,12 @@ That said feel free to contribute.
 - Project Repository :: https://hg.sr.ht/~duangle/scopes
 - Documentation :: https://scopes.readthedocs.io/en/latest/
 
-
 *** Helpful Links
 
-Some projects & repos using Scopes. These are very useful due to
-sparse documentation:
+Check out the ~scopes-lang~ [[https://github.com/topics/scopes-lang][topic on Github]].
 
-- Metroidvania Game :: https://github.com/radgeRayden/metroidvania
-- Bottle :: https://github.com/radgeRayden/bottle
+Some other interesting projects include:
+
 - Tukan Media Library & Visual Game Engine :: https://hg.sr.ht/~duangle/tukan
-- Radlib: Some helper libraries WIP :: https://github.com/radgeRayden/radlib
-- Experimental Lisp on Scopes :: https://github.com/radgeRayden/rl
-- Scope Snippets :: https://github.com/radgeRayden/scopes-snippets
-- Definition of Scopes Symbols :: https://github.com/radgeRayden/scopes-std-symbols
 
 
