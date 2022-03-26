@@ -44,6 +44,19 @@ Simple enough. As we will see once we learn about expressions though
 that the right hand side can be much more complex than in most
 languages.
 
+To assign the result of an expression you just need to syntactically
+scope it:
+
+#+begin_src scopes
+  let sum = (1 + 2 + 3)
+#+end_src
+
+There is an infix version of the let-assignment as well:
+
+#+begin_src scopes
+  sum := 1 + 2 + 3
+#+end_src
+
 For one we can do multiple assignments in the same let block:
 
 #+begin_src scopes :tangle _bin/assignment_let.sc
@@ -64,7 +77,6 @@ You can also do a multiple assignment like so:
 
 #+RESULTS:
 : a: 1 b: 2 c: 3
-
 
 Note that if you reassign a value to the same name this is not
 actually mutating the first value.
@@ -95,11 +107,15 @@ like scoping rules to know when data is no longer needed.
 #+begin_src scopes
   local count = 0
   print count
-  count = (count + 1)
+  count = count + 1
   print count
 #+end_src
 
 #+RESULTS:
+: 0
+: 1
+
+Note that the assignment for already instantiated variables is infix.
 
 In scopes there is also another location values can stored in called
 the *data segment* which is an actual location in the output
@@ -119,7 +135,7 @@ until Level 2.
 
 #+begin_src scopes
   global count = 0
-  count = (count + 1)
+  count = count + 1
   print count
   print (deref count)
 #+end_src
