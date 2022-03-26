@@ -191,7 +191,7 @@ You can write them more simply in a summation type notation:
 Functions in prefix notation are also more flexible when you get to
 higher order functional programming.
 
-*** List of Built-In Operators
+*** COMMENT List of Built-In Operators
 
 | symbol     | name | function | prefix? |
 |------------+------+----------+---------|
@@ -204,7 +204,59 @@ higher order functional programming.
 | findlsb    |      |          |         |
 | bitreverse |      |          |         |
 
-*** COMMENT Bitwise Operators
+
+
+**** Boolean Operators
+
+#+begin_src scopes
+  true and true
+  true or false
+#+end_src
+
+And their bitwise counterparts
+
+#+begin_src scopes
+  true & false
+  true | false
+#+end_src
+
+**** Ternary Operator
+
+A ternary operator is one that allows for the input of 3
+arguments. Typically this means a kind of choice between two values
+depending on the conditional.
+
+#+begin_src scopes
+  let a = 3
+
+  let result = (? (a > 2) "bigger than 2" "smaller than 2")
+
+  print result
+#+end_src
+
+#+RESULTS:
+: bigger than 2
+
+This is more than just a convenience as it provides "branchless"
+conditions, which will become more important in high performance code
+and especially GPUs, which will be discussed in later levels.
+
+A non-branchless version of the ternary operator can be simulated
+using the and/or statements:
+
+#+begin_src scopes
+  let a = 3
+
+  let result = ((a > 2) and "bigger than 2" or "smaller than 2")
+
+  print result
+#+end_src
+
+#+RESULTS:
+: bigger than 2
+
+
+**** COMMENT Bitwise Operators
 
 TODO move to level 2 for these conversions
 
@@ -371,15 +423,26 @@ true or true
 not true
 #+end_src
 
-
 Similar to Python other values can be interpreted implicitly as
 booleans, however unlike in Python not all of them can do this.
 
 #+begin_src scopes :tangle _bin/primitives_bool.sc
 not 0
 not 1
-
 #+end_src
+
+Note that we also have the bitwise versions of these:
+
+#+begin_src scopes
+  # bitwise and
+  true & false
+
+  # bitwise or
+  true | false
+#+end_src
+
+How these are used differently than ~and~ and ~or~ will be explained
+in higher levels.
 
 
 *** Primitive Strings
