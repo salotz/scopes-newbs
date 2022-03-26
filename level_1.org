@@ -2613,6 +2613,48 @@ Basics of a Map.
 
 
 
+** Environment Configuration
+
+Languages like Python typically have a mechanism by which you can
+configure the file paths and sources of modules which can be imported
+without using relative file paths.
+
+That is typically the standard installation location of libraries, and
+includes the standard library.
+
+But there are others including setting them by environment variables
+or directly manipulating them in a module.
+
+For instance how does Scopes know where to find the ~String~ module?
+
+First you will need to find where Scopes is installed via the
+~compiler-dir~:
+
+#+begin_src scopes
+  print compiler-dir
+#+end_src
+
+If you look in this folder you will see a folder ~lib/scopes~ with a
+number of modules. By default Scopes will look in this folder for
+modules to load with ~import~.
+
+You can see what these default values are with the builtin ~__env~
+Scope object:
+
+#+begin_src scopes
+  print __env.module-search-path
+#+end_src
+
+You will see something like this (where ~<SCOPES_DIR>~ is the directory
+that Scopes is installed in):
+
+#+begin_example
+("<SCOPES_DIR>/lib/scopes/packages/?.sc"
+ "<SCOPES_DIR>/lib/scopes/packages/?/init.sc"
+ "<SCOPES_DIR>/lib/scopes/?.sc"
+ "<SCOPES_DIR>/lib/scopes/?/init.sc")
+#+end_example
+
 ** Other Helpful Miscellanea
 
 TODO: move this to level 2 since it is basically the info you would
