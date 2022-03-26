@@ -1794,6 +1794,30 @@ for a lot of use cases.
 To hear more about this and the other utilities of ~Scopes~ see the
 section on them in Datastructures.
 
+*** COMMENT Parametrizing Modules
+
+Should probably be moved to a higher level for "black magic".
+
+This is not really a best practice as of yet but you can define
+modules which take an argument by making the module return an inline
+that then returns a Scope.
+
+For the module file ~inline_mod.sc~:
+
+#+begin_src scopes
+  inline (arg)
+      let thing = 3 + arg
+      locals;
+#+end_src
+
+Now you need to import things a little differently though:
+
+#+begin_src scopes
+  let mod = ((import ".inline_mod") (arg = 4))
+
+  print mod.a
+#+end_src
+
 
 ** Characters
 
