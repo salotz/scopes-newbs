@@ -1491,11 +1491,17 @@ accepts keyed values for imported values:
 
   print (typeof str)
   print (str "hello")
+
+  print String
 #+end_src
 
 #+RESULTS:
 : type
 : hello
+: $fotuwewed:Scope
+
+This still binds the ~String~ module name to the context. You can
+avoid this as well by using this syntax:
 
 
 *** Writing Modules
