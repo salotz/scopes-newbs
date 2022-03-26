@@ -2613,7 +2613,9 @@ Basics of a Map.
 
 
 
-** Environment Configuration
+** Module Loading Mechanism & Configuration
+
+*** Module Search Paths
 
 Languages like Python typically have a mechanism by which you can
 configure the file paths and sources of modules which can be imported
@@ -2654,6 +2656,264 @@ that Scopes is installed in):
  "<SCOPES_DIR>/lib/scopes/?.sc"
  "<SCOPES_DIR>/lib/scopes/?/init.sc")
 #+end_example
+
+There are two distinct prefixes. The ~lib/scopes~ collection which is
+for the standard library modules distributed with Scopes itself. And
+the ~lib/scopes/packages~ collection which can be used to place
+third-party packages in.
+
+This is very similar to Python and typically the installation of
+packages into the third party packages folder is managed by a package
+manager. See the [[*Package Management][Package Management]] section for more on package managers.
+
+For each collection of packages we can see there are two separate
+search paths: ~<search-path>/?.sc~ and ~<search-path>/?/init.sc~.
+
+The first will find simple one-file modules and the second will find
+modules corresponding to the directory name containing the
+~init.sc~. Which is similar to the ~__init__.py~ files from Python
+modules, except that instead of being something that is hardcoded is
+actually just a convention and a result of the pattern matching used
+in the search paths.
+
+Here is an example of a package that could be installed into
+~<SCOPES_DIR>/lib/scopes/packages~ (see the ~side_quests/package~
+folder):
+
+#+begin_example
+package/
+└── src
+    ├── env.sc
+    ├── show-mod-main.sc
+    ├── single.sc
+    └── things
+        ├── init.sc
+        ├── thing0.sc
+        └── thing1.sc
+#+end_example
+
+The ~init.sc~ does not even need to contain any code.
+
+This packaged installed into a search prefix would look like:
+
+#+begin_example
+<search-path>/
+    ├── single.sc
+    └── things
+        ├── init.sc
+        ├── thing0.sc
+        └── thing1.sc
+#+end_example
+
+And you would import them as such:
+
+#+begin_src scopes
+  let single = (import single)
+  let things = (import things)
+  print things.thing0.thing
+  print things.thing1.thing
+
+  let thing0 = (import things.thing0)
+  let thing1 = (import things.thing1)
+#+end_src
+
+*** Other Search Paths
+
+In addition to the ~__env.module-search-path~ for Scopes modules,
+there are also equivalent search paths for C modules which can be
+loaded into Scopes. Because C code is broken up into both binary
+shared libraries and header files there are two search paths:
+~__env.library-search-path~ and ~__env.include-search-path~
+respectively.
+
+These search paths will be automatically searched by the
+~shared-library~ and ~incude~ functions which will be discussed in
+Level 2 when we discuss loading C libraries.
+
+
+*** Configuring the Environment
+
+We have seen how the ~__env~ Scope object controls the search paths
+for modules. These scopes can be configured by using a ~__env.sc~ file
+in a project.
+
+If you launch the Scopes compiler with the ~-e~ flag then it will look
+up the filesystem tree relative to the called module for the first
+~__env.sc~ file it finds. This module will be executed before the main
+module and the returned result will be injected as the ~__env~ object
+to the module.
+
+For instance in the ~side_quests/package~ example you can execute the
+~env.sc~ module which prints the environment search paths:
+
+#+begin_src sh
+  # without the __env.sc file loaded
+  scopes ./src/env.sc
+  
+  # with the __env.sc file loaded
+  scopes -e ./src/env.sc
+#+end_src
+
+You can see there are two extra search paths with the ~-e~ flag which
+are of the local ~side_quests/package/src~ directory:
+
+#+begin_example
+"<scopes-newbs>/side_quests/package/src/?.sc"
+"<scopes-newbs>/side_quests/package/src/?/init.sc"
+#+end_example
+
+This allows you to import and run the local modules without using
+relative imports:
+
+#+begin_src sh
+  scopes -e -c 'import single'
+#+end_src
+
+This is accomplished in the ~__env.sc~ file by redefining the ~__env~
+scope and returning it from the module:
+
+#+begin_src scopes
+  'bind-symbols __env
+
+    module-search-path =
+        cons
+            # the current module in development
+            .. module-dir "/src/?.sc"
+            .. module-dir "/src/?/init.sc"
+            __env.module-search-path
+
+    include-search-path = __env.include-search-path
+
+    library-search-path = __env.library-search-path
+#+end_src
+
+In this example we are altering the ~module-search-path~ by adding the
+~src~ directory relative to the ~__env.sc~ filesystem location.
+
+Because we are not mutating ~__env~ (as Scopes are immutable) we also
+need to define the other search paths, which we leave undisturbed.
+
+The new ~__env~ symbol is exported from the module and passed to
+whatever is being called.
+
+Its important to note that the ~__env.sc~ is not a part of the source
+code of the package, i.e. everything under ~src~. This allows any
+consumer of the code to customize the search paths they want to use.
+
+Additionally there is nothing standard about this particular layout
+and you can customize it as you wish. Although this layout is fairly
+common and clean for writing a package.
+
+In the future there might be further ways to configure the ~__env~
+object including extra arguments to ~scopes~ or environment
+variables. The ~__env.sc~ however will be the most flexible as you can
+run arbitrary Scopes code to configure it.
+
+*** Module Entrypoints
+
+Continuing with the ~side_quests/package~ example we show how
+installed modules can be called directly without specifying the path
+to them.
+
+In the ~src/show-mod-main.sc~ file there are two print statements:
+
+#+begin_src scopes
+  print "always"
+
+  if main-module?
+      print "only main"
+#+end_src
+
+The first will always run and the second will only run when the
+~main-module?~ value is ~true~.
+
+If you run the module like this you will see both printed:
+
+#+begin_src sh
+  scopes ./src/show-mod-main.sc
+#+end_src
+
+#+begin_example
+always
+only main
+#+end_example
+
+However if you just import the module then only the first will run:
+
+#+begin_src sh
+  scopes -c "import .src.show-mod-main"
+#+end_src
+
+#+begin_example
+always
+#+end_example
+
+This is because the ~main-module?~ part is only true when the module
+itself is considered the entrypoint. When you import a module it is
+not considered the main module, since the main entrypoint is in the
+module importing it.
+
+The ~main-module?~ entrypoint can be used to write tests of library
+modules, show examples, or even provide a simple application. Modules
+can exist for the sole purpose of being an application or you can add
+the ~main-module?~ just as an add on to a pure library module. The
+decision is up to you.
+
+Users that are used to using Scopes could reasonably be expected to
+run the individual modules as applications, but more typically you
+would provide wrapper binaries that call out to the individual
+entrypoints as necessary without needing to prefix them.
+
+A good example of this is the ~scopes~ REPL. It can be run from the
+application front-end ~scopes~, or it can be run from the ~console~
+module in the standard library:
+
+#+begin_src sh
+  scopes -m console
+#+end_src
+
+This showcases another way to run modules as main without needing the
+full filesystem path.
+
+Because ~console.sc~ is in the standard library on the default search
+path you simple need to provide the module name.
+
+This is the only example in the standard library of this. In our
+~side_quests/package~ example we can leverage this by running with the
+environment to add the package to the search path:
+
+#+begin_src sh
+  scopes -e -m show-mod-main
+#+end_src
+
+Which should print both messages:
+
+#+begin_example
+always
+only main
+#+end_example
+
+You must run with the environment or the module will not be found.
+
+** Package Management
+:BACKLINKS:
+[2022-03-26 Sat 12:10] <- [[*Environment Configuration][Environment Configuration]]
+:END:
+
+Scopes does not have a dedicated package manager like ~pip~
+or ~npm~. It may in the future, but in the current year there is a
+flourishing of language agnostic package managers that could be
+considered for use such as Nix, Guix, and Spack.
+
+There is of course the distro package managers (like apt, dpkg, rpm,
+dnf, yum, zypper, xbps, pacman, etc.) which we can't recommend using
+for these purposes, as these are oriented towards making a well
+functioning linux distro rather than an application oriented
+programming language development environment.
+
+Currently, there is a package repo ([[https://github.com/salotz/snailpacks][snailpacks]]) for the Spack package
+manager being maintained including a build recipe for Scopes itself
+and a variety of C/C++ libraries for game and multimedia development.
 
 ** Other Helpful Miscellanea
 
