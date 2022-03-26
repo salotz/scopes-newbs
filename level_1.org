@@ -1203,9 +1203,12 @@ Scopes does provide these comfy loops though and its very satisfying.
 Here is a basic for loop like you would find in python:
 
 #+begin_src scopes :tangle _bin/loop_range-forloop.sc
+  local result = 0
   for i in (range 10)
-      print i
+      result + 1
 #+end_src
+
+#+RESULTS:
 
 
 You can loop over the language level lists, but they need to be
@@ -1217,6 +1220,11 @@ call the function ~0~ on arguments ~1~ and ~2~.
   for i in '(0 1 2)
       print i
 #+end_src
+
+#+RESULTS:
+: 0
+: 1
+: 2
 
 The for-loop also supports the ~break~ and ~continue~ statements which
 are similar to those in other languages.
