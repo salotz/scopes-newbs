@@ -446,7 +446,6 @@ You can also construct arrays with initial values:
 
 *** Some Examples
 
-
 **** Looping Over Arrays
 
 Arrays can be cast to generators implicitly so we can loop over them
@@ -911,6 +910,17 @@ use all the parens you want to make them:
 ** Scopes (not the language)
 
 
+** Type Definitions
+
+#+begin_src scopes
+  let int : i32 = 0:i32
+  print int
+#+end_src
+
+#+RESULTS:
+: 0
+
+You must use the explicitly typed literal.
 
 ** Const
 
