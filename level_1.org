@@ -1288,11 +1288,68 @@ You do need the break though, or it won't compile as this will always
 be an infinite loop.
 
 
-**** COMMENT Fold-Loop
+**** Fold-Loop
 
+The other loop styles are very well suited to a mutation based method
+of constructing results. The "fold-loop" provides a more functional
+approach to constructing objects and is compatible with iteratively
+constructing immutable objects. We will see how this is practical
+later when we come across mutable & immutable objects.
 
+Here is a simple example that increments a number:
 
+#+begin_src scopes
+  let input = 0
 
+  let result =
+      fold (result = input) for i in (range 3)
+          result + 1
+
+  print result
+#+end_src
+
+First note that the ~input~ to the loop is not a ~local~ definition
+and is instead a ~let~, which is not mutable. So we know it is not
+being mutated.
+
+The second thing is that we have to actually accept the result of the
+loop as if it was a function. This is because the loop really is a
+kind of functional construct.
+
+Thirdly, we can break apart the actual loop line. As normal we have
+the ~for i in (range 3)~ that is the same as the for-loop. The first
+part, ~fold (result = input)~, introduces the inputs to the loop. This
+is similar to a function call with a named argument where ~result~ is
+the argument name.
+
+In the body of the loop we have the same as the other ones, where the
+last line is returned to the next iteration of the loop.
+
+Note that the ~result~ symbol is immutable, equivalent to ~let result
+= input~ and cannot be mutated.
+
+Here is another example with an immutable structure, the list.
+
+#+begin_src scopes
+  let things = '(0 1 2 3)
+
+  let new-things =
+      fold (new-things = '()) for thing in things
+          let new-thing = ((thing as i32) + 1)
+          cons new-thing new-things
+
+  print new-things
+#+end_src
+
+#+RESULTS:
+: (4 3 2 1)
+
+There are two small issues with this because of the specifics of
+lists, that are inconsequential to the example: 1. the results are in
+reverse because of how ~cons~ works and 2. we have to explicitly cast
+~thing~ to an int.
+
+We will see more realistic examples later.
 
 *** TODO COMMENT Blocks
 
