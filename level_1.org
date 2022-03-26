@@ -947,7 +947,19 @@ can also do this programmatically as well. The operations are a bit
 stripped down in Scheme fashion but its well known that these
 operations can be the foundation for arbitrary other manipulations.
 
-First is the cons function, which is a function taking two values, the
+First is the explicit list constructor:
+
+#+begin_src scopes
+  let l = (list)
+  let ll = '()
+
+  print (l == ll)
+#+end_src
+
+#+RESULTS:
+: true
+
+Second is the cons function, which is a function taking two values, the
 second of which must be a list. It then returns a new list with the
 first element being the first argument and the rest of the elements
 are the elements of the second (list) argument. An example helps:
