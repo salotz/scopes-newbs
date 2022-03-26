@@ -600,3 +600,129 @@ But you can do:
 : 2 c
 
 
+
+
+** Bools
+
+#+begin_src scopes
+  if (true and true)
+      print "in there"
+#+end_src
+
+#+RESULTS:
+: in there
+
+** And-Or
+
+#+begin_src scopes
+  (? true x y) = 10
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scopes
+  fn give-bool ()
+      return true
+
+  using import struct
+
+  struct Thing
+      isit : bool
+
+  let thing =
+      Thing
+          (isit = true)
+
+
+  if (bool; and thing.isit)
+      print "hello"
+  else
+      print "nope"
+
+#+end_src
+
+#+RESULTS:
+: nope
+
+
+** Type Definitions
+
+#+begin_src scopes
+  typedef Int0 <: i32
+  # type Int1 <: i32
+  # type Int2 <:: i32
+  # typedef Int3 < string : i32
+
+
+  # print (typeof Int0)
+  # print ('storageof Int0)
+  # print ('superof Int0)
+  # print (getattr Int0 '__typecall)
+  # print ""
+
+  # print (typeof Int1)
+  # print ('storageof Int1)
+  # print ('superof Int1)
+  # print ""
+
+  # print (typeof Int2)
+  # print ('storageof Int2)
+  # print ('superof Int2)
+  # print ""
+
+  for typ in '(Int0 Int1 Int2)
+      print (typeof typ)
+      print ('storageof typ)
+      print ('superof typ)
+#+end_src
+
+#+RESULTS:
+
+** fold
+
+You can't really do this with mutability. Thats not what the fold is for.
+
+#+begin_src scopes
+  using import Array
+
+  let things = ((Array i32) 1 2 3 4)
+
+  let new-things =
+      fold (new-things = ((Array i32))) for thing in things
+          let new-thing = (thing + 1)
+          'append new-things new-thing
+#+end_src
+
+#+RESULTS:
+
+
+This is almost there but you need to cast the Value to an int:
+
+#+begin_src scopes
+  let things = '(0 1 2 3)
+
+  let new-things =
+      fold (new-things = (list)) for thing in things
+          let new-thing = ((thing as i32) + 1)
+          cons new-thing new-things
+
+  print new-things
+#+end_src
+
+#+RESULTS:
+
+Lets see if a non-collection can make the point here and later we can
+show it with a Scope:
+
+#+begin_src scopes
+  let input = 0
+
+  let result =
+      fold (result = input) for i in (range 3)
+          result + 1
+
+  print result
+#+end_src
+
+#+RESULTS:
+: 3
