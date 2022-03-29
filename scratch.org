@@ -437,12 +437,21 @@ encode a single character:
   print t1.sometimes
   print t2.sometimes
 
+  let result =
+      try ('unwrap (t1 . sometimes))
+      else
+          # error "unwrap failed"
+          print "unwrap failed"
+          0
+
+  let result =
+      try ('unwrap (t2 . sometimes))
+      else
+          error "unwrap failed"
   ;
 #+end_src
 
 #+RESULTS:
-: Some
-: None
 
 
 #+begin_src scopes
