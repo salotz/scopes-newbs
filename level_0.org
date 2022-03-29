@@ -11,6 +11,15 @@ At this time it is recommended to use the tip of the main branch in
 the Mercurial repository and to keep up to date with it as new,
 important features are added.
 
+*** Build Script
+
+Scopes is now shipped with a build script which you can run to compile
+it, simply clone and run:
+
+#+begin_src sh
+  ./build.sh
+#+end_src
+
 *** From Package Managers
 
 Here we list instructions for the different package managers which
@@ -25,6 +34,7 @@ support is new and untested for Scopes).
 The [[https://github.com/salotz/snailpacks][snailpacks]] repository provides a recipe for compiling and
 installing Scopes and all of its dependencies. Please see the section
 in its [[https://github.com/salotz/snailpacks#scopes-programming][documentation]] for more information.
+
 
 *** Standalone Installation
 
