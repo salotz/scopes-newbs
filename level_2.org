@@ -157,15 +157,172 @@ TODO:
 
 ~static-typify~
 
-*** COMMENT Low Level Memory Management & Layout
+*** Low Level Memory Management & Layout
 
-**** Pointers
+**** COMMENT Pointers
 
-**** Heap Memory Allocation
+In normal usage of Scopes you will be much less concerned with
+pointers than you would be writing C/C++ code.
 
-**** Constructors & Destructors
+However they will still come up when either you are explicitly
+managing memory when creating a datastructure on the heap or when
+interfacing with C/C++ code that returns pointers as part of its API.
 
-**** defer and other lifetime management
+Normally you would receive pointers either from C code or memory
+allocation. We will discuss memory allocation later so to start this
+off we need to obtain a pointer to observe.
+
+To do this we will obtain the pointer to a ~local~ value using the ~&~
+operator.
+
+#+begin_src scopes
+  local a = 3
+  print (& a)
+  print (typeof (& a))
+  print (storageof (& a))
+#+end_src
+
+#+RESULTS:
+: $riroparonimetur:(mutable@ (storage = 'Function) i32)
+: (mutable@ (storage = 'Function) i32)
+: (mutable@ (storage = 'Function) i32)
+
+The representation of the value should look something like this:
+~$rironedapoxiken:(mutable@ (storage = 'Function) i32)~
+
+Or if you execute on the REPL:
+~$rironedapoxiken:(mutable@ (storage = Private) i32)~
+
+Looking at the ~typeof~ and ~storageof~ portion of this we can see
+that the type is "mutable" indicating it is a pointer.
+
+TODO: what does the ~(storage = 'Function)~ etc. mean?
+
+And at the right-hand-side we see ~i32~ indicating that the value
+being pointed to is an ~i32~ integer.
+
+Also notice that we needed a ~local~ value. Because ~let~ is immutable
+we cannot directly access the memory, which would imply that we could
+edit it.
+
+That means we can also get pointers from ~global~ values:
+
+#+begin_src scopes
+  global b = 4
+  print &b
+#+end_src
+
+#+RESULTS:
+: Global$genaroked:(mutable@ (storage = 'Private) i32)
+
+Here we also see the alternative syntax for getting the pointer to a
+value: ~&b~.
+
+The representation should be something like this:
+~Global$genaroked:(mutable@ (storage = 'Private) i32)~.
+
+Very similar except that it has a "Global" indicator at the beginning.
+
+Global pointers can be accessed anywhere since the values are in the
+data segment of the program:
+
+#+begin_src scopes
+  fn test ()
+      global b = 2
+      print (deref (@ &b))
+      &b
+
+  local b = (test)
+
+  print (@ b)
+
+#+end_src
+
+#+RESULTS:
+: 2
+: 2
+
+
+However local variables are on the stack so if you return a pointer to
+a local that was allocated on an upper framestack then it will be
+invalidated outside the scope:
+
+#+begin_src scopes
+  fn test ()
+      local b = 2
+      print (@ &b)
+      &b
+
+  let b = (test)
+
+  print b
+  print (@ b)
+#+end_src
+
+#+RESULTS:
+: 2
+: $riropepegagebak:(mutable@ (storage = 'Function) i32)
+: 32678
+
+
+
+***** TODO COMMENT
+
+
+#+begin_src scopes
+  local a = 1
+  global b = 2
+
+  print "a mutable?:" (mutable? &a)
+  print "b mutable?:" (mutable? &b)
+#+end_src
+
+#+RESULTS:
+: a mutable?: true
+: b mutable?: true
+
+You can express the types of pointers in a couple ways for both
+immutable constant and mutable pointers:
+
+#+begin_src scopes
+  let p = (pointer i32)
+  let mp = (mutable pointer i32)
+  print "p:" p
+  print "  mutable?:" (mutable? p)
+  print "mp:" mp
+  print "  mutable?:" (mutable? mp)
+#+end_src
+
+#+RESULTS:
+: p: (@ i32)
+:   mutable?: false
+: mp: (mutable@ i32)
+:   mutable?: true
+
+Alternative syntax:
+
+#+begin_src scopes
+  print (@ i32)
+  print (mutable@ i32)
+  print (mutable (@ i32))
+#+end_src
+
+#+RESULTS:
+: (@ i32)
+: (mutable@ i32)
+
+Then there are reference types which are different from pointer types:
+
+#+begin_src scopes
+  print (& i32)
+  print (mutable (& i32))
+#+end_src
+
+**** COMMENT Heap Memory Allocation
+
+**** COMMENT Constructors & Destructors
+
+**** COMMENT defer and other lifetime management
 
 *** COMMENT Constants
 
