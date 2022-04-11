@@ -104,3 +104,12 @@ You can even instrument your code with it.
 
 
 
+
+** Trivia!
+
+#+begin_src scopes
+  print()
+#+end_src
+
+Don't believe me?
+
