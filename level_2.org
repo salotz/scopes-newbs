@@ -207,7 +207,7 @@ that must be learned before the language can be used
 effectively. Hopefully, for the curious looking for maximum
 expressivity and performance this will be no issue.
 
-**** The Scopes Compilation Model
+**** Compilation Steps & Code Generation
 
 Now that we have contextualized broadly how the Scopes compiler
 operates on source code its time to dive a little deeper into the
@@ -244,42 +244,7 @@ checking.
 
 Step 4 is common to both Scopes and C/C++ however it is different in
 that this is controlled directly in the code rather than through a
-compiler and/or build system which is controlled though either a
-command line interface (unix), GUI (MSVSC), or separate language (most
-build systems like Make, CMake, ninja, etc.)
-
-This opens up a wide number of possibilities that you can do in your
-actual code and removes most of the need for interacting with a build
-system -- which are notoriously aggravating to use.
-
-This does come at the tradeoff that the actual executable code is much
-larger because it must carry around the compiler it uses to generate
-that code at run time. In the case of Scopes this (currently) is the
-LLVM toolset which while sophisticated and generates high quality
-code, is quite heavy weight.
-
-This requirement is perhaps one of the major considerations to make
-when deciding whether scopes is the right tool for the job. In the
-creator's (Leonard Ritter's) own words Scopes is suitable for
-"monolithic multimedia applications". This includes things like video
-games but is perhaps also applicable to native GUI applications,
-window managers, desktop environments, audio or video editing programs
-etc.
-
-These kinds of applications are normally very large anyway due purely
-to the kinds of assets that are needed to ship with them and the
-overhead of a compiler is likely to be negligible.
-
-Also considering the bloat of many GUI frameworks, like Electron,
-having a compiler come for the ride is a drop in the bucket and more
-than pulls its weight for the price.
-
-All that said AOT compilation is possible with Scopes, so you can have
-your cake and eat it too. However, this not being the primary use-case
-for Scopes applications you will have to work a little extra hard to
-achieve it. I consider this an advanced topic and will be covered in
-Level 5.
-
+compiler and/or build system as discussed in the last section.
 
 **** TODO COMMENT Code Generation
 
