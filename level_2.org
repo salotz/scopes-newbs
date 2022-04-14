@@ -362,6 +362,7 @@ You can also declare the variable and type without initializing it:
   print count
 #+end_src
 
+***** Function Types
 
 And for a function:
 
@@ -376,7 +377,9 @@ And for a function:
   print a b
 #+end_src
 
-TODO more
+TODO more.
+
+TODO function overloading, templates, typification, etc.
 
 *** Low Level Memory Management & Layout
 
@@ -1272,9 +1275,26 @@ generator from ~itertools~:
 : 1: b
 : 2: c
 
+*** Set
+TODO
+
+*** Map
+TODO
 *** Scopes (not the language)
 
 TODO
+
+
+*** VarArgs
+
+TODO
+
+
+*** Function Templates
+
+*** Option
+
+*** Enum and Union Types
 
 ** Interacting with C Code
 
@@ -1991,10 +2011,35 @@ be used in a protocol for various kinds of tasks.
 
 Metamethods are methods that start with a double underscore. The
 metamethod symbol must match the corresponding operators.
+*** Constructors & Destructors
+
+TODO
+
+*** Properties
+
+** Debugging
 
 
+#+begin_src scopes
+  fn add (a b)
+      dump a b
+      a + b
 
-** Miscellaneuous
+  add 3 4
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scopes
+  let a = 3
+
+  report a
+
+  print a
+#+end_src
+
+
+** Other Cool & Useful Constructs & Routines
 *** I/O
 
 Currently low level I/O is handled using the C standard libraries (or
@@ -2023,7 +2068,9 @@ Some tips though for interfacing with them.
 
   print (result-prompt input-str)
 #+end_src
+*** String Formatting
 
+TODO
 
 *** Dynamic Dispatch
 
@@ -2048,22 +2095,20 @@ Some tips though for interfacing with them.
       inline (T self)
           'init self
 #+end_src
-*** dump
+*** Expression Chaining
+TODO
 
-#+begin_src scopes
-  fn add (a b)
-      dump a b
-      a + b
+*** Function Chaining
+TODO
 
-  add 3 4
-#+end_src
+*** itertools
 
-#+RESULTS:
+TODO
 
+*** Run Time Closures: Captures
 
+TODO
 
+*** Box
 
-
-
-
-
+*** Rc

@@ -3000,13 +3000,14 @@ Python.
 
 
 
-** TODO COMMENT
+** TODO COMMENT Todos
 
 - [X] functions
 - [-] bindings
   - [X] let
   - [ ] bind
 - [ ] report
+- [ ] dump
 - [X] do-blocks
 - [X] conditionals
 - [X] loops
@@ -3018,11 +3019,9 @@ Python.
 - [X] Infix
   - [X] basics
 - [X] dot notation
-- [ ] attributes and methods
-- [ ] metamethods
 - [X] number formats
 - [ ] copying
-- [ ] splicing
+- [ ] slicing
 - [X] exception handling
 - [ ] iterators
 - [ ] streams
