@@ -656,6 +656,26 @@ But you can do:
 
 ** Type Definitions
 
+#+begin_example
+type T < s: new supertype T as subtype of s
+type T < s : m: new plain type T as subtype of s, using storage type m
+type T < s :: m: new unique type T as subtype of s, using storage type m
+type T <: s: new plain type T as subtype of (superof s), using storage type (storageof s)
+type T <:: s: new unique type type T as subtype of (superof s), using storage type (storageof s) 
+type+ T extend the definition of type T; it's otherwise exactly like type, but you "reopen" the declarative scope, and any name bound there becomes a type attribute
+#+end_example
+
+
+#+begin_src scopes
+  type Int0 < i32
+
+  let i0 = ((Int0) 1)
+
+  print i0
+#+end_src
+
+#+RESULTS:
+
 #+begin_src scopes
   typedef Int0 <: i32
   # type Int1 <: i32
@@ -684,6 +704,8 @@ But you can do:
       print ('storageof typ)
       print ('superof typ)
 #+end_src
+
+
 
 #+RESULTS:
 
@@ -735,3 +757,52 @@ show it with a Scope:
 
 #+RESULTS:
 : 3
+
+** docstrings
+
+#+begin_src scopes
+
+  """"number
+  let a = 3
+  let scope = (sugar-eval sugar-scope)
+
+
+  print ('docstring scope 'a)
+#+end_src
+
+#+RESULTS:
+: 
+
+** Methods
+
+#+begin_src scopes
+  using import struct
+
+  # type Class < Struct
+  struct Class < Struct
+      value : i32
+
+      inline __typecall (cls value)
+          super-type.__typecall cls
+              value = value
+
+      fn show (self)
+          print self.value
+
+      fn ret (self)
+          self.value
+
+      # define
+
+  let c =
+      Class
+          3
+
+  ('show c)
+  print ('ret c)
+#+end_src
+
+
+#+begin_src scopes
+
+#+end_src
