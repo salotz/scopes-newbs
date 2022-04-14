@@ -2607,12 +2607,57 @@ Basics of a Map.
 
 ** COMMENT Generators & Iteration
 
-** COMMENT Documentation
+** Documentation
 
-- [ ] Docstrings
+Our main concern in this section will be with docstrings, a familiar
+feature.
+
+Docstrings can be placed on just about anything.
+
+#+begin_src scopes
+  """"The Docstring for the module.
+
+      More details down here. Isn't it nice to only have the string
+      delimiters written once at the top?
 
 
+  """"One of my favorite numbers.
+  let three = 3
 
+
+  fn foo (bar)
+      """"Our favorite function.
+
+          Inputs
+          ------
+
+          bar : i32
+
+          Outputs
+          -------
+
+          baz : f32
+
+      bar as f32
+#+end_src
+
+#+RESULTS:
+
+
+The docstrings on components can be retrieved by using the
+~'docstring~ method on their containing scope.
+
+#+begin_src scopes
+  import itertools
+
+  # inline funcion docstring
+  print ('docstring itertools 'closest)
+
+  # module docstring
+  print ('module-docstring itertools)
+#+end_src
+
+Making sure to quote the symbol you want the docstring of.
 ** Module Loading Mechanism & Configuration
 
 *** Module Search Paths
