@@ -9,12 +9,13 @@ knowledge of.
 
 These are that Scopes:
 
-1. supports the C ABI directly.
-2. is statically typed,
-3. is low level and concerned with memory layout and management directly,
-4. supports *multi-stage programming* where the compiler can stay
+1. supports *multi-stage programming* where the compiler can stay
    online during exectution,
-5. supports many zero-cost abstractions when possible, and
+2. supports many zero-cost abstractions when possible (such as compile
+   time computations), and
+3. is statically typed,
+4. is low level and concerned with memory layout and management directly,
+5. supports the C ABI directly.
 6. has a borrow checker.
 
 We will discuss everything but the borrow checker in detail in this
@@ -33,31 +34,210 @@ writing C/C++ code.
 
 *** Compilation & Code Generation
 
+**** What is a Multi-Stage Compiler?
+
+Perhaps most important to frame Scopes' behavior and most different
+from other languages (besides Common Lisp) is that the Scopes compiler
+is considered to be a "multi-stage" compiler. To understand this lets
+consider the more common types of compilation you may have experience
+with.
+
+In languages like C/C++ you invoke the compiler once and emit your
+finished program which can then be executed. No new code can be
+generated for the program. This is called "ahead of time" or an AOT
+compiler.
+
+Languages like Java are both AOT compiled as well as "just in time"
+(JIT) compiled. This is a big topic with many nuances but suffice to
+say that the runtime engine waits to compile your code until it sees
+fit (typically only just before it actually needs to be run, hence the
+name). In this model the compiler stays online during execution but is
+not explicitly controlled by the programmer. Instead the runtime will
+have extensive intelligent features to try to determine the best time
+to compile code.
+
+In dynamic languages there are flavors of all in between and including
+those running on a virtual machine without compilation (to machine
+code) happening at all.
+
+Scope's follows a third model in which the compiler stays online
+during execution (like a JIT compiler) but is explicitly controlled by
+the programmer. In the later point this is actually closer to an AOT
+compiler if you consider that your build system is actually a
+programming language, just a different language. This is called a
+Multi-Stage Compiler. There are very few multi-stage compilers in the
+wild but include heavyweights like Common Lisp.
+
+All the types of compilers have their benefits and drawbacks. 
+
+AOT compilation can produce extremely lean and predictable executables
+that are suitable for constrained environments like microcontrollers
+or as operating system kernels. The drawback of being AOT only however
+is that you lose a lot of dynamicism and flexibility. This is why
+there are so many higher-level languages implemented on top of C/C++
+that allow for more flexible execution of code without having to
+invoke a monolithic compiler like GCC. Furthermore, its very common to
+have a program with a plethora of compilation flags that determine
+run-time characteristics. If you want to turn a feature on or off, you
+may have to recompile which can be time consuming and difficult to do
+and deploy. 
+
+Relatedly, an AOT model typically assumes the existence of a "build
+system". These are the Make/Autotools and CMakes of the world that
+everyone loves to hate for good reason. These things have the
+difficult job of orchestrating the not-so-programmable monolothic
+compilers (like GCC). While not all build systems suck, they generally
+do as they are surprisingly hard to get right and easy to
+underestimate the complexity. They are also typically an afterthought
+to the actual code itself. The need for a "build system" is present in
+any language but for those with less complicated compilation needs are
+primarily around just to do things like packaging.
+
+JIT compilers (and interpreted languages in general) on the other hand
+make code compilation completely transparent to the user. There is no
+build system because there really isn't even a compiler to invoke. The
+compiler exists completely in the runtime. JIT compilers are very
+advanced pieces of technology which are more similar to magic than an
+AOT compiler. You don't know how and when its compiling your code but
+most of the time its doing a pretty damn good job of it. JIT compilers
+are really good at squeezing performance for free out of code written
+in languages that don't typically excel at low-level
+optimizations. Notable examples are the HotSpot VM for Java, V8 for
+Javascript, and PyPy for Python. They can make code for these
+languages run at speeds approaching hand optimized ones in C/C++ for
+many use cases.
+
+Sounds too good to be true, and it is if your doing anything that has
+real-time constraints or must do manual memory management. The latter
+is a result of the incremental compilation that typically requires an
+automatic garbage collector (GC) in order to keep everything
+straight. While there are a few reasons to not use a GC one of the
+main ones is that garbage collectors will need to suspend the
+operation of your program in order to do their work. This process
+cannot be controlled in your program and so if you have real-time
+constraints you cannot guarantee that you will meet these constraints
+because the GC may pause at any moment. This feeds into the other
+probem with real-time and JIT compilers. As indicated in the name a
+JIT compiler will compile your code only when it is needed. To do this
+it needs to suspend operation of your program to compile the
+code. Again you cannot control this and invalidates any real-time
+constraints you may have. Furthermore, a JIT compiler may often
+compile your code multiple times in different scenarios. For instance
+if it thinks this code will only be run once it may not take the time
+to optimize it heavily, but if it thinks it will be run a lot may
+pause longer to do more optimizations. So not only will you miss
+real-time deadlines but you can't even be sure your code will run as
+fast as you need it to. Compare that to the AOT case in which
+optimizations levels are explicitly controlled and the cost for them
+is paid up-front and before your code ever even executes.
+
+The multi-stage compiler is kind of the "have your cake and eat it
+too" position. You get the flexibility of a JIT compiler (or
+interpreted language) and the predictability of an AOT compiler all in
+one package.
+
+How does it reconcile these two modes of compilation? By organizing
+your code into stages and allowing explicit control of the compiler in
+the language itself. Its really a nice middel ground between the two
+extremes of the other compilers. In AOT you really only have one
+stage, that being all your code when you compile it into machine
+code. In a JIT compiler you have a multitudinous fractal of stages,
+small to large pieces of code being compiled all over the place at
+random times. In a multi-stage program you will have something in
+between.
+
+Lets make this a little more concrete before moving on. In Scopes
+compilation can be triggered in a couple different ways.
+
+1. When a module is imported
+2. When the ~run-stage~ function is run
+3. When "including" C code via the Clang bridge
+4. By running the various ~compile*~ commands:
+   - ~compile~ which returns a function pointer to the compiled code.
+   - ~compile-object~ for machine code for a target
+     platform/architecture into object files
+   - ~compile-glsl~ for compiling to GLSL
+   - ~compile-spirv~ for compiling to SPIR-V
+
+The "stage" in multi-stage programming is controlled by the
+~run-stage~ symbol. This signals to the Scopes compiler something akin
+to a translation unit (TU) in C/C++. The code before a ~run-stage~
+will be run/compiled and injected into the code of the next stage.
+
+Here is a minimal example:
+
+#+begin_src scopes
+  fn help (msg)
+      print "Help!" msg
+
+  run-stage;
+
+  help "Me"
+#+end_src
+
+#+RESULTS:
+: Help! Me
+
+In this example there isn't any reason to actually separate this code
+into two stages. It will be too difficult to explain at this moment
+when exactly a new stage is needed and so will be mentioned when
+needed.
+
+Whats important to takeaway from this is that when and where your code
+is compiled is very straightforward compared to a JIT
+compiler. Compilation just occurs of each stage in the order they are
+declared and only when the previous stage finishes execution.
+
+There are drawbacks to a multi-stage compiler as well perhaps. First
+it inherits the large run-time size of a JIT compiler as it needs the
+compiler to run the stages. Currently that means bringing along LLVM
+for the ride which is quite hefty.
+
+Its worth noting that Scopes can replicate the behavior of an AOT
+compiler and generate objects that require no runtime & compiler other
+than a normal C run time. However, this is a little tricky and subtle
+topic and so we leave it for later. So while its possible it certainly
+isn't the most important use case, at least yet.
+
+Another potential perceived drawback is the complexity or
+unfamiliarity of a multi-stage compiler. Programmers are used to AOT
+compilers & build systems or interpreted languages. Using a
+multi-stage compiler brings in a host of new concepts and commands
+that must be learned before the language can be used
+effectively. Hopefully, for the curious looking for maximum
+expressivity and performance this will be no issue.
+
 **** The Scopes Compilation Model
 
-The following table summarizes the stages of compilation and execution
+Now that we have contextualized broadly how the Scopes compiler
+operates on source code its time to dive a little deeper into the
+specifics of the compilation itself. This aspect is also considerably
+different from other programming languages and is worth understanding
+at least at a surface level.
+
+The following table summarizes the steps of compilation and execution
 of Scopes code:
 
-| Order | Stage       | From                          | To                 | Macro System |
-|-------+-------------+-------------------------------+--------------------+--------------|
-|     1 | Parsing     | Data Interchange Format (SLN) | S-Expression Tree  |              |
-|     2 | Expansion   | S-Expression Tree             | Untyped Scopes AST | Sugar        |
-|     3 | Checking    | Untyped Scopes AST            | Typed Scopes IL    | Spice        |
-|     4 | Translation | Typed Scopes IL               | LLVM IR / SPIR-V   |              |
-|     5 | Execution   | LLVM IR / SPIR-V              | Program Output     |              |
+| Order | Step       | From                          | To                      | Macro System |
+|-------+-------------+-------------------------------+-------------------------+--------------|
+|     1 | Parsing     | Data Interchange Format (SLN) | S-Expression Tree       |              |
+|     2 | Expansion   | S-Expression Tree             | Untyped Scopes AST      | Sugar        |
+|     3 | Checking    | Untyped Scopes AST            | Typed Scopes IL         | Spice        |
+|     4 | Translation | Typed Scopes IL               | LLVM IR / SPIR-V / GLSL |              |
+|     5 | Execution   | LLVM IR / SPIR-V              | Program Output          |              |
 
 This table will be very important to understand later concepts in
 metaprogramming and the two macro systems (sugars and spices of which
 we briefly met in Level 1).
 
-However for now its enough to look at stages 3 through 5.
+However for now its enough to look at steps 3 through 5.
 
 In a scripting language like python you would probably only have steps
 1 and 5, and perhaps 4 depending on the runtime.
 
 In a language with metaprogramming (i.e. macros) you add in step 2
 which allows for generating new code. C/C++ both have this with
-different sophistication levels.
+different sophistication steps.
 
 For a statically typed language you add in step 3 which is to do type
 checking.
@@ -101,14 +281,74 @@ achieve it. I consider this an advanced topic and will be covered in
 Level 5.
 
 
-**** COMMENT Code Generation
+**** TODO COMMENT Code Generation
+
+After having covered the steps in compilation we can discuss the
+different types of code that is generated by Scopes.
+
+*** TODO COMMENT Compile-Time vs Run-Time Values
+
+*Constant* compile-time values are the dual to *dynamic* run-time
+values in that constant values can be known before compilation to
+machine code.
+
+The compile-time vs run-time distinction in Scopes is considerably
+different than in most purely AOT compiled languages like C/C++ and is
+a major feature of the language. This is due to the multi-stage aspect
+of the compiler.
+
+In every stage it is both compile-time and run-time and so to say
+generically something is a "compile-time" computation is tautological
+and useless.
+
+However, the compile-time of one stage is the run-time of the next
+stage and so in a relative sense the distinction still carries some
+sense.
+
+Scopes does provide some features to actually test for "constant-ness"
 
 
-*** COMMENT Static Types
+
+*** Static Types
 
 That Scopes is statically typed (like C/C++) is one of the biggest
 differences between a "dynamically typed" scripting language like
 Python.
+
+Here we will show how to get information on types, use types, and how
+types relate to the run time, but later in "Type Definitions" we will
+cover how to create your own types as this is not essential to being
+able to use the language -- although very useful.
+
+**** Type Symbols & Type Information
+
+First it helps to be able to figure out information on the types of
+values or what symbols correspond to types. By convention types are
+commonly CamelCased for complex types outside of the builtins, but is
+by no means necessarily true.
+
+We have already covered one of these ~typeof~ but lets recap:
+
+#+begin_src scopes
+  print (typeof 'print)
+  print (typeof true)
+  print (typeof 1)
+#+end_src
+
+#+RESULTS:
+: Symbol
+: bool
+: i32
+
+
+Of course we can actually get a value that corresponds to a 
+#+begin_src scopes
+#+end_src
+
+**** Type Annotations
+
+In this section we cover how to add explicitly annotate initialization
+statements with types similar to how you would in C/C++
 
 In Level 1 we were mostly able to ignore having to declare types at
 all. This is because Scopes is able to infer types. Being able to
@@ -132,34 +372,13 @@ explicit type declarations typically are available as optional extra
 syntax.
 
 
-TODO:
-- type constructors (typedef)
-- constructing values from types
-- type declaration syntax (annotate examples from Level 1)
-- 
-
-
-
-TODO:
-
-#+begin_src scopes
-  print (typeof 'print)
-  print (storageof Symbol)
-  print (storagecast 'print)
-#+end_src
-
-#+RESULTS:
-: Symbol
-: u64
-: 4809770749102710031:u64
-
 **** TODO COMMENT Typification
 
 ~static-typify~
 
 *** Low Level Memory Management & Layout
 
-**** COMMENT Pointers
+**** Pointers
 
 In normal usage of Scopes you will be much less concerned with
 pointers than you would be writing C/C++ code.
@@ -323,15 +542,6 @@ Then there are reference types which are different from pointer types:
 **** COMMENT Constructors & Destructors
 
 **** COMMENT defer and other lifetime management
-
-*** COMMENT Constants
-
-*Constant* values are opposed to *dynamic* values in that constant
-values can be known before compilation to machine code.
-
-The compile-time vs run-time distinction in Scopes is considerably
-different than in most purely AOT compiled languages like C/C++ and is
-a major feature of the language.
 
 ** Arrays
 
@@ -1066,7 +1276,6 @@ use all the parens you want to make them:
 
 ** Scopes (not the language)
 
-
 ** Type Definitions
 
 #+begin_src scopes
@@ -1152,9 +1361,10 @@ checked.
 
 Types can have methods associated with them similar to how classes do.
 
-#+begin_src scopes
 
-#+end_src
+#+RESULTS:
+: 3
+: 3
 
 
 ** Metamethods
