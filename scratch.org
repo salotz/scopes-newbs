@@ -1,5 +1,82 @@
 * important
 
+** GOTOs
+
+#+begin_src scopes
+  label finish
+      for i in (range 10)
+          for j in (range 10)
+              if ((i + j) > 10)
+                  print i j
+                  print (i + j)
+                  merge finish
+#+end_src
+
+#+RESULTS:
+: 2 9
+: 11
+
+** functional programming
+
+#+begin_src scopes
+  inline genfunc ()
+      fn hello ()
+          print "hello"
+
+
+  let hello = (genfunc)
+
+  hello;
+#+end_src
+
+#+RESULTS:
+: hello
+
+#+begin_src scopes
+  inline gen-genfunc ()
+      inline genfunc ()
+          fn hello ()
+              print "hello"
+
+
+  let genfunc = (gen-genfunc)
+  let hello = (genfunc)
+
+  hello;
+#+end_src
+
+#+RESULTS:
+: hello
+
+
+** Constant vs Dynamic
+
+#+begin_src scopes
+  fn hello ()
+      print "Hello"
+
+  inline run (func)
+      (func)
+
+  run hello
+#+end_src
+
+#+RESULTS:
+: Hello
+
+#+begin_src scopes
+  fn hello ()
+      print "Hello"
+
+  fn run (func)
+      (func)
+
+  # ERROR
+  # run hello
+#+end_src
+
+#+RESULTS:
+
 ** Methods
 
 #+begin_src scopes

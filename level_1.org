@@ -1170,12 +1170,12 @@ like for in logs or reporting the value on the terminal.
 We will see in higher levels that these two functions are hookable
 similar to the Python "magic method" protocols e.g. ~__repr__~.
 
-** TODO COMMENT Arithmetic & Mathematics
+** Arithmetic & Mathematics
 
 We have kind of already seen arithmetic above in the section on
 Operators.
 
-
+TODO
 
 *** TODO COMMENT Special Mathematical Functions and Numbers
 
@@ -1500,6 +1500,24 @@ Functions without any arguments can be called in two ways:
 : AHHHHH!!!!
 : AHHHHH!!!!
 
+
+There is also another function-like construct called ~inline~. Which
+behaves very similarly but has properties that will only make sense in
+Level 2 when we talk about constant and dynamic values. Here is an
+example:
+
+#+begin_src scopes
+  inline yell ()
+      print "AHHHHH!!!!"
+
+  yell;
+#+end_src
+
+#+RESULTS:
+: AHHHHH!!!!
+
+As you can see it appears to be the same! We will discuss how it is
+different later.
 
 *** Return Values
 
@@ -2605,7 +2623,9 @@ Basics of a Map.
 : 3
 
 
-** COMMENT Generators & Iteration
+** Generators & Iteration
+
+TODO
 
 ** Documentation
 

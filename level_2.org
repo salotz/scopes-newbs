@@ -270,13 +270,216 @@ However, the compile-time of one stage is the run-time of the next
 stage and so in a relative sense the distinction still carries some
 sense.
 
+Before we consider the implications of "constant" values on our code
+lets distinguish between constant and dynamic values.
+
 Scopes does provide some features to actually test for "constant-ness"
+in ~constant?~ which we can test on some basic things.
 
 #+begin_src scopes
-  print (constant? 1)
-  local a = 1
-  print (constant? a)
+  print "i32?" (constant? 1)
+
+  let a = 1
+  print "let?" (constant? a)
+
+  local b = 1
+  print "local?" (constant? b)
+
+  global c = 1
+  print "global?" (constant? c)
+
 #+end_src
+
+#+RESULTS:
+: true
+: true
+: false
+: false
+
+So we can see that primitives like ~1~ and those assigned to symbols
+by ~let~ are constant but ~local~ and ~global~ defined variables are
+not.
+
+Lets try some other ones:
+
+#+begin_src scopes
+  print "list?" (constant? '(a b))
+  print "symbol?" (constant? 'Hello)
+
+  print "cast value?" (constant? (1 as f32))
+
+  using import UTF-8
+  print "char?" (constant? (char32 "a"))
+
+  fn hello ()
+      print "hello"
+
+  print "function?" (constant? hello)
+
+  print "string?" (constant? "hello")
+
+  print "rawstring?" (constant? ("hello" as rawstring))
+
+  import Map
+  print "module?" (constant? Map)
+
+  print "tuple?" (constant? (tupleof 1 2:f32 "hello"))
+
+  using import String
+  print "String?"(constant? (String "hello"))
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+list? true
+symbol? true
+cast value? true
+char? true
+function? true
+string? true
+rawstring? true
+module? true
+tuple? true
+String? false
+#+end_example
+
+All these are constant except a ~String~ object, which as we will see
+later is heap allocated.
+
+But these are all somewhat static objects. What about if we look at
+the inputs and outputs of functions. In this example the function is
+just the identity function and just returns the value:
+
+#+begin_src scopes
+  fn nop (thing)
+      thing
+
+  let b = 3
+
+  print "b:" (constant? b)
+  print "nop b:" (constant? (nop b))
+#+end_src
+
+#+RESULTS:
+: b: true
+: nop b: false
+
+And we can see that a constant value passed through a function is no
+longer a constant.
+
+But why? The reason is that because functions are like little black
+boxes the compiler cannot reason about what the output of the function
+will be.
+
+But in reality we know that this function is so simple that the
+compiler really could figure out what this is doing (and probably
+eliminate it).
+
+Like what is the difference between calling our function and just
+presenting the value itself? Nothing.
+
+In Scopes we have a way to express functions not as black-boxes but
+moreso as ways to copy-paste code around so that the compiler would be
+able to figure these things out. You might call these
+"white-boxes". The simplest is the ~inline~ declaration which we
+introduced as an alternative syntax for defining functions.
+
+Here is the above example rewritten with ~inline~:
+
+#+begin_src scopes
+  inline nop (thing)
+      thing
+
+  let b = 3
+
+  print "b:" (constant? b)
+  print "nop b:" (constant? (nop b))
+#+end_src
+
+#+RESULTS:
+: b: true
+: nop b: true
+
+We can see now the result is constant after passing through this
+inline "function".
+
+In reality whats happening is that the body of the inline function is
+more-or-less copied into the call-site of the inline. I.e. it would
+look like this:
+
+#+begin_src scopes
+  inline nop (thing)
+      thing
+
+  let b = 3
+
+  print "b:" (constant? b)
+
+  # print "nop b:" (constant? (nop b))
+  # replaced with
+  print "nop b:" (constant? b)
+#+end_src
+
+#+RESULTS:
+: b: true
+: nop b: true
+
+Which then makes sense why its also constant.
+
+You might recognize this as a kind of macro, like in the C/C++
+preprocessor which can copy-paste code around. However, this macro is
+different in that it is *hygenic*. Meaning that it still obeys scoping
+rules like a normal function. Lets test this out:
+
+#+begin_src scopes
+  local a = 1
+  local b = 2
+
+  inline increment (a)
+      a + 1
+
+  print (increment b)
+  print a
+#+end_src
+
+#+RESULTS:
+: 3
+: 1
+
+Notice that the variable ~a~ in the outer scope did not get
+incremented.
+
+We will have much more to say on macros and metaprogramming in higher
+levels but we will cover the topics that a C/C++ programmer might
+achieve through the use of the preprocessor in this level.
+
+We only bring it up here because of its relevance to constant
+values. Macros tend to produce constant values because they are run
+and generate code before any actual "run-time" code is run. Its as if
+you had written the code yourself in an editor.
+
+What else can we do that is constant? A comprehensive answer is not
+given here but we can show a few things which are:
+
+#+begin_src scopes
+  let a = 1
+  let b = 2
+
+  print "addition?" (constant? (b + a))
+  print "exponentiation?" (constant? (a ^ b))
+
+
+  let s0 = "hello"
+  let s1 = "world"
+
+  print "string concatenation?" (constant? (.. s0 s1))
+#+end_src
+
+#+RESULTS:
+: addition? true
+: exponentiation? true
+: string concatenation? true
 
 
 *** Static Types
