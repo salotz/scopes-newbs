@@ -1,5 +1,15 @@
 * important
 
+
+** function types
+
+#+begin_src scopes
+  fn explain-func (a b c)
+      print _:
+
+  explain-func 0 1 2
+#+end_src
+
 ** GOTOs
 
 #+begin_src scopes

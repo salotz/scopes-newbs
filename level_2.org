@@ -513,10 +513,54 @@ We have already covered one of these ~typeof~ but lets recap:
 : bool
 : i32
 
+Some other useful functions related to the type are ~qualifiersof~ &
+~storageof~ which will give you more information about a value
+including things like references etc.
 
-Of course we can actually get a value that corresponds to a 
 #+begin_src scopes
+  using import String
+
+  print "let:"
+  let let-str = (String "hello")
+  print "    typeof:" (typeof let-str)
+  print "    qualifiersof:" (qualifiersof let-str)
+  print "    storageof:" (storageof let-str)
+
+  print "local:"
+  local local-str = (String "hello")
+  print "    typeof:" (typeof local-str)
+  print "    qualifiersof:" (qualifiersof local-str)
+  print "    storageof:" (storageof local-str)
+
+  print "global:"
+  global global-str = (String "hello")
+  print "    typeof:" (typeof global-str)
+  print "    qualifiersof:" (qualifiersof global-str)
+  print "    storageof:" (storageof global-str)
 #+end_src
+
+#+RESULTS:
+#+begin_example
+let:
+    typeof: <GrowingString i8>
+    qualifiersof: (uniqueof <GrowingString i8> 1003)
+    storageof: (tuple (_items = (mutable@ i8)) (_count = usize) (_capacity = usize))
+local:
+    typeof: <GrowingString i8>
+    qualifiersof: (uniqueof (mutable& (storage = 'Function) <GrowingString i8>) 1009)
+    storageof: (tuple (_items = (mutable@ i8)) (_count = usize) (_capacity = usize))
+global:
+    typeof: <GrowingString i8>
+    qualifiersof: (viewof (mutable& (storage = 'Private) <GrowingString i8>) 999)
+    storageof: (tuple (_items = (mutable@ i8)) (_count = usize) (_capacity = usize))
+#+end_example
+
+You will notice that the ~qualifiersof~ information is different for all of them.
+
+The meaning behind all of these will be discussed later, as it does
+have to do with the type system to some degree (and specifically the
+borrow checker) but for now we will stick to the common meaning of the
+words types.
 
 **** Type Annotations
 
@@ -561,28 +605,84 @@ You can also declare the variable and type without initializing it:
   local count : i32
 
   print count
+  print (typeof count)
   count = 4
   print count
+  print (typeof count)
 #+end_src
 
-***** Function Types
+#+RESULTS:
+: 0
+: i32
+: 4
+: i32
 
-And for a function:
+**** Function Types
 
-#+begin_src scopes :tangle _bin/functions_returns.sc
-  fn get-origin ()
-      returning (_: i32 i32)
+Function types are a bit more complicated. We can annotate them easily
+enough with the ~returning~ syntax:
 
-      _ 0 0
+#+begin_src scopes
+  fn nop-num (num)
+      returning (_: i32)
 
-  let a b  = (get-origin)
+      num
 
-  print a b
+  print (nop-num 0)
+
+  print (typeof nop-num)
 #+end_src
 
-TODO more.
+#+RESULTS:
+: 0
+: Closure
 
-TODO function overloading, templates, typification, etc.
+First lets explain some of the syntax. ~returning~ is a builtin, ~_:~
+is a special type called ~Arguments~, and the rest of the values in
+the list are the types of the arguments you will be returning.
+
+Then notice how that for a function instead of getting the full type
+signature we only get the symbol ~Closure~, which indicates that it is
+a compile-time closure.
+
+To get the concrete type signature we need to use the tool
+~static-typify~:
+
+#+begin_src scopes
+  fn nop-num (num)
+      returning (_: i32)
+
+      return num
+
+  let func = (static-typify nop-num i32)
+
+  print "Closure result" (nop-num 0)
+  print "static-typified result" (func 0)
+  print ""
+  print "function:" func
+  print "function type:" (typeof func)
+
+  # TODO: you can also cast functions directly
+  # nop-num as (@ (function))
+#+end_src
+
+#+RESULTS:
+
+The arguments to ~static-typify~ are the function template ~Closure~
+and the types of the arguments you want to instantiate it as.
+
+The return value of ~static-typify~ is also a function that you can
+actually call as well, as shown in the example.
+
+However the type signature of the function is now known and made
+explicit: ~(opaque@ (i32 <-: (i32)))~ which means "an opaque pointer
+to a function that accepts an ~i32~ and returns an ~i32~".
+
+(Pointers and opaque will be discussed later.)
+
+Here we just introduce the basics of how functions are typed but,
+there is a lot more to say about function templates and their uses
+which will be discussed later.
 
 *** Low Level Memory Management & Layout
 
@@ -745,6 +845,9 @@ Then there are reference types which are different from pointer types:
   print (mutable (& i32))
 #+end_src
 
+
+TODO: opaque pointers
+
 **** COMMENT Heap Memory Allocation
 
 **** COMMENT Constructors & Destructors
@@ -855,6 +958,8 @@ It has similar methods as ~Array~:
 : 10:usize
 : 27:usize
 : Hello there sir
+: <GrowingString i8>
+: (uniqueof (mutable& (storage = 'Function) <GrowingString i8>) 1005)
 
 **** C-like Strings
 
