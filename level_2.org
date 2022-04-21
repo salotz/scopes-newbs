@@ -678,7 +678,7 @@ However the type signature of the function is now known and made
 explicit: ~(opaque@ (i32 <-: (i32)))~ which means "an opaque pointer
 to a function that accepts an ~i32~ and returns an ~i32~".
 
-(Pointers and opaque will be discussed later.)
+(Pointers and opaque pointers will be discussed later.)
 
 Here we just introduce the basics of how functions are typed but,
 there is a lot more to say about function templates and their uses
@@ -706,11 +706,14 @@ operator.
   local a = 3
   print (& a)
   print (typeof (& a))
+  print (qualifiersof (& a))
   print (storageof (& a))
 #+end_src
 
 #+RESULTS:
-: $riroparonimetur:(mutable@ (storage = 'Function) i32)
+: $rirorukerosubil:(mutable@ (storage = 'Function) i32)
+: $rirorukerosubil:(mutable@ (storage = 'Function) i32)
+: (mutable@ (storage = 'Function) i32)
 : (mutable@ (storage = 'Function) i32)
 : (mutable@ (storage = 'Function) i32)
 
@@ -721,9 +724,15 @@ Or if you execute on the REPL:
 ~$rironedapoxiken:(mutable@ (storage = Private) i32)~
 
 Looking at the ~typeof~ and ~storageof~ portion of this we can see
-that the type is "mutable" indicating it is a pointer.
+that the type is ~mutable@~ indicating it is a pointer, and
+specifically a "mutable" pointer.
 
-TODO: what does the ~(storage = 'Function)~ etc. mean?
+The ~(storage = 'Function)~ indicates the "storage class" where
+~'Function~ means it is stack storage and, as we will see, ~'Private~
+means global memory. 
+
+This is intended to support code generation to targets like SPIR-V
+primarily.
 
 And at the right-hand-side we see ~i32~ indicating that the value
 being pointed to is an ~i32~ integer.
@@ -748,7 +757,131 @@ value: ~&b~.
 The representation should be something like this:
 ~Global$genaroked:(mutable@ (storage = 'Private) i32)~.
 
-Very similar except that it has a "Global" indicator at the beginning.
+Very similar except that it has a "Global" indicator at the beginning
+and is the ~'Private~ storage class.
+
+
+We mentioned that the pointers we were dealing with above were
+"mutable" pointers. You can check if something is mutable using the
+~mutable?~ keyword:
+
+#+begin_src scopes
+  local a = 1
+  global b = 2
+
+  print "a mutable?:" (mutable? &a)
+  print "b mutable?:" (mutable? &b)
+  print "b mutable?:" (mutable? &c)
+#+end_src
+
+#+RESULTS:
+
+You can express the types of pointers in a couple ways for both
+immutable constant and mutable pointers:
+
+#+begin_src scopes
+
+  # these are equivalent
+  let p = (pointer i32)
+  let ap = (@ i32)
+
+  let mp = (mutable pointer i32)
+
+  print "p:" (typeof p) p
+  print "  mutable?:" (mutable? p)
+
+  print "ap:" (typeof ap) ap
+  print "  mutable?:" (mutable? p)
+
+  print "mp:" (typeof mp) mp
+  print "  mutable?:" (mutable? mp)
+#+end_src
+
+#+RESULTS:
+: p: type (@ i32)
+:   mutable?: false
+: ap: type (@ i32)
+:   mutable?: false
+: mp: type (mutable@ i32)
+:   mutable?: true
+
+Alternatively there are other ways to write a mutable pointer:
+
+#+begin_src scopes
+  print (mutable@ i32)
+  print (mutable (@ i32))
+#+end_src
+
+#+RESULTS:
+: (mutable@ i32)
+: (mutable@ i32)
+
+And finally there is a third kind of pointer which is the "opaque"
+pointer. This indicates that there is no storage for the type.
+
+Here is an example:
+
+#+begin_src scopes
+  print (pointer (type T))
+
+  let opaque-ptr = (pointer (type V))
+  print (opaque-ptr)
+#+end_src
+
+#+RESULTS:
+: (opaque@ T)
+: (nullof (opaque@ V)):(opaque@ V)
+
+Opaque pointers are common when dealing with function pointers as we
+have seen previously with ~static-typify~.
+
+***** Getting Pointers
+
+****** Null Pointer
+
+The simplest pointer that we can conjure out of thin air is the
+so-called "null" pointer which points to nothing.
+
+#+begin_src scopes
+  let nul-ptr = (nullof (@ i32))
+  print nul-ptr
+
+  let nul-ptr = (nullof (mutable@ i32))
+  print nul-ptr
+#+end_src
+
+#+RESULTS:
+: (nullof (@ i32)):(@ i32)
+: (nullof (mutable@ i32)):(mutable@ i32)
+
+Null pointers are equal to the special value ~null~:
+
+#+begin_src scopes
+  let nul-ptr = (nullof (@ i32))
+
+  if (nul-ptr == null)
+      print "nul-ptr is null"
+  else
+      print "nul-ptr is not null"
+
+  local a = 1
+
+  if (&a == null)
+      print "&a is null"
+  else
+      print "&a is not null"
+#+end_src
+
+#+RESULTS:
+: nul-ptr is null
+: &a is not null
+
+
+****** Stack & Global Pointers
+
+Above we showed how to get pointers from ~local~ (stack) and ~global~
+(data segment) allocated values. Because these are not heap allocated
+they do have some extra rules surrounding their use.
 
 Global pointers can be accessed anywhere since the values are in the
 data segment of the program:
@@ -762,7 +895,6 @@ data segment of the program:
   local b = (test)
 
   print (@ b)
-
 #+end_src
 
 #+RESULTS:
@@ -791,52 +923,21 @@ invalidated outside the scope:
 : $riropepegagebak:(mutable@ (storage = 'Function) i32)
 : 32678
 
+****** COMMENT Heap Pointers
 
+Perhaps the more common use of pointers is in actual memory management
+in which memory is allocated on the heap. Functions that allocated
+memory will return pointers as the results to these.
 
-***** TODO COMMENT not ready yet
-
-
-#+begin_src scopes
-  local a = 1
-  global b = 2
-
-  print "a mutable?:" (mutable? &a)
-  print "b mutable?:" (mutable? &b)
-#+end_src
-
-#+RESULTS:
-: a mutable?: true
-: b mutable?: true
-
-You can express the types of pointers in a couple ways for both
-immutable constant and mutable pointers:
+We will see more of memory management but here we will show how to get
+pointers from them.
 
 #+begin_src scopes
-  let p = (pointer i32)
-  let mp = (mutable pointer i32)
-  print "p:" p
-  print "  mutable?:" (mutable? p)
-  print "mp:" mp
-  print "  mutable?:" (mutable? mp)
 #+end_src
 
-#+RESULTS:
-: p: (@ i32)
-:   mutable?: false
-: mp: (mutable@ i32)
-:   mutable?: true
+***** References
 
-Alternative syntax:
-
-#+begin_src scopes
-  print (@ i32)
-  print (mutable@ i32)
-  print (mutable (@ i32))
-#+end_src
-
-#+RESULTS:
-: (@ i32)
-: (mutable@ i32)
+TODO
 
 Then there are reference types which are different from pointer types:
 
@@ -845,8 +946,6 @@ Then there are reference types which are different from pointer types:
   print (mutable (& i32))
 #+end_src
 
-
-TODO: opaque pointers
 
 **** COMMENT Heap Memory Allocation
 
