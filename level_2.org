@@ -298,6 +298,7 @@ local? false
 global? false
 :end:
 
+#+RESULTS:
 #+begin_example
 i32? true
 let? true
