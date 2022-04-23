@@ -276,7 +276,7 @@ lets distinguish between constant and dynamic values.
 Scopes does provide some features to actually test for "constant-ness"
 in ~constant?~ which we can test on some basic things.
 
-#+begin_src scopes :results drawer
+#+begin_src scopes
   print "i32?" (constant? 1)
 
   let a = 1
@@ -291,20 +291,11 @@ in ~constant?~ which we can test on some basic things.
 #+end_src
 
 #+RESULTS:
-:results:
-i32? true
-let? true
-local? false
-global? false
-:end:
+: i32? true
+: let? true
+: local? false
+: global? false
 
-#+RESULTS:
-#+begin_example
-i32? true
-let? true
-local? false
-global? false
-#+end_example
 
 So we can see that primitives like ~1~ and those assigned to symbols
 by ~let~ are constant but ~local~ and ~global~ defined variables are
@@ -916,7 +907,7 @@ However local variables are on the stack so if you return a pointer to
 a local that was allocated on an upper framestack then it will be
 invalidated outside the scope:
 
-#+begin_src scopes :results org
+#+begin_src scopes
   fn test ()
       local b = 2
       print (@ &b)
@@ -929,11 +920,9 @@ invalidated outside the scope:
 #+end_src
 
 #+RESULTS:
-#+begin_src org
-2
-$rironipegilugal:(mutable@ (storage = 'Function) i32)
-32546
-#+end_src
+: 2
+: $riropihuwohinim:(mutable@ (storage = 'Function) i32)
+: 32712
 
 ****** COMMENT Heap Pointers
 
