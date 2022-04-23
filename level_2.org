@@ -276,7 +276,7 @@ lets distinguish between constant and dynamic values.
 Scopes does provide some features to actually test for "constant-ness"
 in ~constant?~ which we can test on some basic things.
 
-#+begin_src scopes :results org
+#+begin_src scopes :results drawer
   print "i32?" (constant? 1)
 
   let a = 1
@@ -291,12 +291,12 @@ in ~constant?~ which we can test on some basic things.
 #+end_src
 
 #+RESULTS:
-#+begin_src org
+:results:
 i32? true
 let? true
 local? false
 global? false
-#+end_src
+:end:
 
 So we can see that primitives like ~1~ and those assigned to symbols
 by ~let~ are constant but ~local~ and ~global~ defined variables are
