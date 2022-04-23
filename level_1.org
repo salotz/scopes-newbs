@@ -2980,21 +2980,158 @@ Currently, there is a package repo ([[https://github.com/salotz/snailpacks][snai
 manager being maintained including a build recipe for Scopes itself
 and a variety of C/C++ libraries for game and multimedia development.
 
-** Other Helpful Miscellanea
 
-TODO: move this to level 2 since it is basically the info you would
-have in a C/C++ type declaration.
+** Memory Model
 
-You can get the qualifiers of a value using the `qualifiersof`
-operator. This is similar to `typeof` but with more information:
+An important part of a programming language is understanding when
+values are copied and/or referenced from the various variable
+assignments, which is sometimes called the "memory model".
+
+In languages like C/C++ this might refer to the system dealing with
+pointers and explicit references, whereas in Python its more about
+knowing when to use the ~copy~ functions and when to just use variable
+assignment.
+
+Scopes sort of has both and here we will just cover the non-pointer or
+C++ style references similar to what would be found in Python. Look to
+Level 2 for more detailed information on references, pointers, copies,
+and move semantics and how they also relate to the borrow checker.
+
+The TL;DR for this is very straightforward though. All variable
+assignment works with copies and there is no implicit referencing
+given the syntax we've seen so far.
+
+Below we simply demonstrate this.
+
+*** let assignment
+
+With let it is immutable and so its simple. You can't mutate the value
+so there is no chain of references to worry about.
 
 #+begin_src scopes
-  let a = 2
-  local b = 2
+  let a = 3
 
-  qualifiersof a
-  qualifiersof b
+  let b = a
+
+  print "a" a
+  print "b" b
 #+end_src
+
+#+RESULTS:
+: a 3
+: b 3
+
+Somewhat obviously, if you redefine an immutable variable as something
+else, it takes on the new value.
+
+#+begin_src scopes
+  let a = 3
+  let b = a
+  let b = 4
+
+  print "a" a
+  print "b" b
+#+end_src
+
+#+RESULTS:
+: a 3
+: b 4
+
+And if you redefine the first value '~a~'it doesn't change the second
+value '~b~' because they don't reference each other. ~b~ is a copy of
+the value ~a~ initially held:
+
+#+begin_src scopes
+  let a = 3
+  let b = a
+  let a = 4
+
+  print "a" a
+  print "b" b
+#+end_src
+
+#+RESULTS:
+: a 4
+: b 3
+
+*** local & global assignment
+
+~local~ and ~global~ are exactly the same!
+
+#+begin_src scopes
+  local a = 3
+
+  local b = a
+
+  print "a" a
+  print "b" b
+
+#+end_src
+
+#+RESULTS:
+: a 3
+: b 3
+
+#+begin_src scopes
+  local a = 3
+  local b = a
+  b = 4
+
+  print "a" a
+  print "b" b
+#+end_src
+
+#+RESULTS:
+: a 3
+: b 4
+
+#+begin_src scopes
+  local a = 3
+  local b = a
+  a = 4
+
+  print "a" a
+  print "b" b
+#+end_src
+
+#+RESULTS:
+: a 4
+: b 3
+
+** Other Helpful Miscellanea
+
+*** Copying
+
+You can copy values with the ~copy~ macro:
+
+#+begin_src scopes
+  using import String
+
+  local a = (String "hello")
+
+  print "a:" a
+
+  local b = (copy a)
+  # local c = b
+
+  print "b copied from a:" b
+  # print "c aliased from b:" c
+
+  b = (String "goodbye")
+
+  print "b after mutating:" b
+  print "a after b is mutated:" a
+  # print "c after b is mutated:" c
+
+  ;
+#+end_src
+
+#+RESULTS:
+: a: hello
+: b copied from a: hello
+: b after mutating: goodbye
+: a after b is mutated: hello
+
 
 ** Final Notes
 
