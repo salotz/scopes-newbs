@@ -298,6 +298,13 @@ local? false
 global? false
 :end:
 
+#+begin_example
+i32? true
+let? true
+local? false
+global? false
+#+end_example
+
 So we can see that primitives like ~1~ and those assigned to symbols
 by ~let~ are constant but ~local~ and ~global~ defined variables are
 not.
