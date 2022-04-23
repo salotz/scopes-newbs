@@ -1,15 +1,5 @@
 * important
 
-
-** function types
-
-#+begin_src scopes
-  fn explain-func (a b c)
-      print _:
-
-  explain-func 0 1 2
-#+end_src
-
 ** GOTOs
 
 #+begin_src scopes
@@ -58,34 +48,6 @@
 #+RESULTS:
 : hello
 
-
-** Constant vs Dynamic
-
-#+begin_src scopes
-  fn hello ()
-      print "Hello"
-
-  inline run (func)
-      (func)
-
-  run hello
-#+end_src
-
-#+RESULTS:
-: Hello
-
-#+begin_src scopes
-  fn hello ()
-      print "Hello"
-
-  fn run (func)
-      (func)
-
-  # ERROR
-  # run hello
-#+end_src
-
-#+RESULTS:
 
 ** Methods
 
@@ -266,22 +228,6 @@ type+ T extend the definition of type T; it's otherwise exactly like type, but y
 #+end_src
 
 #+RESULTS:
-
-** static-typify
-
-#+begin_src scopes
-  fn a ()
-      none
-
-  let t = (static-typify a)
-
-  print t
-  print (typeof t)
-#+end_src
-
-#+RESULTS:
-: (%1: fn a () : (opaque@ (Nothing <-: ())) (return none)):(opaque@ (Nothing <-: ()))
-: (opaque@ (Nothing <-: ()))
 
 ** expand C macros
 
@@ -896,4 +842,58 @@ show it with a Scope:
 #+RESULTS:
 : /tmp/babel-EFGjGa/prefix7aQGWT.sc:3:1: 3
 : 3
+
+* finished
+** function types
+
+#+begin_src scopes
+  fn explain-func (a b c)
+      print _:
+
+  explain-func 0 1 2
+#+end_src
+
+** Constant vs Dynamic
+
+#+begin_src scopes
+  fn hello ()
+      print "Hello"
+
+  inline run (func)
+      (func)
+
+  run hello
+#+end_src
+
+#+RESULTS:
+: Hello
+
+#+begin_src scopes
+  fn hello ()
+      print "Hello"
+
+  fn run (func)
+      (func)
+
+  # ERROR
+  # run hello
+#+end_src
+
+#+RESULTS:
+
+** static-typify
+
+#+begin_src scopes
+  fn a ()
+      none
+
+  let t = (static-typify a)
+
+  print t
+  print (typeof t)
+#+end_src
+
+#+RESULTS:
+: (%1: fn a () : (opaque@ (Nothing <-: ())) (return none)):(opaque@ (Nothing <-: ()))
+: (opaque@ (Nothing <-: ()))
 

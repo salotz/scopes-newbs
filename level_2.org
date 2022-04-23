@@ -1683,11 +1683,7 @@ generator from ~itertools~:
 : 1: b
 : 2: c
 
-*** Set
-TODO
 
-*** Map
-TODO
 *** Scopes (not the language)
 
 TODO
