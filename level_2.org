@@ -878,11 +878,33 @@ Null pointers are equal to the special value ~null~:
 : &a is not null
 
 
+You can cast the pointers to the address which is a ~u64~. We can see
+that the address of the null pointer is 0.
+
+#+begin_src scopes
+  print ((nullof i32) as u64)
+#+end_src
+
+#+RESULTS:
+: 0:u64
+
+For other values we can see different numbers:
+
+#+begin_src scopes
+  local a = 3
+
+  print (&a as u64)
+#+end_src
+
+#+RESULTS:
+: 140737172878068:u64
+
 ****** Stack & Global Pointers
 
-Above we showed how to get pointers from ~local~ (stack) and ~global~
-(data segment) allocated values. Because these are not heap allocated
-they do have some extra rules surrounding their use.
+Above we showed how to get pointers from ~local~ (stack created with
+~alloca~) and ~global~ (data segment) allocated values. Because these
+are not heap allocated they do have some extra rules surrounding their
+use.
 
 Global pointers can be accessed anywhere since the values are in the
 data segment of the program:
