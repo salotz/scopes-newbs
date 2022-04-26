@@ -3092,7 +3092,12 @@ the value ~a~ initially held:
 
 *** local & global assignment
 
-~local~ and ~global~ are exactly the same!
+~local~ and ~global~ are exactly the same! But for different reasons.
+
+The reason is that ~let~ exists purely at the syntactic level, whereas
+~local~ and ~global~ exist at run time.
+
+Nonetheless for this level you can think of them as the same.
 
 #+begin_src scopes
   local a = 3
