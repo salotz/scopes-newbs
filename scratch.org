@@ -1,5 +1,51 @@
 * important
 
+** exceptions
+
+#+begin_src scopes
+
+  type MyError < Error
+
+  fn test-error ()
+      if true
+          MyError "WRONG!!"
+      else
+          print "right"
+
+  try
+      test-error;
+  except (Error)
+      print "something bad happened"
+
+  ;
+
+#+end_src
+
+#+RESULTS:
+
+** memory management stuff (level 2)
+
+- `copy`
+- `move`
+- `&` references
+- `view`
+- `dupe`
+- `lose`
+- `viewing`
+- `uniqueof`
+
+#+begin_src scopes
+  local a = 3
+  local b = a
+
+  print (& a)
+  print (& b)
+#+end_src
+
+#+RESULTS:
+: $riromixasixopar:(mutable@ (storage = 'Function) i32)
+: $riroluhumepinet:(mutable@ (storage = 'Function) i32)
+
 ** GOTOs
 
 #+begin_src scopes
@@ -17,6 +63,8 @@
 : 11
 
 ** functional programming
+
+TODO: currying
 
 #+begin_src scopes
   inline genfunc ()
@@ -897,3 +945,39 @@ show it with a Scope:
 : (%1: fn a () : (opaque@ (Nothing <-: ())) (return none)):(opaque@ (Nothing <-: ()))
 : (opaque@ (Nothing <-: ()))
 
+** branching types
+
+#+begin_src scopes
+  if true
+      "yellow"
+  else
+      3
+#+end_src
+
+#+RESULTS:
+** raising type annotation
+
+#+begin_src scopes
+  fn raise-error ()
+      raising Error
+
+      if true
+          # raise (myException "an error occurred")
+          error "error"
+
+      else
+          "no error"
+
+  print (static-typify raise-error)
+
+  # try
+  #     raise-error;
+  # except (e)
+  #     print "error occured"
+  #     "error"
+
+  ;
+#+end_src
+
+#+RESULTS:
+: (%1: fn raise-error () : (opaque@ (string <-: () raises Error)) (%2: branch #unnamed : string (...)) (return %2)):(opaque@ (string <-: () raises Error))
