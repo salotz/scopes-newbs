@@ -1270,6 +1270,80 @@ bools:
 
 ~string~ and ~null~ types cannot be cast to booleans.
 
+**** Branching Control Flow
+
+Note that because of typing rules you may find some expressions give
+compiler errors that you would expect to work, e.g. this is a compiler
+error:
+
+#+begin_src scopes
+  # INVALID
+  if true
+      "yellow"
+  else
+      3
+#+end_src
+
+#+RESULTS:
+
+Why is this? The error is basically explaining that the different
+branches of the if-else statement are returning incompatible types,
+string and i32.
+
+To better explain this consider that you can write if-else expressions
+(and any other expression) like this:
+
+#+begin_src scopes
+  let result =
+      if true
+          "yellow"
+      else
+          "blue"
+
+  print result
+#+end_src
+
+#+RESULTS:
+: yellow
+
+This is called roughly "expression oriented programming" because most
+things are made up of expressions and they are composable. This is
+because all expressions have "return" values which are implicitly the
+last value in the block, or in this case the last statement of each
+branch.
+
+We'll see this put to more familiar uses in the sections on functions
+and modules but its useful to introduce it here to drive the point
+home that this is not something special to them and can be used pretty
+much anywhere in the language.
+
+With this understanding we can see that even in the case without the
+preceding ~let~ that the expression itself needs to be type
+checked. 
+
+Thinking in terms of a the variable ~result~ needing to have a
+predetermined type (even when not using it).
+
+We will talk about types in depth at higher levels but for
+know you should know that for branching control flow, each branch must
+have compatible types.
+
+This also explains why the examples where we are just printing in each
+branch works. ~print~ has a special return type ~void~, which is
+similar to Python's ~None~ when used this way and just indicates no
+return type. If each branch has return type void then the whole thing
+works. We could even explicitly return ~void~:
+
+#+begin_src scopes
+  if true
+      print "yellow"
+  else
+      void
+#+end_src
+
+#+RESULTS:
+: yellow
+
 *** Loops
 
 The fundamental loop in scopes is very general, but maybe not exactly
@@ -1438,7 +1512,6 @@ reverse because of how ~cons~ works and 2. we have to explicitly cast
 
 We will see more realistic examples later.
 
-*** TODO COMMENT Blocks
 
 ** Type Casting
 
@@ -2070,7 +2143,7 @@ then you can catch them with a ~try~-~except~ block.
 
   try
       test-error;
-  except (error)
+  except (e)
       print "something bad happened"
 
   ;
@@ -2079,6 +2152,88 @@ then you can catch them with a ~try~-~except~ block.
 #+RESULTS:
 : something bad happened
 
+Note that because of type checking that some things might not work as
+you might think.
+
+For instance consider this invalid code:
+
+#+begin_src scopes
+  fn test-error ()
+      if true
+          error "WRONG!!"
+
+      else
+          "right"
+
+  # INVALID
+  try
+      test-error;
+  except (e)
+      print "error occured"
+
+  ;
+#+end_src
+
+#+RESULTS:
+
+This will result in a compiler error that roughly decsribes that the
+returning value from the ~except~ clause conflicts with that of the
+~try~ block. This is because the ~test-error~ function returns a
+string and the ~except~ block returns nothing (or ~void~).
+
+To fix this code we would need to actually return a string from the
+~except~ clause:
+
+#+begin_src scopes
+  fn test-error ()
+      if true
+          error "WRONG!!"
+
+      else
+          "right"
+
+  try
+      test-error;
+  except (e)
+      "error occured"
+
+  ;
+#+end_src
+
+This might seem strange, but in practice you really should be doing
+something like the following to handle error propagation:
+
+#+begin_src scopes
+  fn test-error ()
+      if true
+          error "WRONG!!"
+
+      else
+          "right"
+
+  let result =
+      try
+          test-error;
+      except (e)
+          "error occured"
+
+  print result
+  ;
+#+end_src
+
+#+RESULTS:
+: error occured
+
+This is similar to the if-else type branching that was explained
+previously.
+
+We will see in more detail in higher levels on how to deal with these
+typing constraints, but this should be sufficient to avoid the
+inevitable confusion on this if you are used to a more dynamic
+language.
+
+TODO: add section error types, dispatching, and returning multiple
+different kinds of errors.
 
 You can also create your own error types and even do things with
 them. This uses concepts that will be discussed in level 2 but the

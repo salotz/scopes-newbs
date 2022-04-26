@@ -685,6 +685,35 @@ Here we just introduce the basics of how functions are typed but,
 there is a lot more to say about function templates and their uses
 which will be discussed later.
 
+***** Error Types
+
+Because of Scopes special handling of errors by "patching" the return
+types we can also statically define the types of errors which can be
+raised using the ~raising~ syntax:
+
+#+begin_src scopes
+  fn raise-error ()
+      raising Error
+
+      if true
+          error "error"
+
+      else
+          "no error"
+
+  print (static-typify raise-error)
+#+end_src
+
+#+RESULTS:
+: (%1: fn raise-error () : (opaque@ (string <-: () raises Error)) (%2: branch #unnamed : string (...)) (return %2)):(opaque@ (string <-: () raises Error))
+
+We can see now a much more complicated type signature (formatted for clarity):
+
+#+begin_example
+(%1: fn raise-error () : (opaque@ (string <-: () raises Error)) 
+(%2: branch #unnamed : string (...)) (return %2)):(opaque@ (string <-: () raises Error))
+#+end_example
+
 *** Low Level Memory Management & Layout
 
 **** Pointers
