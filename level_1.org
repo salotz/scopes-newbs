@@ -1606,7 +1606,42 @@ Recursion is achieved using ~this-function~:
 : 5
 : 6
 
+Recursion is a bit more complicated than this however due to type
+checking. This will be discussed in much more detail in Level 2, so
+don't be surprised if you get errors when trying this on your own.
 
+*** Anonymous Functions AKA Lambdas
+
+Scopes also supports unnamed functions (typically called
+lambdas).
+
+An example with the typical usage of lambdas:
+
+#+begin_src scopes
+  print ((fn (x) (x + 1)) 4)
+#+end_src
+
+#+RESULTS:
+: 5
+
+
+You can assign the function to a symbol:
+
+#+begin_src scopes
+  let lambda = (fn (x) (x + 1))
+
+  print (lambda 4)
+
+  let lambda2 =
+      fn (x)
+          x + 1
+
+  print (lambda2 4)
+#+end_src
+
+#+RESULTS:
+: 5
+: 5
 
 ** Modules, Namespaces, & Scopes
 
