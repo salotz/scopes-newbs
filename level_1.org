@@ -2157,228 +2157,6 @@ for dealing with single characters.
 : i32
 : 97
 
-** Exceptions, Errors, & Assertions
-
-*** Error Propagation
-
-Error propagation is much the same as you would expect
-syntactically. You ~raise~ errors (or call the ~error~ function) and
-then you can catch them with a ~try~-~except~ block.
-
-#+begin_src scopes
-  fn test-error ()
-      if true
-          error "WRONG!!"
-      else
-          print "right"
-
-  try
-      test-error;
-  except (e)
-      print "something bad happened"
-
-  ;
-#+end_src
-
-#+RESULTS:
-: something bad happened
-
-Note that because of type checking that some things might not work as
-you might think.
-
-For instance consider this invalid code:
-
-#+begin_src scopes
-  fn test-error ()
-      if true
-          error "WRONG!!"
-
-      else
-          "right"
-
-  # INVALID
-  try
-      test-error;
-  except (e)
-      print "error occured"
-
-  ;
-#+end_src
-
-#+RESULTS:
-
-This will result in a compiler error that roughly decsribes that the
-returning value from the ~except~ clause conflicts with that of the
-~try~ block. This is because the ~test-error~ function returns a
-string and the ~except~ block returns nothing (or ~void~).
-
-To fix this code we would need to actually return a string from the
-~except~ clause:
-
-#+begin_src scopes
-  fn test-error ()
-      if true
-          error "WRONG!!"
-
-      else
-          "right"
-
-  try
-      test-error;
-  except (e)
-      "error occured"
-
-  ;
-#+end_src
-
-This might seem strange, but in practice you really should be doing
-something like the following to handle error propagation:
-
-#+begin_src scopes
-  fn test-error ()
-      if true
-          error "WRONG!!"
-
-      else
-          "right"
-
-  let result =
-      try
-          test-error;
-      except (e)
-          "error occured"
-
-  print result
-  ;
-#+end_src
-
-#+RESULTS:
-: error occured
-
-This is similar to the if-else type branching that was explained
-previously.
-
-We will see in more detail in higher levels on how to deal with these
-typing constraints, but this should be sufficient to avoid the
-inevitable confusion on this if you are used to a more dynamic
-language.
-
-TODO: add section error types, dispatching, and returning multiple
-different kinds of errors.
-
-You can also create your own error types and even do things with
-them. This uses concepts that will be discussed in level 2 but the
-basics are shown here:
-
-#+begin_src scopes
-  using import struct
-
-  struct myException
-      msg : string
-
-  try
-      raise (myException "an error occurred")
-  except (e)
-      print e.msg
-
-#+end_src
-
-#+RESULTS:
-: an error occurred
-
-**** How Errors are Different
-
-However, because Scopes is a typed language there are some limitations
-that might seem weird to a Python programmer. For instance the
-following code will not even compile:
-
-#+begin_src scopes
-error "Bare error here"
-;
-#+end_src
-
-#+RESULTS:
-
-Nor will:
-
-#+begin_src scopes
-  fn test-error ()
-      error "Error"
-
-  test-error;
-#+end_src
-
-#+RESULTS:
-
-The reason is that to maintain typing any function with an error in it
-actually has the type signature dynamically modified to accomodate for
-the error.
-
-In languages like C and Odin with no exceptions (which can also be
-turned off in C++) you typically have to of roll your own kind of
-error handling system where you are always returning both the value
-from the computation and the error itself if any. Although languages
-like Odin provide a specific support for making this simpler in the
-language. This article by the creator of Odin does a good job comparing the
-"normal control flow" expressions to those of Python in this article:
-https://www.gingerbill.org/article/2018/09/05/exceptions-and-why-odin-will-never-have-them/
-
-The reason is complicated but ultimately comes down to performance and
-lower complexity.
-
-In the "normal control flow" approach there is no exceptional (haha
-get it) behavior occuring.
-
-However in languages like Python or C++, exceptions are implemented
-using some form of GOTO. That is control flow doesn't follow the
-normal path you would expect it to in your code. This is all the
-"magic" it takes to be able to pass exceptions up the stack and
-continue execution elsewhere.
-
-Its not that this is bad /per se/, but it just adds an extra layer of
-complexity into your code. The detractors of this kind of system have
-a point which is that this kind of complex system shouldn't come stock
-in a low level language like C/C++, where performance is
-critical. Indeed it doesn't come as a default in C and you have to use
-things like ~setjmp~ and ~longjmp~ to accomplish this kind of behavior
-(or a library that does it for you). Indeed many libraries and
-language features like coroutines, generators, etc. all use this to
-great effect.
-
-In some sense Scopes (and also Rust has a similar system) has the best
-of both worlds in which instead of resorting to non-local control flow
-errors are implemented in the type system.
-
-You could implement non-local exceptions in Scopes the same as
-coroutines but that would be a choice you could make in a specific
-library or project rather than the language as a whole.
-
-There will be more discussions of the details of the changes in type
-signatures etc. in Level 2 when it is more appropriate.
-
-*** Assertions
-
-Scopes has the common assert function which you can use for quick
-checks of boolean expressions. However, instead of (like in Python)
-raising a special error when the assert value is false the program is
-aborted.
-
-For these nothing will happen:
-
-#+begin_src scopes :tangle _bin/errors_assert.sc
-  assert true
-
-  assert (not false)
-
-  assert (1 == 1)
-#+end_src
-
-But this will abort and dump core.
-
-#+begin_src scopes
-  assert false
-#+end_src
-
 ** Data Structures
 
 So far the only kind of datastructure we have seen is the list. We
@@ -2844,6 +2622,332 @@ Basics of a Map.
 : 3
 
 *** Set
+
+** Exceptions, Errors, & Assertions
+
+*** Error Propagation
+
+Error propagation is much the same as you would expect
+syntactically. You ~raise~ errors (or call the ~error~ function) and
+then you can catch them with a ~try~-~except~ block.
+
+Here is about as simple as it gets:
+
+#+begin_src scopes
+  try
+      raise "Error"
+  except (e)
+      print e
+#+end_src
+
+#+RESULTS:
+: Error
+
+Notice that we aren't raising any specific exception or error types
+and instead just a plain string is being raised. Any type of value can
+be raised in exceptions.
+
+
+Just for fun:
+
+#+begin_src scopes
+  try
+      raise "🤯"
+  except (e)
+      print e
+#+end_src
+
+#+RESULTS:
+: 🤯
+
+
+If you use the ~error~ function it will raise an ~Error~ type object:
+
+#+begin_src scopes
+  fn test-error ()
+      if true
+          error "WRONG!!"
+      else
+          print "right"
+
+  try
+      test-error;
+  except (err)
+      print "Something bad happened:"
+      print err
+      print (typeof err)
+  ;
+#+end_src
+
+#+RESULTS:
+
+Also note that the symbol you bind the exception value to can be
+anything.
+
+If you run the function without the try-except block it will raise an
+error:
+
+#+begin_src scopes
+  fn test-error ()
+      if true
+          error "WRONG!!"
+      else
+          print "right"
+
+  test-error;
+#+end_src
+
+#+RESULTS:
+
+---
+
+Exceptions in Scopes are monomorphic however which is a fancy way of
+saying you can't have different kinds of error values propagated in
+the same try block.
+
+So this code is invalid:
+
+#+begin_src scopes
+  # INVALID
+  try
+      if true
+          raise "Error"
+      else
+          raise 1
+
+  except (e)
+      print e
+#+end_src
+
+#+RESULTS:
+
+And just to bring the point home you will get a similar compiler error
+even if you try to use a function with multiple error types:
+
+#+begin_src scopes
+  # INVALID
+  fn polymorph-errors ()
+      if true
+          raise "Error"
+      else
+          raise 1
+
+  polymorph-errors;
+
+  # try
+  #     polymorph-errors;
+  # except (e)
+  #     print e
+#+end_src
+
+#+RESULTS:
+
+Technically, the compilation error happens at function instantiation
+which occurs when the function is called (this will be discussed in
+Level 2), which is why its added in this snippet.
+
+The recommended way of solving this is by using an enum (AKA union)
+type as the exception type.
+
+TODO: show how to use an enum for polymorphic errors.
+
+---
+
+Note that because of type checking, some things might not work as
+you expect depending on your biases.
+
+For instance consider this invalid code:
+
+#+begin_src scopes
+  fn test-error ()
+      if true
+          error "WRONG!!"
+
+      else
+          "right"
+
+  # INVALID
+  try
+      test-error;
+  except (e)
+      print "error occured"
+
+  ;
+#+end_src
+
+#+RESULTS:
+
+This will result in a compiler error that roughly decsribes that the
+returning value from the ~except~ clause conflicts with that of the
+~try~ block. This is because the ~test-error~ function returns a
+string and the ~except~ block returns nothing (or ~void~).
+
+To fix this code we would need to actually return a string from the
+~except~ clause:
+
+#+begin_src scopes
+  fn test-error ()
+      if true
+          error "WRONG!!"
+
+      else
+          "right"
+
+  try
+      test-error;
+  except (e)
+      "error occured"
+
+  ;
+#+end_src
+
+This might seem strange, but in practice you really should be doing
+something like the following to handle error propagation:
+
+#+begin_src scopes
+  fn test-error ()
+      if true
+          error "WRONG!!"
+
+      else
+          "right"
+
+  let result =
+      try
+          test-error;
+      except (e)
+          "error occured"
+
+  print result
+  ;
+#+end_src
+
+#+RESULTS:
+: error occured
+
+This is similar to the if-else type branching that was explained
+previously.
+
+We will see in more detail in higher levels on how to deal with these
+typing constraints, but this should be sufficient to avoid the
+inevitable confusion on this if you are used to a more dynamic
+language.
+
+TODO: add section error types, dispatching, and returning multiple
+different kinds of errors.
+
+You can also create your own error types and even do things with
+them. This uses concepts that will be discussed in level 2 but the
+basics are shown here:
+
+#+begin_src scopes
+  using import struct
+
+  struct myException
+      msg : string
+
+  try
+      raise (myException "an error occurred")
+  except (e)
+      print e.msg
+
+#+end_src
+
+#+RESULTS:
+: an error occurred
+
+**** How Errors are Different
+
+However, because Scopes is a typed language there are some limitations
+that might seem weird to a Python programmer. For instance the
+following code will not even compile:
+
+#+begin_src scopes
+error "Bare error here"
+;
+#+end_src
+
+#+RESULTS:
+
+Nor will:
+
+#+begin_src scopes
+  fn test-error ()
+      error "Error"
+
+  test-error;
+#+end_src
+
+#+RESULTS:
+
+The reason is that to maintain typing any function with an error in it
+actually has the type signature dynamically modified to accomodate for
+the error.
+
+In languages like C and Odin with no exceptions (which can also be
+turned off in C++) you typically have to of roll your own kind of
+error handling system where you are always returning both the value
+from the computation and the error itself if any. Although languages
+like Odin provide a specific support for making this simpler in the
+language. This article by the creator of Odin does a good job comparing the
+"normal control flow" expressions to those of Python in this article:
+https://www.gingerbill.org/article/2018/09/05/exceptions-and-why-odin-will-never-have-them/
+
+The reason is complicated but ultimately comes down to performance and
+lower complexity.
+
+In the "normal control flow" approach there is no exceptional (haha
+get it) behavior occuring.
+
+However in languages like Python or C++, exceptions are implemented
+using some form of GOTO. That is control flow doesn't follow the
+normal path you would expect it to in your code. This is all the
+"magic" it takes to be able to pass exceptions up the stack and
+continue execution elsewhere.
+
+Its not that this is bad /per se/, but it just adds an extra layer of
+complexity into your code. The detractors of this kind of system have
+a point which is that this kind of complex system shouldn't come stock
+in a low level language like C/C++, where performance is
+critical. Indeed it doesn't come as a default in C and you have to use
+things like ~setjmp~ and ~longjmp~ to accomplish this kind of behavior
+(or a library that does it for you). Indeed many libraries and
+language features like coroutines, generators, etc. all use this to
+great effect.
+
+In some sense Scopes (and also Rust has a similar system) has the best
+of both worlds in which instead of resorting to non-local control flow
+errors are implemented in the type system.
+
+You could implement non-local exceptions in Scopes the same as
+coroutines but that would be a choice you could make in a specific
+library or project rather than the language as a whole.
+
+There will be more discussions of the details of the changes in type
+signatures etc. in Level 2 when it is more appropriate.
+
+*** Assertions
+
+Scopes has the common assert function which you can use for quick
+checks of boolean expressions. However, instead of (like in Python)
+raising a special error when the assert value is false the program is
+aborted.
+
+For these nothing will happen:
+
+#+begin_src scopes :tangle _bin/errors_assert.sc
+  assert true
+
+  assert (not false)
+
+  assert (1 == 1)
+#+end_src
+
+But this will abort and dump core.
+
+#+begin_src scopes
+  assert false
+#+end_src
 
 ** Generators & Iteration
 
