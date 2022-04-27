@@ -1592,6 +1592,20 @@ example:
 As you can see it appears to be the same! We will discuss how it is
 different later.
 
+
+In some situations you might need the builtin ~call~ which is some
+syntax for explicitly applying a function to arguments:
+
+#+begin_src scopes
+  fn add (x y)
+      x + y
+
+  print (call add 1 2)
+#+end_src
+
+#+RESULTS:
+: 3
+
 *** Return Values
 
 As in all "blocks" in scopes the last value is returned, as was seen
@@ -1685,7 +1699,7 @@ don't be surprised if you get errors when trying this on your own.
 
 *** Anonymous Functions AKA Lambdas
 
-Scopes also supports unnamed functions (typically called
+Scopes also supports anonymous unnamed functions (typically called
 lambdas).
 
 An example with the typical usage of lambdas:
@@ -1697,8 +1711,8 @@ An example with the typical usage of lambdas:
 #+RESULTS:
 : 5
 
-
-You can assign the function to a symbol:
+You can assign the function to a symbol to simulate a normal
+declaration:
 
 #+begin_src scopes
   let lambda = (fn (x) (x + 1))
@@ -1715,6 +1729,23 @@ You can assign the function to a symbol:
 #+RESULTS:
 : 5
 : 5
+
+
+If you want to use the expanded syntax for an anonymous function you
+will probably need to make use of the ~call~ builtin.
+
+#+begin_src scopes
+  let result =
+      call
+          fn (x)
+              x + 1
+          3
+
+  print result
+#+end_src
+
+#+RESULTS:
+: 4
 
 ** Modules, Namespaces, & Scopes
 
