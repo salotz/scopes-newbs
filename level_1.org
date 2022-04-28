@@ -2666,6 +2666,47 @@ In this example you can see both how to get the enum cases and how to
 get both the string name of the enum case via the ~Name~ attribute
 and how to get the underlying data value for it via ~Literal~.
 
+By default the ~Literal~ values be ~u8~ values starting from 0, but
+you can customize this if you like:
+
+#+begin_src scopes
+  using import enum
+
+  enum Things
+      A = 3
+      B = 5
+
+  print "A" Things.A.Literal
+  print "B" Things.B.Literal
+#+end_src
+
+#+RESULTS:
+: A 3:u8
+: B 5:u8
+
+
+#+begin_src scopes
+  using import enum
+
+  enum Different_Things
+      A
+      B = 3
+      C
+
+  print "A" Different_Things.A.Literal
+  print "B" Different_Things.B.Literal
+  print "C" Different_Things.C.Literal
+
+#+end_src
+
+#+RESULTS:
+: A 0:u8
+: B 3:u8
+: C 4:u8
+
+If you mix the styles it will restart counting from the last defined
+one.
+
 There is a lot more to say on enums as they will become even more
 useful as a way of creating "tagged unions". This will be elaborated
 on in Level 2 when we will be more concerned with the type system
