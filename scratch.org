@@ -1,27 +1,60 @@
 * important
 
-** exceptions
+** Currying
 
 #+begin_src scopes
+print (((x) -> x + 1) 4)
+#+end_src
 
-  type MyError < Error
+** SLN parens escape
 
-  fn test-error ()
-      if true
-          MyError "WRONG!!"
-      else
-          print "right"
-
-  try
-      test-error;
-  except (Error)
-      print "something bad happened"
-
-  ;
-
+#+begin_src scopes
+  (print \1 + 1)
 #+end_src
 
 #+RESULTS:
+: 2
+
+#+begin_src scopes
+  print ((fn (x) \ x + 1) 4)
+#+end_src
+
+#+RESULTS:
+: 5
+
+
+** level 2 enums
+
+
+plain vs regular enum
+#+begin_src scopes
+  using import enum
+
+  enum Things2 plain
+      A
+      B
+
+  print Things2.A
+  print (superof Things2)
+#+end_src
+
+** exceptions
+
+Any value can be an error:
+
+#+begin_src scopes
+  try
+      raise "error"
+  except (e)
+      print "something bad happened:"
+      print e
+
+  ;
+#+end_src
+
+#+RESULTS:
+: something bad happened
+: error
 
 ** memory management stuff (level 2)
 
