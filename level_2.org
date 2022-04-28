@@ -1751,6 +1751,53 @@ TODO
 
 *** Enum and Union Types
 
+We have already introduced Enums but there are some more details that
+are relevant to this level.
+
+First is that there is a "plain" version of enums, which is quite
+different in terms of API. This plain version primarily exists to
+interface with C code.
+
+#+begin_src scopes
+  using import enum
+
+  enum Things1
+      A
+      B
+
+  enum Things2 plain
+      A
+      B
+
+  print Things2.A
+  print (typeof Things2.A)
+
+  print "superof Things1:" (superof Things1)
+  print "superof Things2:" (superof Things2)
+
+  # INVALID
+  # print (Things1.A == 0)
+  print (Things1.A.Literal == 0)
+
+  print (Things2.A == 0)
+#+end_src
+
+#+RESULTS:
+: A
+: Things2
+: Things2
+: superof Things1: Enum
+: superof Things2: CEnum
+: true
+: true
+
+From this we see that the supertype is different and is a subtype of
+~CEnum~ instead of ~Enum~.
+
+Second we see that we don't need to explicitly get the ~Literal~
+value for comparisons to work.
+
+
 ** Interacting with C Code
 
 Scopes was specifically designed to be ABI compatible with C and has
