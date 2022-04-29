@@ -2773,6 +2773,18 @@ If you use the ~error~ function it will raise an ~Error~ type object:
 Also note that the symbol you bind the exception value to can be
 anything.
 
+You can also use the ~else~ clause instead of ~except~ which will drop
+whatever the exception object is:
+
+#+begin_src scopes
+  try
+      raise "Help!"
+  else
+      print "Dropped the error"
+#+end_src
+
+#+RESULTS:
+
 If you run the function without the try-except block it will raise an
 error:
 
@@ -2836,9 +2848,7 @@ which occurs when the function is called (this will be discussed in
 Level 2), which is why its added in this snippet.
 
 The recommended way of solving this is by using an enum (AKA union)
-type as the exception type.
-
-TODO: show how to use an enum for polymorphic errors.
+type as the exception type. This will be discussed in Level 2.
 
 ---
 
