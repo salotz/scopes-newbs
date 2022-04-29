@@ -1798,6 +1798,28 @@ Second we see that we don't need to explicitly get the ~Literal~
 value for comparisons to work.
 
 
+**** Enums for Polymorphic Exceptions
+
+#+begin_src scopes
+  using import enum
+
+  enum Errors
+      A
+      B
+
+  try
+      if true
+          raise Errors.A
+      else
+          raise Errors.B
+  except (e)
+      print e
+#+end_src
+
+#+RESULTS:
+: enum-field<A:Nothing=0>
+
+
 ** Interacting with C Code
 
 Scopes was specifically designed to be ABI compatible with C and has
