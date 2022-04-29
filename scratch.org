@@ -1,5 +1,21 @@
 * important
 
+** bind
+
+Bind is not really meant to be used without vvv:
+
+Here is how to do it though.
+#+begin_src scopes
+  embed
+      bind a
+      1
+
+  print a
+#+end_src
+
+#+RESULTS:
+: 1
+
 ** Currying
 
 #+begin_src scopes
