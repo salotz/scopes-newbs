@@ -2333,8 +2333,6 @@ infix operator precedence rules, but you can add them if you like:
 : 5
 
 
-#+TODO: explain this part
-
 #+begin_src scopes
   local things = (tupleof (a = 3) (b = "hello"))
 
@@ -2347,7 +2345,6 @@ infix operator precedence rules, but you can add them if you like:
 
 #+RESULTS:
 : 4
-
 
 
 #+begin_src scopes
@@ -2623,6 +2620,70 @@ Basics of a Map.
 
 *** Set
 
+There is a Set class that you can use as well, here are the basics:
+
+#+begin_src scopes
+  using import Set
+
+  # declare a set
+  local digits : (Set u8)
+
+  # add things to the set
+  'insert digits 0:u8
+  'insert digits 1:u8
+  'insert digits 2:u8
+  'insert digits 3:u8
+  'insert digits 4:u8
+  'insert digits 5:u8
+  'insert digits 6:u8
+  'insert digits 7:u8
+  'insert digits 8:u8
+  'insert digits 9:u8
+
+  # test for inclusion
+  print (1:u8 in digits)
+  print ('in? digits 1:u8)
+
+  # iterate over a set
+  for digit in digits
+      print (tostring digit)
+
+  # adding duplicates has no effect
+  print "num digits:" (countof digits)
+
+  'insert digits 0:u8
+  'insert digits 1:u8
+  print "num digits after duplicates:" (countof digits)
+
+  # remove things from the set
+  print ('pop digits)
+  print "num digits after pop:" (countof digits)
+
+  ;
+#+end_src
+
+#+RESULTS:
+#+begin_example
+true
+true
+3
+4
+0
+7
+1
+2
+6
+9
+8
+5
+num digits: 10:usize
+num digits after duplicates: 10:usize
+3:u8
+num digits after pop: 9:usize
+#+end_example
+
+Currently it doesn't have too much functionality that you might expect
+from fancier versions. Perhaps this will improve in the future.
 
 ** Enums
 
@@ -2931,9 +2992,6 @@ We will see in more detail in higher levels on how to deal with these
 typing constraints, but this should be sufficient to avoid the
 inevitable confusion on this if you are used to a more dynamic
 language.
-
-TODO: add section error types, dispatching, and returning multiple
-different kinds of errors.
 
 You can also create your own error types and even do things with
 them. This uses concepts that will be discussed in level 2 but the
@@ -3590,11 +3648,8 @@ Python.
 ** TODO COMMENT Todos
 
 - [X] functions
-- [-] bindings
+- [X] bindings
   - [X] let
-  - [ ] bind
-- [ ] report
-- [ ] dump
 - [X] do-blocks
 - [X] conditionals
 - [X] loops
@@ -3607,8 +3662,8 @@ Python.
   - [X] basics
 - [X] dot notation
 - [X] number formats
-- [ ] copying
-- [ ] slicing
+- [X] copying
 - [X] exception handling
+- [ ] slicing
 - [ ] iterators
 - [ ] streams
