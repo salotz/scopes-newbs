@@ -159,6 +159,13 @@ Some examples of SLN that are *NOT* Scopes code but are all equivalent:
   person (first_name Bob) (last_name Bobson)
 #+end_src
 
+The parts of the code without parentheses is called "naked mode". The
+bracketed portions are called S-expressions (sexps) as is typical with
+Lisps.
+
+Once you enter the sexp mode in a block you cannot re-enter naked mode
+(without using the escape hatch discussed later).
+
 The full description is in the documentation. Don't get too caught up
 in the details. If you get stuck with the indentation method just
 throw parentheses around everything and work your way back.
@@ -178,6 +185,9 @@ just be the "newline" of having commands run in order, for which the
 
 The ~,~ character is a list separator which can be used without
 whitespace (or with too..) (see Lists section)
+
+To escape sexp-mode you can use the ~\~ character. I won't showcase
+this since its really only used in exceptional cases.
 
 There are 5 types of elements in SLN which will be discussed more in
 the primitives section.
