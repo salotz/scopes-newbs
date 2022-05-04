@@ -2524,11 +2524,200 @@ Not really a feature in C++ but more from the Go family.
 
 ** Creating Your Own Types
 
-TODO
+TODO: write introduction
 
 *** Creating & Extending Types
 
+Types are typically created using the ~type~ (or the older but still
+usable ~typedef~) syntax.
+
+The simplest usage is just to define a type:
+
+#+begin_src scopes
+  type NewType
+
+  print NewType
+  print (typeof NewType)
+#+end_src
+
+#+RESULTS:
+: NewType
+: type
+
+In addition to creating completely new types you can subtype others.
+
+For instance you can make a subtype of integers using the ~integer~
+supertype:
+
+#+begin_src scopes
+  type NewInt < integer
+
+  print (typeof NewInt)
+#+end_src
+
+#+RESULTS:
+
+There is a use for standalone types like this, but they are limited
+and not likely the first thing you would be interested. Typically you
+will want them to be instantiated and contain some data.
+
+In order to actual use instantied types to hold data we can specify a
+"storage" type.
+
+The storage type of a type or value can be retrieved with the
+~storageof~ function:
+
+#+begin_src scopes
+  print "storageof i32" (storageof i32)
+  print "storageof f32" (storageof f32)
+
+  # INVALID for abstract types
+  # (storageof integer)
+  # (storageof real)
+#+end_src
+
+#+RESULTS:
+: storageof i32 i32
+: storageof f32 f32
+
+The reason for this is that the logical types really only exist at
+compile time and its just to help us not make some mistakes. So to
+actually have some data we need a storage type that corresponds to
+actual bytes on the machine. We will discuss this in more detail later
+but we will show a simplistic example:
+
+#+begin_src scopes
+  type MyInt : i32
+
+  print (storageof MyInt)
+#+end_src
+
+#+RESULTS:
+: i32
+
+This definition will create a so-called "plain" type. We will discuss
+plain vs "unique" types later but briefly the unique variants of these
+type definitions are written with ~::~ rather than ~:~.
+
+
+#+begin_src scopes
+  type MyUniqueInt :: i32
+
+  print (storageof MyUniqueInt)
+#+end_src
+
+#+RESULTS:
+: i32
+
+We still can't actually instantiate/construct a value for this type
+because we have no constructor. If you attempt to you will get an
+error indicating this.
+
+We can write constructors (as we will see below) but a very common
+pattern will be to simply subtype from a type that already has a
+constructor. Subtyping is achieved by an additional ~<~ section in the
+~type~ syntax:
+
+
+#+begin_src scopes
+  type MyInt < integer : i32
+  print (storageof MyInt)
+
+  let i = (MyInt 2)
+
+  print i
+
+  print (typeof i)
+  print (storageof i)
+#+end_src
+
+#+RESULTS:
+: 2:MyInt
+: i32
+: MyInt
+: i32
+
+The ~integer~ type is the supertype of all the concrete integer
+(e.g. ~i32~, ~u8~, etc.). You can find the supertypes of existing
+types with the ~superof~ function:
+
+#+begin_src scopes
+  print "superof i32" (superof i32)
+  print "superof f32" (superof f32)
+#+end_src
+
+#+RESULTS:
+: superof i32 integer
+: superof f32 real
+
+Using this knowledge we can write our type definition more simply as:
+
+#+begin_src scopes
+  type MyInt <: i32
+
+  print (storageof MyInt)
+
+  let i = (MyInt 2)
+
+  print i
+
+  print (typeof i)
+  print (storageof i)
+
+#+end_src
+
+#+RESULTS:
+: i32
+: 2:MyInt
+: MyInt
+: i32
+
+Where the type of the new type will be subtyped from ~(superof i32)~
+and the storage will be ~(storageof i32)~.
+
+The same pattern holds for unique types:
+
+#+begin_src scopes
+  type UniqueInt1 < integer :: i32
+
+  type UniqueInt2 <:: i32
+#+end_src
+
+#+RESULTS:
+
+**** Subtyping Struct Types
+
+Oftentimes we want to define a struct with methods etc. We can do this
+by subtyping from struct. However with the normal ~type~ syntax we
+cannot list the fields of the struct easily. So the ~struct~ syntax
+provides a subtyping syntax that allows us to define a new type that
+is backed by a struct of your chosen fields.
+
+#+begin_src scopes
+  using import struct
+  using import String
+
+  struct Dog < Struct
+      color : String
+      bark : String
+      height : f32
+      length : f32
+
+  let dog =
+      Dog
+          "yellow"
+          "woof"
+          34
+          89
+
+  ;
+#+end_src
+
+#+RESULTS:
+
 *** Methods
+
+
 *** Metamethods & Operator Overload
 
 Similar to Python types support the idea of metamethods (called magic
@@ -2542,6 +2731,22 @@ metamethod symbol must match the corresponding operators.
 TODO
 
 *** Properties
+
+*** Modifying Existing Types
+
+Another interesting feature is the ability to modify types in any
+location.
+
+This lets you add behavior to a type defined in a library or just
+split up your own definitions if you are doing something fancy.
+
+To do this we use the ~type+~ syntax:
+
+TODO
+
+#+begin_src scopes
+  type+ 
+#+end_src
 
 ** Debugging
 
