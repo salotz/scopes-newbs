@@ -1762,6 +1762,21 @@ will probably need to make use of the ~call~ builtin.
 #+RESULTS:
 : 4
 
+---
+
+Finally you can also use the "currying" notation:
+
+#+begin_src scopes
+print (((x) -> x + 1) 3)
+#+end_src
+
+#+RESULTS:
+: 4
+
+This will be discussed elsewhere on its own for how to actually use it
+for Currying functions and functional programming but the syntax is
+simple enough here to simply use it for a lmabda.
+
 ** Modules, Namespaces, & Scopes
 
 Scopes provides a module system very much like python.
