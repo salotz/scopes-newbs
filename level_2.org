@@ -618,6 +618,8 @@ You can also declare the variable and type without initializing it:
 : 4
 : i32
 
+TODO there are other syntaxes as well which should be covered.
+
 **** Function Types
 
 Function types are a bit more complicated. We can annotate them easily
@@ -685,7 +687,7 @@ Here we just introduce the basics of how functions are typed but,
 there is a lot more to say about function templates and their uses
 which will be discussed later.
 
-***** Error Types
+**** Error Types
 
 Because of Scopes special handling of errors by "patching" the return
 types we can also statically define the types of errors which can be
@@ -975,7 +977,7 @@ invalidated outside the scope:
 : $riropihuwohinim:(mutable@ (storage = 'Function) i32)
 : 32712
 
-****** COMMENT Heap Pointers
+****** TODO COMMENT Heap Pointers
 
 Perhaps the more common use of pointers is in actual memory management
 in which memory is allocated on the heap. Functions that allocated
