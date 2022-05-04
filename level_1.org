@@ -2957,7 +2957,7 @@ just for fun:
 #+RESULTS:
 : doing nothing
 
-** Exceptions, Errors, & Assertions
+** Exceptions, Errors, Assertions, and Premature Program Exit
 
 *** Error Propagation
 
@@ -3284,11 +3284,18 @@ For these nothing will happen:
   assert (1 == 1)
 #+end_src
 
+#+RESULTS:
+
 But this will abort and dump core.
 
 #+begin_src scopes
   assert false
 #+end_src
+
+*** exit
+
+TODO
+
 
 ** Generators & Iteration
 
