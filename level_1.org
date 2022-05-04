@@ -161,6 +161,21 @@ You can unbind names by using ~unlet~:
 : 4
 
 
+---
+
+There is also the ~bind~ syntax you can use to bind symbols. It is
+primarily used in combination with other macros which we will get to
+much later but it is simple enough on its own to mention here:
+
+#+begin_src scopes
+  (bind a) 3
+
+  print a
+#+end_src
+
+#+RESULTS:
+: 3
+
 ** Operators
 
 In most Lisp/Schemes there are no "operators" in the sense of infix
