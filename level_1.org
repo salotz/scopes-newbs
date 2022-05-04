@@ -1527,6 +1527,100 @@ reverse because of how ~cons~ works and 2. we have to explicitly cast
 
 We will see more realistic examples later.
 
+*** Switch Statement
+
+Switch statements are a compact and structured way to dispatch some
+code on a specific value.
+
+While this isn't something explicit in Python it is in general pretty
+common in programming languages and is sometimes preferrable to an
+if-else chain.
+
+Here is a basic example which includes 3 cases for an integer and
+includes a default value.
+
+#+begin_src scopes
+  let val = 2
+
+  switch val
+  case 0
+      print "Hello"
+  case 1
+      print "Goodbye!"
+  case 2
+      print "Be gone!"
+  default
+      print "Huh?"
+#+end_src
+
+#+RESULTS:
+: Be gone!
+
+Because of typing rules all of the case values should be able to
+casted to the same type and each piece of code run for the cases
+should have the same return type.
+
+In this example there are no return types (or technically it is return
+type ~void~) because we are just printing something.
+
+Returning from a ~switch~ statement can be done as follows:
+
+#+begin_src scopes
+  let val = 0
+
+  let result =
+      switch val
+      case 0
+          "zero"
+      case 1
+          "one"
+      default
+          "unknown"
+
+  print result
+#+end_src
+
+#+RESULTS:
+: zero
+
+For example the following would result in a compile error because the
+case types are different.
+
+#+begin_src scopes
+  let val = 0:i32
+
+  # INVALID!!
+  let result =
+      switch val
+      case 0:i32
+          "zero"
+      case "hello"
+          "hello"
+      default
+          "unknown"
+#+end_src
+
+#+RESULTS:
+
+This will also give a compilation error because the return types from
+each case block is different:
+
+#+begin_src scopes
+  let val = 0
+
+  # INVALID!!
+  let result =
+      switch val
+      case 0
+          "zero"
+      case 1
+          1
+      default
+          "unknown"
+#+end_src
+
+#+RESULTS:
+
 *** "GOTO"
 
 Interestingly Scopes has a sort of well behaved "goto" statement by
@@ -2831,6 +2925,37 @@ There is a lot more to say on enums as they will become even more
 useful as a way of creating "tagged unions". This will be elaborated
 on in Level 2 when we will be more concerned with the type system
 however.
+
+---
+
+One common use of enum is in switch statements. Here is an example
+just for fun:
+
+#+begin_src scopes
+  using import enum
+
+  enum Actions plain
+      Nothing = 0
+      Terminate = 1
+
+  # generate the case somehow
+  let action = Actions.Nothing
+
+  # dispatch on the value
+  switch action
+  case Actions.Nothing
+      print "doing nothing"
+
+  case Actions.Terminate
+      print "Terminating"
+
+  default
+      print "default"
+
+#+end_src
+
+#+RESULTS:
+: doing nothing
 
 ** Exceptions, Errors, & Assertions
 

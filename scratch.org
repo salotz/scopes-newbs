@@ -1,186 +1,6 @@
 * important
 
-** bind
-
-Bind is not really meant to be used without vvv:
-
-Here is how to do it though.
-#+begin_src scopes
-  embed
-      bind a
-      1
-
-  print a
-#+end_src
-
-#+RESULTS:
-: 1
-
-** Currying
-
-#+begin_src scopes
-print (((x) -> x + 1) 4)
-#+end_src
-
-** SLN parens escape
-
-#+begin_src scopes
-  (print \1 + 1)
-#+end_src
-
-#+RESULTS:
-: 2
-
-#+begin_src scopes
-  print ((fn (x) \ x + 1) 4)
-#+end_src
-
-#+RESULTS:
-: 5
-
-
-** level 2 enums
-
-
-plain vs regular enum
-#+begin_src scopes
-  using import enum
-
-  enum Things2 plain
-      A
-      B
-
-  print Things2.A
-  print (superof Things2)
-#+end_src
-
-** exceptions
-
-Any value can be an error:
-
-#+begin_src scopes
-  try
-      raise "error"
-  except (e)
-      print "something bad happened:"
-      print e
-
-  ;
-#+end_src
-
-#+RESULTS:
-: something bad happened
-: error
-
-** memory management stuff (level 2)
-
-- `copy`
-- `move`
-- `&` references
-- `view`
-- `dupe`
-- `lose`
-- `viewing`
-- `uniqueof`
-
-#+begin_src scopes
-  local a = 3
-  local b = a
-
-  print (& a)
-  print (& b)
-#+end_src
-
-#+RESULTS:
-: $riromixasixopar:(mutable@ (storage = 'Function) i32)
-: $riroluhumepinet:(mutable@ (storage = 'Function) i32)
-
-** GOTOs
-
-#+begin_src scopes
-  label finish
-      for i in (range 10)
-          for j in (range 10)
-              if ((i + j) > 10)
-                  print i j
-                  print (i + j)
-                  merge finish
-#+end_src
-
-#+RESULTS:
-: 2 9
-: 11
-
-** functional programming
-
-TODO: currying
-
-#+begin_src scopes
-  inline genfunc ()
-      fn hello ()
-          print "hello"
-
-
-  let hello = (genfunc)
-
-  hello;
-#+end_src
-
-#+RESULTS:
-: hello
-
-#+begin_src scopes
-  inline gen-genfunc ()
-      inline genfunc ()
-          fn hello ()
-              print "hello"
-
-
-  let genfunc = (gen-genfunc)
-  let hello = (genfunc)
-
-  hello;
-#+end_src
-
-#+RESULTS:
-: hello
-
-
-** Methods
-
-#+begin_src scopes
-  using import struct
-
-  # type Class < Struct
-  struct Class < Struct
-      value : i32
-
-      inline __typecall (cls value)
-          super-type.__typecall cls
-              value = value
-
-      fn show (self)
-          print self.value
-
-      fn ret (self)
-          self.value
-
-      # define
-
-  let c =
-      Class
-          3
-
-  ('show c)
-  print ('ret c)
-#+end_src
-
-
-#+begin_src scopes
-
-#+end_src
-
-** Type Definitions
+** DONE Type Definitions
 
 #+begin_example
 type T < s: new supertype T as subtype of s
@@ -235,6 +55,130 @@ type+ T extend the definition of type T; it's otherwise exactly like type, but y
 
 #+RESULTS:
 
+
+** functional programming
+
+#+begin_src scopes
+print (((x) -> x + 1) 4)
+#+end_src
+
+#+begin_src scopes
+  inline genfunc ()
+      fn hello ()
+          print "hello"
+
+
+  let hello = (genfunc)
+
+  hello;
+#+end_src
+
+#+RESULTS:
+: hello
+
+#+begin_src scopes
+  inline gen-genfunc ()
+      inline genfunc ()
+          fn hello ()
+              print "hello"
+
+
+  let genfunc = (gen-genfunc)
+  let hello = (genfunc)
+
+  hello;
+#+end_src
+
+#+RESULTS:
+: hello
+
+
+** level 2 enums
+
+
+plain vs regular enum
+#+begin_src scopes
+  using import enum
+
+  enum Things2 plain
+      A
+      B
+
+  print Things2.A
+  print (superof Things2)
+#+end_src
+
+
+** memory management stuff (level 2)
+
+- `copy`
+- `move`
+- `&` references
+- `view`
+- `dupe`
+- `lose`
+- `viewing`
+- `uniqueof`
+
+#+begin_src scopes
+  local a = 3
+  local b = a
+
+  print (& a)
+  print (& b)
+#+end_src
+
+#+RESULTS:
+: $riromixasixopar:(mutable@ (storage = 'Function) i32)
+: $riroluhumepinet:(mutable@ (storage = 'Function) i32)
+
+
+** Methods
+
+#+begin_src scopes
+  using import struct
+
+  # type Class < Struct
+  struct Class < Struct
+      value : i32
+
+      inline __typecall (cls value)
+          super-type.__typecall cls
+              value = value
+
+      fn show (self)
+          print self.value
+
+      fn ret (self)
+          self.value
+
+      # define
+
+  let c =
+      Class
+          3
+
+  ('show c)
+  print ('ret c)
+#+end_src
+
+#+RESULTS:
+: 3
+: 3
+
+
+#+begin_src scopes
+  using import struct
+
+  struct New < Struct
+      test : i32
+
+  let n =
+      New
+          3
+#+end_src
+
+#+RESULTS:
 
 ** And-Or
 
@@ -396,30 +340,6 @@ type+ T extend the definition of type T; it's otherwise exactly like type, but y
 
 #+RESULTS:
 
-** copy
-
-#+begin_src scopes
-  using import String
-
-  local a = (String "hello")
-
-  print a
-
-  local b = (copy a)
-
-  print b
-
-  b = (String "testing")
-
-  print b
-  print a
-#+end_src
-
-#+RESULTS:
-: hello
-: hello
-: testing
-: hello
 
 ** hiden inline
 
@@ -449,48 +369,6 @@ The "hidden" named inline which doesn't have a lifetime scope
 #+end_src
 
 #+RESULTS:
-
-** enum
-
-#+begin_src scopes
-  using import enum
-
-  enum Actions plain
-      Nothing = 0
-      Terminate = 1
-
-  print (tostring Actions.Nothing)
-
-  let action = Actions.Nothing
-
-  switch action
-  case Actions.Nothing
-      print "doing nothing"
-
-  case Actions.Terminate
-      print "Terminating"
-
-  default
-      print "default"
-#+end_src
-
-#+RESULTS:
-: Nothing
-: doing nothing
-
-
-#+begin_src scopes
-  using import enum
-
-  enum Actions plain
-      Nothing = 0
-      Terminate = 1
-
-  print (typeof Actions.Nothing)
-#+end_src
-
-#+RESULTS:
-: Actions
 
 
 
@@ -1030,3 +908,150 @@ show it with a Scope:
 
 #+RESULTS:
 : (%1: fn raise-error () : (opaque@ (string <-: () raises Error)) (%2: branch #unnamed : string (...)) (return %2)):(opaque@ (string <-: () raises Error))
+** bind
+
+#+begin_src scopes
+  (bind a) 3
+#+end_src
+
+#+RESULTS:
+
+Bind is not really meant to be used without vvv:
+
+Here is how to do it though.
+#+begin_src scopes
+  embed
+      bind a
+      1
+
+  print a
+#+end_src
+
+#+RESULTS:
+: 1
+
+** SLN parens escape
+
+#+begin_src scopes
+  (print \1 + 1)
+#+end_src
+
+#+RESULTS:
+: 2
+
+#+begin_src scopes
+  print ((fn (x) \ x + 1) 4)
+#+end_src
+
+#+RESULTS:
+: 5
+** exceptions
+
+Any value can be an error:
+
+#+begin_src scopes
+  try
+      raise "error"
+  except (e)
+      print "something bad happened:"
+      print e
+
+  ;
+#+end_src
+
+#+RESULTS:
+: something bad happened
+: error
+** GOTOs
+
+#+begin_src scopes
+  label finish
+      for i in (range 10)
+          for j in (range 10)
+              if ((i + j) > 10)
+                  print i j
+                  print (i + j)
+                  merge finish
+#+end_src
+
+#+RESULTS:
+: 2 9
+: 11
+** Currying for lambdas
+
+- [X] For lambdas
+
+#+begin_src scopes
+print (((x) -> x + 1) 4)
+#+end_src
+
+#+RESULTS:
+: 5
+
+- [ ] more generally
+** copy
+
+#+begin_src scopes
+  using import String
+
+  local a = (String "hello")
+
+  print a
+
+  local b = (copy a)
+
+  print b
+
+  b = (String "testing")
+
+  print b
+  print a
+#+end_src
+
+#+RESULTS:
+: hello
+: hello
+: testing
+: hello
+** enum
+
+#+begin_src scopes
+  using import enum
+
+  enum Actions plain
+      Nothing = 0
+      Terminate = 1
+
+  print (tostring Actions.Nothing)
+
+  let action = Actions.Nothing
+
+  switch action
+  case Actions.Nothing
+      print "doing nothing"
+
+  case Actions.Terminate
+      print "Terminating"
+
+  default
+      print "default"
+#+end_src
+
+#+RESULTS:
+: Nothing
+: doing nothing
+
+
+#+begin_src scopes
+  using import enum
+
+  enum Actions plain
+      Nothing = 0
+      Terminate = 1
+
+  print (typeof Actions.Nothing)
+#+end_src
+
+#+RESULTS:
+: Actions
+
