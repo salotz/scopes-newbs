@@ -1,57 +1,49 @@
 * important
 
-** DONE Type Definitions
-
-#+begin_example
-type T < s: new supertype T as subtype of s
-type T < s : m: new plain type T as subtype of s, using storage type m
-type T < s :: m: new unique type T as subtype of s, using storage type m
-type T <: s: new plain type T as subtype of (superof s), using storage type (storageof s)
-type T <:: s: new unique type type T as subtype of (superof s), using storage type (storageof s) 
-type+ T extend the definition of type T; it's otherwise exactly like type, but you "reopen" the declarative scope, and any name bound there becomes a type attribute
-#+end_example
-
+** Methods
 
 #+begin_src scopes
-  type Int0 < i32
+  using import struct
 
-  let i0 = ((Int0) 1)
+  # type Class < Struct
+  struct Class < Struct
+      value : i32
 
-  print i0
+      inline __typecall (cls value)
+          super-type.__typecall cls
+              value = value
+
+      fn show (self)
+          print self.value
+
+      fn ret (self)
+          self.value
+
+      # define
+
+  let c =
+      Class
+          3
+
+  ('show c)
+  print ('ret c)
 #+end_src
 
 #+RESULTS:
+: 3
+: 3
+
 
 #+begin_src scopes
-  typedef Int0 <: i32
-  # type Int1 <: i32
-  # type Int2 <:: i32
-  # typedef Int3 < string : i32
+  using import struct
 
+  struct New < Struct
+      test : i32
 
-  # print (typeof Int0)
-  # print ('storageof Int0)
-  # print ('superof Int0)
-  # print (getattr Int0 '__typecall)
-  # print ""
-
-  # print (typeof Int1)
-  # print ('storageof Int1)
-  # print ('superof Int1)
-  # print ""
-
-  # print (typeof Int2)
-  # print ('storageof Int2)
-  # print ('superof Int2)
-  # print ""
-
-  for typ in '(Int0 Int1 Int2)
-      print (typeof typ)
-      print ('storageof typ)
-      print ('superof typ)
+  let n =
+      New
+          3
 #+end_src
-
-
 
 #+RESULTS:
 
@@ -132,53 +124,6 @@ plain vs regular enum
 : $riromixasixopar:(mutable@ (storage = 'Function) i32)
 : $riroluhumepinet:(mutable@ (storage = 'Function) i32)
 
-
-** Methods
-
-#+begin_src scopes
-  using import struct
-
-  # type Class < Struct
-  struct Class < Struct
-      value : i32
-
-      inline __typecall (cls value)
-          super-type.__typecall cls
-              value = value
-
-      fn show (self)
-          print self.value
-
-      fn ret (self)
-          self.value
-
-      # define
-
-  let c =
-      Class
-          3
-
-  ('show c)
-  print ('ret c)
-#+end_src
-
-#+RESULTS:
-: 3
-: 3
-
-
-#+begin_src scopes
-  using import struct
-
-  struct New < Struct
-      test : i32
-
-  let n =
-      New
-          3
-#+end_src
-
-#+RESULTS:
 
 ** And-Or
 
@@ -361,17 +306,12 @@ The "hidden" named inline which doesn't have a lifetime scope
 : After inline
 : inline destructor
 
-** exit
+
+** static-assert
 
 #+begin_src scopes
-  exit
-  ;
+static-assert
 #+end_src
-
-#+RESULTS:
-
-
-
 * misc
 ** dunno
 
@@ -818,6 +758,14 @@ show it with a Scope:
 : /tmp/babel-EFGjGa/prefix7aQGWT.sc:3:1: 3
 : 3
 
+** exit & abort
+
+#+begin_src scopes
+  exit
+  ;
+#+end_src
+
+#+RESULTS:
 * finished
 ** function types
 
@@ -1055,3 +1003,57 @@ print (((x) -> x + 1) 4)
 #+RESULTS:
 : Actions
 
+** Type Definitions
+
+#+begin_example
+type T < s: new supertype T as subtype of s
+type T < s : m: new plain type T as subtype of s, using storage type m
+type T < s :: m: new unique type T as subtype of s, using storage type m
+type T <: s: new plain type T as subtype of (superof s), using storage type (storageof s)
+type T <:: s: new unique type type T as subtype of (superof s), using storage type (storageof s) 
+type+ T extend the definition of type T; it's otherwise exactly like type, but you "reopen" the declarative scope, and any name bound there becomes a type attribute
+#+end_example
+
+
+#+begin_src scopes
+  type Int0 < i32
+
+  let i0 = ((Int0) 1)
+
+  print i0
+#+end_src
+
+#+RESULTS:
+
+#+begin_src scopes
+  typedef Int0 <: i32
+  # type Int1 <: i32
+  # type Int2 <:: i32
+  # typedef Int3 < string : i32
+
+
+  # print (typeof Int0)
+  # print ('storageof Int0)
+  # print ('superof Int0)
+  # print (getattr Int0 '__typecall)
+  # print ""
+
+  # print (typeof Int1)
+  # print ('storageof Int1)
+  # print ('superof Int1)
+  # print ""
+
+  # print (typeof Int2)
+  # print ('storageof Int2)
+  # print ('superof Int2)
+  # print ""
+
+  for typ in '(Int0 Int1 Int2)
+      print (typeof typ)
+      print ('storageof typ)
+      print ('superof typ)
+#+end_src
+
+
+
+#+RESULTS:
