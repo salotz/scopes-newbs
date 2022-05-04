@@ -1527,6 +1527,35 @@ reverse because of how ~cons~ works and 2. we have to explicitly cast
 
 We will see more realistic examples later.
 
+*** "GOTO"
+
+Interestingly Scopes has a sort of well behaved "goto" statement by
+using the ~label~ and ~merge~ keywords.
+
+#+begin_src scopes
+  label finish
+      for i in (range 10)
+          if (i > 3)
+              print i
+              merge finish
+#+end_src
+
+#+RESULTS:
+: 4
+
+Here we are running a for-loop and in a certain condition we "merge"
+back this branch to a previously labelled location in the code.
+
+This example is sort of equivalent to ~break~ statement we already
+introduced, however it is much more flexible.
+
+We won't elaborate on this much further as this is obviously an
+advanced feature.
+
+We will note that this version is much safer than a normal GOTO that
+just specifies line numbers to jump to because the actual branching
+and merges of these branches must be handled or the compiler will
+complain. That and you can only jump to previously defined labels.
 
 ** Type Casting
 
