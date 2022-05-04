@@ -2717,6 +2717,77 @@ is backed by a struct of your chosen fields.
 
 *** Methods
 
+Similar to C++ classes and (what is called) Object-Oriented
+Programming types can have method functions on them.
+
+#+begin_src scopes
+  type MyInt <: i32
+
+      fn yell (self)
+          print "hello"
+
+  let i = (MyInt 2)
+
+  'yell i
+#+end_src
+
+#+RESULTS:
+: hello
+
+In this example we add a method to our new subtype that simply prints
+something.
+
+We can see that the Python convention of explicitly writing out the
+~self~ argument to the function is followed. The ~self~ variable can
+be used to access data from the instantiated object:
+
+#+begin_src scopes
+  type MyInt <: i32
+
+      fn yell (self)
+          print "hello" self
+
+  let i = (MyInt 2)
+
+
+  'yell i
+#+end_src
+
+#+RESULTS:
+: hello 2:MyInt
+
+In this case since ~MyInt~ is a direct subtype of an integer that we
+can use it directly and the representation is close to the builtin one
+for an integer type.
+
+---
+
+We can also declare class methods by simply calling a method on a
+class without instantiating it:
+
+#+begin_src scopes
+  type MyInt <: i32
+
+      fn yell (cls)
+          print "hello" cls
+
+  'yell MyInt
+
+  let i = (MyInt 2)
+
+  'yell i
+#+end_src
+
+#+RESULTS:
+: hello 2:MyInt
+: hello MyInt
+
+Notice that this method really hasn't changed and you can still use it
+as an object method. However, by convention it seems like a good idea
+to distinguish class methods by using the Python convention of calling
+the first argument ~cls~ (for class) as opposed to ~self~.
+
+# TODO: static methods?
 
 *** Metamethods & Operator Overload
 
@@ -2742,11 +2813,28 @@ split up your own definitions if you are doing something fancy.
 
 To do this we use the ~type+~ syntax:
 
-TODO
-
 #+begin_src scopes
-  type+ 
+
+  type MyInt <: i32
+
+  # end of initial type definition
+
+
+  # somewhere else in your code...
+  type+ MyInt
+      fn yell (self)
+          print "hello" self
+
+
+  let i = (MyInt 2)
+  'yell i
 #+end_src
+
+#+RESULTS:
+: hello 2:MyInt
+
+This is a very useful alternative to constantly subtyping or using
+multiple inheritance to get complex types.
 
 ** Debugging
 
