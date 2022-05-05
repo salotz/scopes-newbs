@@ -482,6 +482,12 @@ given here but we can show a few things which are:
 : exponentiation? true
 : string concatenation? true
 
+---
+
+TODO: explain the "static" variants of everything.
+
+- ~static-if~
+
 
 *** Static Types
 
@@ -2595,6 +2601,18 @@ but we will show a simplistic example:
 #+RESULTS:
 : i32
 
+You can always cast a type to the storage type associated with it
+using ~storagecast~:
+
+#+begin_src scopes
+  type MyInt : i32
+
+  print (storagecast MyInt)
+#+end_src
+
+#+RESULTS:
+: $felodasut:(opaque@ _type)
+
 This definition will create a so-called "plain" type. We will discuss
 plain vs "unique" types later but briefly the unique variants of these
 type definitions are written with ~::~ rather than ~:~.
@@ -2629,13 +2647,16 @@ constructor. Subtyping is achieved by an additional ~<~ section in the
 
   print (typeof i)
   print (storageof i)
+
+  print (storagecast i)
 #+end_src
 
 #+RESULTS:
-: 2:MyInt
 : i32
+: 2:MyInt
 : MyInt
 : i32
+: 2
 
 The ~integer~ type is the supertype of all the concrete integer
 (e.g. ~i32~, ~u8~, etc.). You can find the supertypes of existing
@@ -2768,7 +2789,7 @@ class without instantiating it:
 #+begin_src scopes
   type MyInt <: i32
 
-      fn yell (cls)
+      inline yell (cls)
           print "hello" cls
 
   'yell MyInt
@@ -2776,18 +2797,20 @@ class without instantiating it:
   let i = (MyInt 2)
 
   'yell i
+  ;
 #+end_src
 
 #+RESULTS:
-: hello 2:MyInt
 : hello MyInt
+: hello 2:MyInt
 
-Notice that this method really hasn't changed and you can still use it
-as an object method. However, by convention it seems like a good idea
-to distinguish class methods by using the Python convention of calling
-the first argument ~cls~ (for class) as opposed to ~self~.
+Notice that this is an ~inline~ function so that the ~cls~ value can
+remain constant.
 
-# TODO: static methods?
+Notice that you can still call the method on the instance. However, by
+convention it seems like a good idea to distinguish class methods by
+using the Python convention of calling the first argument ~cls~ (for
+class) as opposed to ~self~.
 
 *** Metamethods & Operator Overload
 
@@ -2797,6 +2820,72 @@ be used in a protocol for various kinds of tasks.
 
 Metamethods are methods that start with a double underscore. The
 metamethod symbol must match the corresponding operators.
+
+You can define them just like methods otherwise. Here we are are
+redefining the ~repr~ of our type:
+
+#+begin_src scopes
+  type MyInt <: i32
+
+      fn __repr (self)
+          "MyInt"
+
+  let i = (MyInt 2)
+
+  print (repr i)
+#+end_src
+
+#+RESULTS:
+: MyInt
+
+**** Operator Metamethods
+
+We can also redefine operators as well, however these are a bit more
+complicated since we need to dispatch on the types.
+
+These dispatching functions typically require then returning an inline
+function corresponding to the correct type signature.
+
+In this example we are re-implementing the ~+~ operator by comparing
+the types of the inputs, ensuring they are the same, and then
+returning an inline that casts to the types underlying storage type
+and using the builtin operator for that storage type.
+
+#+begin_src scopes
+  type MyInt <: i32
+
+      inline __+ (lhs_type rhs_type)
+          static-if (lhs_type == rhs_type)
+              inline (a b)
+                  (storagecast a) + (storagecast b)
+
+  let i = (MyInt 2)
+  let j = (MyInt 3)
+
+  print (i + j)
+
+#+end_src
+
+#+RESULTS:
+: 5
+
+
+Notice that we are using ~static-if~ in this dispatch because this
+should happen statically at all the call-sites.
+
+Its a little complicated at first but obviously very powerful and a
+lot simpler than other compile-time dispatch systems like template
+metaprogramming.
+
+
+**** List of Metamethods
+
+| Metamethod | Operator | Generic? | Description                                  |
+|------------+----------+----------+----------------------------------------------|
+| ~__repr~   | ~repr~   | no       | Generate a string representation of a value. |
+| ~__+~      | ~+~      | yes      | Add two values.                              |
+
+
 *** Constructors & Destructors
 
 TODO
