@@ -2718,7 +2718,9 @@ is backed by a struct of your chosen fields.
   using import struct
   using import String
 
-  struct Dog < Struct
+  type Animal < Struct
+
+  struct Dog < Animal
       color : String
       bark : String
       height : f32
@@ -2727,10 +2729,9 @@ is backed by a struct of your chosen fields.
   let dog =
       Dog
           "yellow"
-          "woof"
+          "woof woof"
           34
           89
-
   ;
 #+end_src
 
@@ -2811,6 +2812,42 @@ Notice that you can still call the method on the instance. However, by
 convention it seems like a good idea to distinguish class methods by
 using the Python convention of calling the first argument ~cls~ (for
 class) as opposed to ~self~.
+
+**** Struct methods
+
+Structs can also have methods defined on them and can inherit them
+from super types.
+
+#+begin_src scopes
+  using import struct
+  using import String
+
+  type Animal < Struct
+
+      fn get-area (self)
+          self.height * self.length
+
+  struct Dog < Animal
+      color : String
+      bark : String
+      height : f32
+      length : f32
+
+      fn bark! (self)
+          print self.bark
+
+  let dog =
+      Dog
+          "yellow"
+          "woof woof"
+          34
+          89
+
+  'bark! dog
+  print ('get-area dog)
+
+  ;
+#+end_src
 
 *** Metamethods & Operator Overload
 
