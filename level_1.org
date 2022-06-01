@@ -1696,6 +1696,76 @@ First we can explicitly define a function with the ~fn~ syntax:
 #+RESULTS:
 : Hello: Bob
 
+Multiple arguments can be given:
+
+#+begin_src scopes :tangle _bin/functions_definitions.sc
+  fn introduce (name age)
+      print "My name age is:" name
+      print "I am " age " years old"
+
+  # and call them like you would guess
+  introduce "Bob" 34
+#+end_src
+
+#+RESULTS:
+: My name age is: Bob
+: I am  34  years old
+
+Some possibilities for organizing multiple arguments:
+
+
+Horizontally, but with a bit more space:
+
+#+begin_src scopes :tangle _bin/functions_definitions.sc
+  fn introduce
+      name age
+
+      print "My name age is:" name
+      print "I am " age " years old"
+
+  # and call them like you would guess
+  introduce "Bob" 34
+#+end_src
+
+
+Vertical layout with parens:
+
+#+begin_src scopes :tangle _bin/functions_definitions.sc
+  fn introduce (
+      name
+      age
+      )
+
+      print "My name age is:" name
+      print "I am " age " years old"
+
+  # and call them like you would guess
+  introduce "Bob" 34
+#+end_src
+
+#+RESULTS:
+: My name age is: Bob
+: I am  34  years old
+
+Vertical layout with naked notation:
+
+#+begin_src scopes :tangle _bin/functions_definitions.sc
+  fn introduce
+      name
+          age
+
+      print "My name age is:" name
+      print "I am " age " years old"
+
+  # and call them like you would guess
+  introduce "Bob" 34
+#+end_src
+
+#+RESULTS:
+: My name age is: Bob
+: I am  34  years old
+
+
 
 Functions without any arguments can be called in two ways:
 
