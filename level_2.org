@@ -2925,7 +2925,20 @@ metaprogramming.
 
 *** Constructors & Destructors
 
-TODO
+To construct a type the ~__typecall~ metamethod is used.
+
+#+begin_src scopes
+  type MyInt <: i32
+      inline __typecall (cls int)
+          super-type.__typecall cls int
+
+  let i = (MyInt 1)
+
+  print i
+#+end_src
+
+#+RESULTS:
+: 1:MyInt
 
 *** Properties
 
