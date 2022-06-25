@@ -2800,7 +2800,7 @@ Nested ~Scopes~:
           let
               retriever = "A loyal dog that fetches dead ducks."
               poodle = "A haute one, with curly locks."
-              dachsund = "Kills badgers."
+              dachsund = "Roots out badgers."
           locals;
 
 
@@ -2818,7 +2818,49 @@ Nested ~Scopes~:
 #+RESULTS:
 : A dog is a kind of quadruped.
 : A haute one, with curly locks.
-: (nullof Scope):Scope
+
+When you pass scopes into functions you might find that you get an
+error when trying to access members. This is because if you use ~fn~
+then the argument is not constant and member lookup via the ~.~
+operator only supports constants.
+
+Here is an example of how to do this and retrieving members in a
+constant manner using the ~inline~ function declaration:
+
+#+begin_src scopes
+  vvv bind config
+  do
+      let A = 3
+      locals;
+
+  inline do-stuff (conf)
+      print conf.A
+
+  do-stuff config
+
+  ;
+#+end_src
+
+The other way is to access members using non-constant methods:
+
+#+begin_src scopes
+  vvv bind config
+  do
+      let A = 3
+      locals;
+
+  fn do-stuff (conf)
+      print ('@ conf 'A)
+
+  do-stuff config
+
+  ;
+#+end_src
+
+#+RESULTS:
+: 3
+
+Both have their tradeoffs to be considered.
 
 *** Map
 
