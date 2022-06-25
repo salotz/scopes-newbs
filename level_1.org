@@ -2790,7 +2790,24 @@ Combine scopes together with ~..~:
 : A haute one, with curly locks.
 
 
-**** COMMENT More Scopes Stuff
+**** More Scopes Tricks
+
+A neat trick to remove a level of indentation from ~let-do-let~ statements
+is to use the following syntax:
+
+#+begin_src scopes
+  vvv bind config
+  do
+      let A = 3
+      locals;
+
+  print config.A
+  
+  ;
+#+end_src
+
+Explaining what ~vvv bind~ is doing is out of scope for now so just
+think of it as some syntactic sugar (which is actually it is).
 
 Nested ~Scopes~:
 
