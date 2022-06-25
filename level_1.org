@@ -2695,7 +2695,7 @@ defining some constants. This could be transformed into a
   let
       retriever = "A loyal dog that fetches dead ducks."
       poodle = "A haute one, with curly locks."
-      dachsund = "Kills badgers."
+      dachsund = "Roots out badgers."
 
   print "Variable style"
   print "retriever: " retriever
@@ -2709,7 +2709,7 @@ defining some constants. This could be transformed into a
           let
               retriever = "A loyal dog that fetches dead ducks."
               poodle = "A haute one, with curly locks."
-              dachsund = "Kills badgers."
+              dachsund = "Roots out badgers."
           locals;
 
 
@@ -2767,7 +2767,7 @@ Combine scopes together with ~..~:
           let
               retriever = "A loyal dog that fetches dead ducks."
               poodle = "A haute one, with curly locks."
-              dachsund = "Kills badgers."
+              dachsund = "Roots out badgers."
           locals;
 
   let other-breeds =
