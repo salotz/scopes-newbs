@@ -2706,6 +2706,18 @@ The same pattern holds for unique types:
 
 #+RESULTS:
 
+
+Note that simple type aliases can be achieved with ~let~ alone:
+
+#+begin_src scopes
+  let IntAlias = i32
+
+  print (IntAlias 3)
+#+end_src
+
+#+RESULTS:
+: 3
+
 **** Subtyping Struct Types
 
 Oftentimes we want to define a struct with methods etc. We can do this
