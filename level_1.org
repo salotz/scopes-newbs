@@ -1159,10 +1159,15 @@ And to add to an alist you would use cons:
 
 
 
-** Converting Values To Strings
+** String Construction & Conversions
 
-You can get the implicit "stringified" version of primitives using
-either ~tostring~ or ~repr~.
+There are a few different kinds of string conversions that can occur
+so we outline them here
+
+*** Converting Arbitrary Value Representations To Strings
+
+You can get the implicit "stringified" version of the
+*representations* of primitives using either ~tostring~ or ~repr~.
 
 #+begin_src scopes
   print (tostring 10)
@@ -1172,6 +1177,8 @@ either ~tostring~ or ~repr~.
 #+RESULTS:
 : 10
 : 10
+
+This is distinguished from *casting* of types to string.
 
 ~tostring~ give a plain kind of string whereas ~repr~ is meant for
 making it look pretty in different contexts. Here it returns the same
@@ -1184,6 +1191,50 @@ like for in logs or reporting the value on the terminal.
 
 We will see in higher levels that these two functions are hookable
 similar to the Python "magic method" protocols e.g. ~__repr__~.
+
+*** Casting C-style "char" Arrays
+
+While this is really a topic best covered in detail in Level 2, we
+will briefly introduce it here as it is useful in a few instances
+where deeper knowledge is not necessary.
+
+That is converting C-style char arrays to strings. This is very useful
+for parsing command line arguments which are supplied at the most
+basic level like this from the ~script-launch-args~ function:
+
+#+begin_src scopes :tangle _bin/cli_conversion.sc
+  let source-path argc argv = (script-launch-args)
+
+  print "source-path:" source-path (typeof source-path)
+  print "argc:" argc (typeof argc)
+  print "argv:" argv
+
+  print "argv[0]:" (typeof (argv @ 0)) (string (argv @ 0))
+  
+#+end_src
+
+#+RESULTS:
+
+If you run this script like:
+
+#+begin_src sh
+  scopes ./_bin/cli_conversion.sc Hello
+#+end_src
+
+You should see:
+
+#+begin_example
+source-path: /home/salotz/tree/personal/devel/scopes-newbs/_bin/cli_conversion.sc string
+argc: 1 i32
+argv: $riroroxesisogul:(@ (@ i8))
+argv[0]: (@ i8) Hello
+#+end_example
+
+Notice that the type of ~argv @ 0~ is ~(@ i8)~ which is a pointer to a
+"char" (8-byte sized thing) array.
+
+And here we are using the explicit ~string~ constructor to convert it
+to a string.
 
 ** Arithmetic & Mathematics
 
@@ -3940,6 +3991,31 @@ You can copy values with the ~copy~ macro:
 : b after mutating: goodbye
 : a after b is mutated: hello
 
+
+** Command Line Scripts
+
+Scopes provides a way to use things passed to a program on the command
+line. The style is more similar to C and so we don't expect all of
+this to be understood (i.e. pointers etc.). However this is something
+basic that you would probably expect to want to do:
+
+#+begin_src scopes :tangle _bin/cli_example.sc
+  let source-path argc argv = (script-launch-args)
+
+  print "source-path:" source-path
+  print "argc (number of arguments in argv):" argc
+  print "argv (the array of each string argument):" argv
+  print "argv[0] (the first string in the argument array):"  (string (argv @ 0))
+#+end_src
+
+You would run this like:
+
+#+begin_src sh
+  scopes ./_bin/cli_example.sc Hello
+#+end_src
+
+If you don't provide an argument this will segfault, which you would
+normally want to handle appropriately.
 
 ** Final Notes
 
