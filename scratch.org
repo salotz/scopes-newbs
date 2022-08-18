@@ -1,5 +1,258 @@
 * important
 
+** Function type signatures
+
+#+begin_src scopes
+  fn... test-types (thing : i32, other : f32)
+      print thing
+      print other
+
+  test-types 0 0.2
+#+end_src
+
+#+RESULTS:
+: 0
+: 0.2
+
+
+#+begin_src scopes
+  fn... test-types
+  case (thing : i32, other : f32)
+      print thing
+      print other
+
+  test-types 0 0.2
+#+end_src
+
+#+RESULTS:
+: 0
+: 0.2
+
+** borrow checker
+
+normal function signature:
+
+#+begin_src scopes
+  using import struct
+
+  struct Thing
+      i : i32
+      j : i32
+
+  fn test-views (thing1 thing2)
+      viewing thing1 thing2
+
+      print (qualifiersof thing1)
+      print (qualifiersof thing2)
+
+      # thing.i = 1
+      print thing1.i
+      print thing2.i
+
+
+  let thing1 =
+      Thing
+          0
+          1
+  let thing2 =
+      Thing
+          0
+          2
+
+  print (qualifiersof thing1)
+
+  test-views thing1 thing2
+
+#+end_src
+
+#+RESULTS:
+: (uniqueof Thing 1002)
+: (viewof Thing 1)
+: (viewof Thing 2)
+: 0
+: 0
+
+
+Overloaded function definition:
+
+#+begin_src scopes
+  using import struct
+
+  struct Thing
+      i : i32
+      j : i32
+
+  fn... test-views
+  case (thing : Thing)
+      viewing thing
+
+      print (qualifiersof thing)
+
+      print thing.i
+      print thing.j
+
+
+  let thing =
+      Thing
+          0
+          1
+
+  # (uniqueof thing -1)
+  print (qualifiersof thing)
+
+  test-views thing
+
+#+end_src
+
+
+Mutate in a function:
+
+#+begin_src scopes
+  using import struct
+
+  struct Thing
+      i : i32
+      j : i32
+
+  fn test-views (thing : Thing)
+      # viewing thing
+
+      print (qualifiersof thing)
+
+      print thing.i
+      print thing.j
+
+
+  let thing =
+      Thing
+          0
+          1
+
+  # (uniqueof thing -1)
+  print (qualifiersof thing)
+
+  test-views thing
+
+#+end_src
+
+#+RESULTS:
+
+
+Note that for inlines you don't need to declare viewing since it is a
+macro and the ownership never leaves the calling scope. But note that
+this means you can't actually pass a view into an inline.
+
+#+begin_src scopes
+  using import struct
+
+  struct Thing
+      i : i32
+      j : i32
+
+  inline test-views (thing : Thing)
+
+      # NOTE you will get some kind of error with this
+      # viewing thing
+
+      print (qualifiersof thing)
+
+      print thing.i
+      print thing.j
+
+
+  let thing =
+      Thing
+          0
+          1
+
+  # (uniqueof thing -1)
+  print (qualifiersof thing)
+
+  test-views thing
+
+#+end_src
+
+#+RESULTS:
+
+** Overloaded constructor
+
+as a classmethod
+
+#+begin_src scopes
+  using import struct
+  struct Thing
+      t : i32
+
+      inline from-config (cls t)
+          super-type.__typecall cls
+              t = t
+
+  let thing = ('from-config Thing 0)
+
+  print thing
+#+end_src
+
+#+RESULTS:
+: ConstAggregate$gobibumit:Thing
+
+as an overloaded constructor
+
+#+begin_src scopes
+  using import struct
+  struct Thing
+      t : i32
+
+      inline... __typecall
+      case (cls, t : i32)
+          super-type.__typecall cls
+              t = t
+      case (
+          cls,
+          t : i32,
+          message : string,
+      )
+
+          print message
+          super-type.__typecall cls
+              t = t
+
+  let t0 = (Thing 0)
+  let t1 = (Thing 0 "hello")
+
+  print t0.t
+  print t1.t
+
+  # let thing = ('from-config Thing 0)
+  # print thing
+#+end_src
+
+#+RESULTS:
+: hello
+: 0
+: 0
+
+** var args
+
+#+begin_src scopes
+  let x... = (_ 1 2)
+
+  print x...
+  print (va-countof x...)
+#+end_src
+
+#+RESULTS:
+: 1 2
+: 2
+
+#+begin_src scopes
+  let x... = '(1 2)
+
+  print (va-countof x...)
+#+end_src
+
+#+RESULTS:
+: 1
+
 ** Methods
 
 #+begin_src scopes
@@ -159,6 +412,119 @@ plain vs regular enum
 
 
 ** Scopes
+
+Merge 2 scopes
+
+#+begin_src scopes
+  vvv bind a
+  do
+      let thing1 = 0
+      locals;
+
+  vvv bind b
+  do
+      let thing2 = 1
+      locals;
+
+  let final = (.. a b)
+  run-stage;
+
+  print final.thing2
+  ;
+  # run-stage;
+
+  # # inline merge-scopes (scope-A scope-B)
+
+  # #     fold (scope = (Scope)) for k v in scope
+
+  # let scope1 =
+  #     fold (scope = (Scope)) for k v in a
+  #         'bind scope (k as Symbol) v
+
+
+  # run-stage;
+  # print scope1.thing1
+
+  # let scope2 =
+  #     fold (scope = scope1) for k v in b
+  #         'bind scope (k as Symbol) v
+
+  # run-stage;
+
+  # print scope2.thing1
+  # print scope2.thing2
+#+end_src
+
+#+RESULTS:
+: 1
+
+Function for two scopes:
+
+#+begin_src scopes
+  vvv bind a
+  do
+      let thing1 = 0
+      locals;
+
+  vvv bind b
+  do
+      let thing2 = 1
+      locals;
+
+  inline merge-scopes (scope_a scope_b)
+      let tmp_scope =
+          fold (scope = (Scope)) for k v in scope_a
+              'bind scope (k as Symbol) v
+
+      fold (scope = tmp_scope) for k v in scope_b
+          'bind scope (k as Symbol) v
+
+  run-stage;
+
+  let final = (merge-scopes a b)
+
+  run-stage;
+
+  print final.thing1
+  print final.thing2
+#+end_src
+
+#+RESULTS:
+: 0
+: 1
+
+
+Generalized into a function for arbitrary scopes
+
+TODO
+#+begin_src scopes
+  inline merge-scopes (scope_a scope_b)
+
+      let final =
+          for scope in '(scope_a scope_b)
+            
+
+
+  vvv bind a
+  do
+      let thing1 = 0
+      locals;
+
+  vvv bind b
+  do
+      let thing2 = 1
+      locals;
+
+  run-stage;
+
+  let final = (merge-scopes a b)
+
+  run-stage;
+
+  print final.thing1
+  print final.thing2
+  ;
+#+end_src
 
 #+begin_src scopes
 
