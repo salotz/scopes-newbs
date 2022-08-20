@@ -3,16 +3,29 @@
 ** Function type signatures
 
 #+begin_src scopes
+  fn test (thing other)
+      """"Test
+      thing
+
+  print ('docstring test)
+#+end_src
+
+#+RESULTS:
+: Test
+: 
+
+#+begin_src scopes
   fn... test-types (thing : i32, other : f32)
+      """"Test types
       print thing
       print other
 
   test-types 0 0.2
+
+  print ('docstring test-types)
 #+end_src
 
 #+RESULTS:
-: 0
-: 0.2
 
 
 #+begin_src scopes
@@ -573,6 +586,54 @@ TODO
 : 1
 : Hello
 
+
+Loop over a scope
+
+#+begin_src scopes
+  let sc =
+      do
+          let
+              x = 1
+              y = "Hello"
+          locals;
+
+  run-stage;
+
+  for k v in sc
+      print k "=" v
+
+#+end_src
+
+#+RESULTS:
+: x = 1
+: y = "Hello"
+
+Test if a symbol is in a scope
+
+#+begin_src scopes
+  let sc =
+      do
+          let
+              x = 1
+              y = "Hello"
+          locals;
+
+  run-stage;
+
+  let test_sym = 'x
+
+  local success = false
+
+  for k v in sc
+      if ((k as Symbol) == test_sym)
+          success = true
+          break;
+  print success
+#+end_src
+
+#+RESULTS:
+: true
+
 ** llvm debug GDB
 
 #+begin_src scopes
@@ -679,6 +740,10 @@ The "hidden" named inline which doesn't have a lifetime scope
 static-assert
 #+end_src
 * misc
+
+#+begin_src scopes
+  
+#+end_src
 ** dunno
 
 #+begin_src scopes
