@@ -3991,6 +3991,67 @@ You can copy values with the ~copy~ macro:
 : b after mutating: goodbye
 : a after b is mutated: hello
 
+*** Running the Interpreter (REPL) from a Module
+
+You can run the "read eval print loop" (REPL) as it is known in the
+Lisp world from inside any module like this:
+
+#+begin_src scopes
+  from (import console) let
+      read-eval-print-loop
+
+
+  let x = 3
+  let y = 4
+
+  fn hello ()
+      print "hello"
+
+  read-eval-print-loop (.. (globals) (locals)) false
+#+end_src
+
+#+RESULTS:
+
+Where the first argument is the scope that you wan't available in the
+REPL and the second argument is whether or not to print the logo.
+
+The scope you pass in probably should have the globals defined since
+that contains the language itself. In this example we also pass in the
+locally defined variables.
+
+This is very useful for writing debugging modules that allow you to
+import a bunch of symbols or perform some construction and then drop
+you into the interpreter to play around with them.
+
+You could also use this to construct an interpreter for different
+applications where you could include and exclude different parts of
+~globals~ or redefine it completely.
+
+There is also a third argument for specifying the history of the repl.
+
+#+begin_src scopes
+  from (import console) let
+      repl = read-eval-print-loop
+
+  do
+      let
+          x = 3
+          y = 4
+
+      repl
+          (.. (globals) (locals))
+          false
+          (.. module-dir "/console.history")
+
+#+end_src
+
+
+This will make a history file in the same directory as the module.
+
+Note that in this example we run the repl inside a fresh scope. You
+can use this to carefully craft the scope that is available. In this
+example the ~repl~ symbol that was imported is not passed along to the
+repl session scope unlike the first example.
 
 ** Command Line Scripts
 
@@ -4016,6 +4077,7 @@ You would run this like:
 
 If you don't provide an argument this will segfault, which you would
 normally want to handle appropriately.
+
 
 ** Final Notes
 
