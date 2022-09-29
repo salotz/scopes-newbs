@@ -2418,16 +2418,27 @@ As an addition to the primitive types above there is a useful function
 for dealing with single characters.
 
 #+begin_src scopes
-  let utf8 = (import UTF-8)
+  using import UTF-8
 
   # convert a single character string literal to a char
-  let char = (utf8.char32 "a")
+  let char = (char32 "a")
+
+
+  print (typeof char)
+  print char
+
+  # TODO: move to later section, or introduce string prefixes before
+
+  # you can also use the string prefix 'c'
+  let char = c"a"
 
   print (typeof char)
   print char
 #+end_src
 
 #+RESULTS:
+: i32
+: 97
 : i32
 : 97
 
