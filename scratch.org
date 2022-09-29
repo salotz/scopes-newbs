@@ -1,5 +1,108 @@
 * important
 
+** string prefixes
+
+
+'S' prefix automatically gives you a 'String' type, that then
+dispatches to GrowingString typically.
+
+#+begin_src scopes
+  using import String
+
+  # new way
+  let s = S"hello"
+
+  # old way
+  let s_old = (String "hello")
+
+  print s
+  print (typeof s)
+#+end_src
+
+
+Single char prefix:
+
+#+begin_src scopes
+  using import UTF-8
+
+  print c"h"
+#+end_src
+
+#+RESULTS:
+: 104
+
+str prefix for the old "string" type.
+
+#+begin_src scopes
+  let str_s = str"hello"
+  let s = "hello"
+
+  print (typeof str_s)
+  print (typeof s)
+
+  print (constant? str_s)
+  print (constant? s)
+
+
+  # print (string-constant? str_s)
+  # print (string-constant? s)
+
+  print (constant? (& str_s))
+  print (typeof (& str_s))
+#+end_src
+
+#+RESULTS:
+
+
+** zarray
+
+- for array types that are guaranteed to be zero terminated
+- string literals are zarray by default
+
+** Constant strings
+
+#+begin_src scopes
+  using import String
+
+  let cs = (sc_const_string_new "hello")
+
+  print (typeof cs)
+#+end_src
+
+#+RESULTS:
+: Value
+
+** comma operator
+
+** raw strings
+
+& should cast a constant String to zarray
+#+begin_src scopes
+  let str = "hello"
+
+  print (typeof str)
+  print (typeof &str)
+
+  using import String
+
+  let Str = (String "hello")
+
+  print (typeof &Str)
+#+end_src
+
+#+RESULTS:
+
+** string formatting
+
+#+begin_src scopes
+  using import format
+
+  print (format "Hello {}" "Bob")
+#+end_src
+
+#+RESULTS:
+: Hello  Bob
+
 ** Function type signatures
 
 #+begin_src scopes
