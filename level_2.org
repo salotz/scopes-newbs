@@ -2861,6 +2861,30 @@ from super types.
   ;
 #+end_src
 
+
+**** More on Method Calls
+
+Up until this point we have used the syntax of ~'method obj args...~
+
+*** Super Type Methods
+
+Scopes is not an object-oriented language and does not provide the
+typical inheritance features found in them, such as multiple
+inheritance.
+
+However the simple form of inheritance (which we call simply
+subtyping) is able to allow for the sharing of type methods in the
+subtypes.
+
+Here is an example of 
+
+#+begin_src scopes
+
+  type MyInt <: i32
+
+
+#+end_src
+
 *** Metamethods & Operator Overload
 
 Similar to Python types support the idea of metamethods (called magic
